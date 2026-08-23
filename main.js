@@ -28,39 +28,16 @@ document.addEventListener("DOMContentLoaded", function() {
     SoulProgress.init();
   }
 
-  /* 5. 加载配置 */
-  if (window.SoulConfig) {
-    SoulConfig.load().then(function(config) {
-      /* 6. 初始化音频播放器 */
-      if (window.SoulAudio && config.audio) {
-        var lang = window.SoulI18n ? SoulI18n.currentLang : 'en';
-        SoulAudio.init({
-          src: config.audio.src,
-          title: config.audio.title[lang] || config.audio.title.en,
-          artist: config.audio.artist,
-          autoplay: config.audio.autoplay,
-          loop: config.audio.loop,
-          volume: config.audio.volume
-        });
-      }
-
-      /* 7. 初始化配置编辑器 */
-      if (window.SoulConfigEditor) {
-        SoulConfigEditor.init();
-      }
+  /* 5. 初始化音频播放器(使用默认配置) */
+  if (window.SoulAudio) {
+    SoulAudio.init({
+      src: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3',
+      title: 'Gentle Thoughts',
+      artist: 'Soul for U',
+      autoplay: false,
+      loop: true,
+      volume: 0.7
     });
-  } else {
-    /* 如果配置加载器不存在，使用默认配置初始化音频 */
-    if (window.SoulAudio) {
-      SoulAudio.init({
-        src: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3',
-        title: 'Gentle Thoughts',
-        artist: 'Soul for U',
-        autoplay: false,
-        loop: true,
-        volume: 0.7
-      });
-    }
   }
 
   /* 8. 绑定语言切换按钮 */
@@ -75,15 +52,13 @@ document.addEventListener("DOMContentLoaded", function() {
     });
   }
 
-  /* 9. Dock 悬停逻辑:进入立即滑入,离开延迟收回 */
+  /* 7. Dock 悬停逻辑:进入立即滑入,离开延迟收回 */
   var dock = document.getElementById("dock");
   if (dock) {
     dock.addEventListener("mouseenter", function() {
       dock.classList.remove("leaving");
     });
     dock.addEventListener("mouseleave", function() {
-      /* 面板打开时由 peek 保持可见,不处理 */
-      if (document.querySelector(".config-editor")) return;
       dock.classList.add("leaving");
       setTimeout(function() {
         if (!dock.matches(":hover")) {
