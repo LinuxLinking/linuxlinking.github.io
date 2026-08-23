@@ -1,0 +1,106 @@
+{
+  "site": {
+    "title": "Soul for U",
+    "description": "A soulful page written just for you",
+    "author": "Anonymous",
+    "url": ""
+  },
+  "hero": {
+    "title": "SOUL for U",
+    "subtitle": {
+      "en": "Every soul that wanders the night is looking for another light to answer it. This page is that answer — written only for you.",
+      "zh": "每一个在夜里流浪的灵魂，都在寻找另一束回应它的光。这一页，就是那束光——只为你而写。"
+    },
+    "cta": {
+      "en": "Begin the Journey",
+      "zh": "开启旅程"
+    }
+  },
+  "about": {
+    "image": "https://images.unsplash.com/photo-1462331940025-496dfbfc7564?w=800&h=600&fit=crop",
+    "paragraphs": {
+      "en": [
+        "It is not a product. It is not even a place. It is <strong>a quiet room inside the noise</strong> — a small corner of the universe reserved for one person.",
+        "Here, time slows down. Starlight becomes language, silence becomes music, and every word you read was placed here gently, like a stone skipped across still water, hoping to reach your shore.",
+        "If you have ever felt unseen, this page exists to say: <strong>someone noticed. Someone always did.</strong>"
+      ],
+      "zh": [
+        "它不是一件商品，甚至不是一个地方。它是<strong>喧嚣中的一间静室</strong>——宇宙里专属于一个人的小小角落。",
+        "在这里，时间放慢了脚步。星光成为语言，寂静成为音乐。你读到的每一句话，都被轻轻放在这里，像一颗掠过静水的石子，只为抵达你的岸边。",
+        "如果你曾觉得自己不被看见，那么这一页存在的意义就是告诉你：<strong>有人注意到了你，一直都有的。</strong>"
+      ]
+    }
+  },
+  "gifts": [
+    {
+      "image": "https://images.unsplash.com/photo-1519681393784-d120267933ba?w=800&h=600&fit=crop",
+      "title": {
+        "en": "A Sky of Names",
+        "zh": "以你命名的星空"
+      },
+      "description": {
+        "en": "Somewhere above the clouds there is a star quietly carrying your name. It has been burning long before we met, and will keep burning after.",
+        "zh": "云层之上，有一颗星星正安静地承载着你的名字。它在相遇之前就已燃烧，也将在之后继续燃烧。"
+      }
+    },
+    {
+      "image": "https://images.unsplash.com/photo-1508610048659-a06b669e3321?w=800&h=600&fit=crop",
+      "title": {
+        "en": "A Lantern of Courage",
+        "zh": "一盏勇气之灯"
+      },
+      "description": {
+        "en": "For the nights when the world feels too heavy — may this little flame remind you that darkness is only where light chooses to rest.",
+        "zh": "当世界变得沉重、夜色漫过肩头时——愿这簇小小的火苗提醒你：黑暗，不过是光选择休息的地方。"
+      }
+    },
+    {
+      "image": "https://images.unsplash.com/photo-1526047932273-341f2a7631f9?w=800&h=600&fit=crop",
+      "title": {
+        "en": "An Unwritten Page",
+        "zh": "未写完的一页"
+      },
+      "description": {
+        "en": "The most honest gift of all: a blank page, because our story has not finished being written. The next line belongs to you.",
+        "zh": "这是最诚实的礼物：一张空白的纸。因为我们的故事尚未写完，下一行，属于你。"
+      }
+    }
+  ],
+  "whispers": {
+    "quotes": {
+      "en": [
+        "\"In a universe of a trillion galaxies, two souls chose the same tiny blue dot, at the same breath of time. Do not call that coincidence.\"",
+        "\"You are not a drop in the ocean. You are the entire ocean, folded small enough to fit inside one heartbeat.\"",
+        "\"Some people are sentences. You are punctuation — the pause that gives every story meaning.\""
+      ],
+      "zh": [
+        "「在亿万星系之中，两个灵魂在同一缕时间里，选中了同一颗微小的蓝色星球。别把那称作巧合。」",
+        "「你不是沧海之一粟。你是整片海洋，只是被折叠得足够小，刚好装进一次心跳。」",
+        "「有些人是句子，而你是标点——是那个让所有故事有了意义的停顿。」"
+      ]
+    }
+  },
+  "letter": {
+    "image": "https://images.unsplash.com/photo-1579621970563-ebec7560ff3e?w=800&h=600&fit=crop",
+    "content": {
+      "en": "Dear you,\n\nI do not know when you will read this, or who you will have become by then. Perhaps the years will have taught you armor; perhaps they will have taught you wings.\n\nEither way, I hope one thing stays unchanged — that somewhere deep inside, you still believe in gentle things: late-night conversations, unexplained kindnesses, and souls that find each other without asking why.\n\nThis whole page is my way of saying: I thought of you today.\nAnd tomorrow, probably, again.",
+      "zh": "亲爱的你：\n\n我不知道你会何时读到这封信，也不知道那时的你变成了什么模样。也许岁月教会了你铠甲，也许教会了你翅膀。\n\n无论如何，我希望有一件事从未改变——在你内心深处，你依然相信那些温柔的事物：深夜的长谈、不问缘由的善意，以及不必追问为何就能彼此找到的灵魂。\n\n这整整一页，都是我想说的话：今天，我想起了你。\n明天，大概也是。"
+    },
+    "signature": {
+      "en": "Yours, across the distance ✦",
+      "zh": "隔着山海，仍是你的 ✦"
+    }
+  },
+  "audio": {
+    "enabled": true,
+    "src": "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3",
+    "title": {
+      "en": "Gentle Thoughts",
+      "zh": "温柔的思绪"
+    },
+    "artist": "Soul for U",
+    "autoplay": false,
+    "loop": true,
+    "volume": 0.7
+  }
+}

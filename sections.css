@@ -1,0 +1,95 @@
+/* ---------- Stars ---------- */
+.stars {
+  position: fixed; inset: 0; z-index: 0; pointer-events: none;
+}
+.star {
+  position: absolute; width: 2px; height: 2px; border-radius: 50%;
+  background: #fff; opacity: .6;
+}
+
+/* ---------- Hero ---------- */
+header.hero {
+  position: relative; z-index: 1;
+  min-height: 100vh;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  text-align: center; padding: 0 8vw;
+}
+.hero-bg {
+  position: absolute; inset: 0; z-index: -1;
+  background:
+    radial-gradient(ellipse at 20% 50%, rgba(255, 158, 196, .18) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 30%, rgba(255, 185, 158, .15) 0%, transparent 45%),
+    radial-gradient(ellipse at 50% 80%, rgba(180, 100, 160, .12) 0%, transparent 50%),
+    linear-gradient(180deg, #0d0a1a 0%, #1a0f1e 30%, #25101c 60%, #180d14 100%);
+}
+.hero::after {
+  content: ""; position: absolute; inset: 0; z-index: -1;
+  background: radial-gradient(ellipse at center, transparent 30%, var(--bg) 92%);
+}
+h1.title {
+  font-size: clamp(2.6rem, 7vw, 5rem);
+  letter-spacing: .22em; font-weight: normal;
+}
+h1.title em {
+  font-style: normal; color: var(--gold);
+  text-shadow: 0 0 24px rgba(255, 185, 158, .45);
+}
+.subtitle {
+  margin-top: 22px; max-width: 560px;
+  color: var(--text-dim); font-style: italic; font-size: 1.05rem;
+}
+.cta {
+  margin-top: 44px; display: inline-block;
+  font-family: var(--font-sans);
+  text-decoration: none; color: var(--bg);
+  background: linear-gradient(135deg, var(--gold), #ff8fb3);
+  padding: 13px 38px; border-radius: 999px;
+  letter-spacing: .12em; font-size: .95rem;
+  box-shadow: 0 8px 30px rgba(255, 158, 196, .3);
+  transition: transform .25s, box-shadow .25s;
+}
+.cta:hover { transform: translateY(-3px); box-shadow: 0 14px 40px rgba(255, 158, 196, .5); }
+.cta:focus-visible {
+  outline: 2px solid var(--gold);
+  outline-offset: 3px;
+}
+.scroll-hint {
+  position: absolute; bottom: 34px; left: 50%; transform: translateX(-50%);
+  color: var(--text-dim); font-size: 1.4rem;
+}
+
+/* ---------- Sections (通用) ---------- */
+section {
+  position: relative; z-index: 1;
+  padding: var(--section-padding-v) var(--section-padding-h);
+  max-width: var(--max-width); margin: 0 auto;
+}
+.kicker {
+  font-family: var(--font-sans);
+  color: var(--accent); letter-spacing: .35em; font-size: .78rem;
+  text-transform: uppercase; margin-bottom: 14px;
+}
+h2 {
+  font-weight: normal; font-size: clamp(1.7rem, 3.6vw, 2.6rem);
+  letter-spacing: .08em; margin-bottom: 46px;
+}
+h2 b { color: var(--gold); font-weight: normal; }
+
+/* ---------- About ---------- */
+.about-grid {
+  display: grid; grid-template-columns: 1.1fr .9fr; gap: var(--grid-gap); align-items: center;
+}
+.about-text p { color: var(--text-dim); margin-bottom: 18px; }
+.about-text p strong { color: var(--text); }
+
+/* ---------- Letter Wrap ---------- */
+.letter-wrap { display: grid; grid-template-columns: .9fr 1.1fr; gap: var(--grid-gap); align-items: center; }
+
+/* ---------- Footer ---------- */
+footer.site-footer {
+  position: relative; z-index: 1;
+  text-align: center; padding: 60px 8vw 40px;
+  color: var(--text-dim); font-size: .85rem; letter-spacing: .12em;
+  border-top: 1px solid rgba(255, 255, 255, .06);
+}

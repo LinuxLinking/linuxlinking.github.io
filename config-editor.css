@@ -1,0 +1,243 @@
+/* ---------- Configuration Editor ---------- */
+/* 齿轮按钮:位于底部 dock 内,与播放器并排 */
+.config-toggle-btn {
+  width: 40px;
+  height: 40px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background: rgba(24, 13, 20, 0.8);
+  border: 1px solid var(--border);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  transition: transform .45s cubic-bezier(.34, 1.56, .64, 1), background .3s ease; /* 回弹旋转 */
+  backdrop-filter: blur(10px);
+}
+
+.config-toggle-btn:hover {
+  transform: scale(1.12) rotate(45deg); /* 悬停预转,暗示"打开设置" */
+  background: var(--accent);
+}
+
+.config-toggle-btn.active {
+  transform: rotate(180deg) scale(1.05); /* 打开面板时半旋 */
+  background: var(--accent);
+}
+
+/* Editor Panel:FLIP 从齿轮位置放大展开 */
+.config-editor {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0);
+  transition: background .4s ease .15s;
+}
+
+.config-editor.visible {
+  background: rgba(0, 0, 0, 0.7);
+}
+
+/* 面板本体:JS 计算齿轮中心 → 设置初始 transform(FLIP 的 F+I),再加类过渡到 L */
+.config-editor-panel {
+  will-change: transform, opacity;
+  opacity: 1;
+  transition:
+    transform .55s cubic-bezier(.22, 1.2, .32, 1), /* 带轻微回弹的非线性曲线 */
+    opacity .3s ease;
+}
+
+.closing .config-editor-panel {
+  transition:
+    transform .45s cubic-bezier(.55, 0, .68, .19), /* 收回加速,先快后慢落回原点 */
+    opacity .35s ease .1s;
+}
+
+.config-editor-header {
+  background: var(--bg-soft);
+  padding: 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid var(--border);
+}
+
+.config-editor-header h2 {
+  margin: 0;
+  font-size: 1.2rem;
+  color: var(--text);
+  letter-spacing: 0.1em;
+}
+
+.config-close-btn {
+  background: none;
+  border: none;
+  color: var(--text-dim);
+  font-size: 24px;
+  cursor: pointer;
+  padding: 0;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.3s ease;
+}
+
+.config-close-btn:hover {
+  color: var(--accent);
+}
+
+.config-editor-panel {
+  background: var(--bg-soft);
+  width: 90%;
+  max-width: 500px;
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+  border: 1px solid var(--border);
+  overflow: hidden; /* header 圆角裁切,body 自行滚动 */
+}
+
+.config-editor-body {
+  padding: 20px;
+  overflow-y: auto;
+  max-height: calc(80vh - 69px); /* 减去 header 高度,整体不超屏 */
+}
+
+.config-section {
+  margin-bottom: 25px;
+}
+
+.config-section h3 {
+  margin: 0 0 15px 0;
+  font-size: 0.9rem;
+  color: var(--accent);
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+}
+
+.config-field {
+  margin-bottom: 15px;
+}
+
+.config-field label {
+  display: block;
+  margin-bottom: 5px;
+  font-size: 0.85rem;
+  color: var(--text-dim);
+  font-family: var(--font-sans);
+}
+
+.config-field input[type="text"],
+.config-field input[type="url"],
+.config-field textarea {
+  width: 100%;
+  padding: 10px 12px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  color: var(--text);
+  font-family: var(--font-serif);
+  font-size: 0.9rem;
+  transition: all 0.3s ease;
+}
+
+.config-field input[type="text"]:focus,
+.config-field input[type="url"]:focus,
+.config-field textarea:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px rgba(255, 158, 196, 0.2);
+}
+
+.config-field textarea {
+  resize: vertical;
+  min-height: 60px;
+}
+
+.config-field input[type="checkbox"] {
+  margin-right: 8px;
+}
+
+.config-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.config-btn {
+  flex: 1;
+  padding: 10px 16px;
+  border: none;
+  border-radius: 6px;
+  font-family: var(--font-sans);
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.config-btn.primary {
+  background: var(--accent);
+  color: var(--bg);
+}
+
+.config-btn.primary:hover {
+  background: var(--gold);
+}
+
+.config-btn.secondary {
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--text-dim);
+  border: 1px solid var(--border);
+}
+
+.config-btn.secondary:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+/* Notification */
+.config-notification {
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%) translateY(100px);
+  padding: 12px 24px;
+  background: var(--bg-soft);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: var(--text);
+  font-family: var(--font-sans);
+  font-size: 0.85rem;
+  z-index: 1001;
+  opacity: 0;
+  transition: all 0.3s ease;
+}
+
+.config-notification.show {
+  transform: translateX(-50%) translateY(0);
+  opacity: 1;
+}
+
+.config-notification.success {
+  border-color: #4CAF50;
+}
+
+.config-notification.error {
+  border-color: #f44336;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .config-editor-panel {
+    width: 95%;
+  }
+
+  .config-editor-body {
+    max-height: calc(90vh - 69px);
+  }
+}

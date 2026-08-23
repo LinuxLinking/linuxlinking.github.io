@@ -1,0 +1,23 @@
+:root {
+  /* 色彩系统 */
+  --bg: #180d14;
+  --bg-soft: #25121c;
+  --text: #fdeef3;
+  --text-dim: #d6a3b6;
+  --accent: #ff9ec4;
+  --accent-strong: #f26a9d;
+  --gold: #ffb99e;
+  --card: rgba(255, 240, 246, .05);
+  --border: rgba(255, 158, 196, .28);
+
+  /* 字体系统 */
+  --font-serif: "Georgia", "Songti SC", "SimSun", serif;
+  --font-sans: "Helvetica Neue", Arial, "Microsoft YaHei", sans-serif;
+
+  /* 间距系统 */
+  --section-padding-v: 110px;
+  --section-padding-h: 8vw;
+  --max-width: 1200px;
+  --card-gap: 26px;
+  --grid-gap: 56px;
+}

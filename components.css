@@ -1,0 +1,100 @@
+/* ---------- Nav ---------- */
+nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 10;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 18px 6vw;
+  backdrop-filter: blur(12px);
+  background: rgba(24, 13, 20, .55);
+  border-bottom: 1px solid rgba(255, 255, 255, .06);
+}
+
+/* ---------- Progress Bar ---------- */
+.progress-bar {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: rgba(255, 255, 255, .06);
+}
+
+.progress-bar-fill {
+  height: 100%;
+  width: 0;
+  background: linear-gradient(90deg, var(--accent), var(--gold));
+  transition: width 0.1s ease;
+}
+.logo {
+  font-size: 1.25rem; letter-spacing: .18em; color: var(--gold);
+  text-decoration: none; font-weight: bold;
+}
+.logo span { color: var(--accent); }
+.nav-links { display: flex; align-items: center; gap: 28px; }
+.nav-links a {
+  color: var(--text-dim); text-decoration: none; font-size: .95rem;
+  letter-spacing: .08em; transition: color .25s;
+  font-family: var(--font-sans);
+}
+.nav-links a:hover { color: var(--gold); }
+.lang-switch {
+  cursor: pointer; user-select: none;
+  font-family: var(--font-sans);
+  border: 1px solid var(--border); color: var(--accent);
+  padding: 6px 14px; border-radius: 999px; font-size: .85rem;
+  transition: all .25s;
+}
+.lang-switch:hover { background: rgba(179, 157, 219, .12); }
+.lang-switch:focus-visible {
+  outline: 2px solid var(--gold);
+  outline-offset: 3px;
+}
+.nav-links a:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+
+/* ---------- Cards ---------- */
+.cards {
+  display: grid; gap: var(--card-gap);
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+}
+.card {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: 16px; overflow: hidden;
+  transition: transform .3s, box-shadow .3s;
+}
+.card:hover { transform: translateY(-8px); box-shadow: 0 18px 44px rgba(242, 106, 157, .3); }
+.card img { width: 100%; height: 190px; object-fit: cover; display: block; }
+.card-body { padding: 24px; }
+.card-body h3 { font-weight: normal; color: var(--gold); margin-bottom: 10px; letter-spacing: .06em; }
+.card-body p { color: var(--text-dim); font-size: .95rem; }
+
+/* ---------- Quotes ---------- */
+blockquote {
+  border-left: 2px solid var(--accent-strong);
+  padding: 8px 0 8px 26px; margin-bottom: 34px; max-width: 720px;
+}
+blockquote p { font-style: italic; font-size: 1.15rem; }
+blockquote footer { color: var(--text-dim); margin-top: 10px; font-size: .9rem; letter-spacing: .1em; }
+
+/* ---------- Letter Card ---------- */
+.letter {
+  background: linear-gradient(160deg, rgba(255, 185, 158, .08), rgba(255, 158, 196, .07));
+  border: 1px solid var(--border); border-radius: 18px; padding: 42px 38px;
+  position: relative;
+}
+.letter::before {
+  content: "\2766"; position: absolute; top: -18px; left: 32px;
+  font-size: 2rem; color: var(--gold);
+}
+.letter p { color: var(--text-dim); margin-bottom: 16px; white-space: pre-line; }
+.letter p:last-child { margin-bottom: 0; text-align: right; color: var(--gold); font-style: italic; }
+
+/* ---------- Image Frame ---------- */
+.about-img {
+  border-radius: 18px; overflow: hidden;
+  border: 1px solid var(--border);
+  box-shadow: 0 20px 60px rgba(242, 106, 157, .18);
+  transform: rotate(1.5deg);
+}
+.about-img img { display: block; width: 100%; height: auto; }

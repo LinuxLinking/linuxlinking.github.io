@@ -1,0 +1,31 @@
+/* 移动端默认：单栏布局 */
+
+/* 480px+ 小屏手机 */
+@media (min-width: 480px) {
+  .cards { grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); }
+}
+
+/* 768px+ 平板 */
+@media (min-width: 768px) {
+  .about-grid,
+  .letter-wrap { grid-template-columns: 1fr 1fr; }
+  .nav-links a { display: inline; }
+}
+
+/* 1024px+ 桌面 */
+@media (min-width: 1024px) {
+  section {
+    padding: var(--section-padding-v) var(--section-padding-h);
+  }
+}
+
+/* 1200px+ 大屏 */
+@media (min-width: 1200px) {
+  section { max-width: var(--max-width); }
+}
+
+/* 原型断点兼容：860px 以下隐藏导航链接 */
+@media (max-width: 860px) {
+  .about-grid, .letter-wrap { grid-template-columns: 1fr; }
+  .nav-links a:not(:last-child) { display: none; }
+}

@@ -1,0 +1,109 @@
+/* ---------- Loading Screen ---------- */
+.loader-screen {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg);
+  transition: opacity 0.6s ease, visibility 0.6s ease;
+}
+
+.loader-screen.hidden {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.loader-content {
+  text-align: center;
+}
+
+.loader-title {
+  font-family: var(--font-serif);
+  font-size: 2.5rem;
+  letter-spacing: 0.22em;
+  color: var(--text);
+  margin-bottom: 30px;
+  opacity: 0;
+  animation: loaderFadeIn 0.8s ease 0.2s forwards;
+}
+
+.loader-title em {
+  font-style: normal;
+  color: var(--gold);
+  text-shadow: 0 0 24px rgba(255, 185, 158, .45);
+}
+
+/* 加载进度条 */
+.loader-progress {
+  width: 200px;
+  height: 2px;
+  background: rgba(255, 255, 255, .1);
+  border-radius: 1px;
+  overflow: hidden;
+  margin: 0 auto;
+  opacity: 0;
+  animation: loaderFadeIn 0.8s ease 0.4s forwards;
+}
+
+.loader-progress-bar {
+  height: 100%;
+  width: 0;
+  background: linear-gradient(90deg, var(--accent), var(--gold));
+  border-radius: 1px;
+  transition: width 0.3s ease;
+}
+
+/* 加载文字 */
+.loader-text {
+  font-family: var(--font-sans);
+  font-size: 0.85rem;
+  color: var(--text-dim);
+  letter-spacing: 0.15em;
+  margin-top: 20px;
+  opacity: 0;
+  animation: loaderFadeIn 0.8s ease 0.6s forwards;
+}
+
+@keyframes loaderFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* 装饰性星星 */
+.loader-stars {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.loader-star {
+  position: absolute;
+  width: 2px;
+  height: 2px;
+  background: #fff;
+  border-radius: 50%;
+  opacity: 0;
+  animation: loaderStarTwinkle 2s ease-in-out infinite;
+}
+
+@keyframes loaderStarTwinkle {
+  0%, 100% {
+    opacity: 0;
+    transform: scale(0.5);
+  }
+  50% {
+    opacity: 0.6;
+    transform: scale(1);
+  }
+}
