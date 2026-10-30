@@ -279,6 +279,134 @@
       "path": "blog/"
     },
     {
+      "id": "post-harness-guard",
+      "kind": "blog",
+      "order": 8.1,
+      "size": 0.62,
+      "monogram": "守",
+      "accent": ["#3ddc97", "#2f9bd6"],
+      "year": "2026",
+      "stack": [],
+      "title": {
+        "zh": "小模型不可信，守卫必须是代码",
+        "en": "Distrust the Model, Encode the Guard"
+      },
+      "label": {
+        "zh": "守卫设计",
+        "en": "Guard Design"
+      },
+      "tagline": {
+        "zh": "Local Ollama Harness：把 3B 模型的每种失败模式，变成守卫里的一条确定性规则。",
+        "en": "Local Ollama Harness: turn every 3B failure mode into a deterministic guard rule."
+      },
+      "summary": {
+        "zh": "Local Ollama Harness：把 3B 模型的每种失败模式，变成守卫里的一条确定性规则。",
+        "en": "Local Ollama Harness: turn every 3B failure mode into a deterministic guard rule."
+      },
+      "highlights": {
+        "zh": [],
+        "en": []
+      },
+      "repo": null,
+      "path": "blog/harness-guard-design/"
+    },
+    {
+      "id": "post-why-runtime",
+      "kind": "blog",
+      "order": 8.2,
+      "size": 0.62,
+      "monogram": "链",
+      "accent": ["#7c5cff", "#3ad0ff"],
+      "year": "2026",
+      "stack": [],
+      "title": {
+        "zh": "为什么我不做 Agent，而做一层 Runtime",
+        "en": "Why a Runtime, Not Another Agent Framework"
+      },
+      "label": {
+        "zh": "一层 Runtime",
+        "en": "A Runtime"
+      },
+      "tagline": {
+        "zh": "Intent OS：意图编译成带验收标准的计划，副作用过审批闸门，回执进哈希链。",
+        "en": "Intent OS: compile intent into plans with acceptance criteria, gate side effects, hash-chain the receipts."
+      },
+      "summary": {
+        "zh": "Intent OS：意图编译成带验收标准的计划，副作用过审批闸门，回执进哈希链。",
+        "en": "Intent OS: compile intent into plans with acceptance criteria, gate side effects, hash-chain the receipts."
+      },
+      "highlights": {
+        "zh": [],
+        "en": []
+      },
+      "repo": null,
+      "path": "blog/why-runtime-not-agent/"
+    },
+    {
+      "id": "post-milkdown-webview",
+      "kind": "blog",
+      "order": 8.3,
+      "size": 0.62,
+      "monogram": "桥",
+      "accent": ["#6f7bff", "#b06bff"],
+      "year": "2026",
+      "stack": [],
+      "title": {
+        "zh": "把 Milkdown 塞进 WebView：混血编辑器的取舍",
+        "en": "Milkdown in a WebView: Trade-offs of a Hybrid Editor"
+      },
+      "label": {
+        "zh": "混血编辑器",
+        "en": "Hybrid Editor"
+      },
+      "tagline": {
+        "zh": "Mdeditor：Flutter 壳 + Milkdown + 一条桥，四个决定及其代价。",
+        "en": "Mdeditor: a Flutter shell, Milkdown, one bridge — four decisions and their costs."
+      },
+      "summary": {
+        "zh": "Mdeditor：Flutter 壳 + Milkdown + 一条桥，四个决定及其代价。",
+        "en": "Mdeditor: a Flutter shell, Milkdown, one bridge — four decisions and their costs."
+      },
+      "highlights": {
+        "zh": [],
+        "en": []
+      },
+      "repo": null,
+      "path": "blog/milkdown-in-webview/"
+    },
+    {
+      "id": "post-model-cage",
+      "kind": "blog",
+      "order": 8.4,
+      "size": 0.62,
+      "monogram": "笼",
+      "accent": ["#ff6b8b", "#a855f7"],
+      "year": "2026",
+      "stack": [],
+      "title": {
+        "zh": "给一个不太可信的模型造笼子",
+        "en": "A Cage for One Untrusted Model"
+      },
+      "label": {
+        "zh": "造笼子",
+        "en": "The Cage"
+      },
+      "tagline": {
+        "zh": "Lockdown：代码管必然，人管例外，模型管灰区——只锁一个不太可信的模型。",
+        "en": "Lockdown: code handles the certain, humans the exceptions, a model the gray zone — one untrusted model."
+      },
+      "summary": {
+        "zh": "Lockdown：代码管必然，人管例外，模型管灰区——只锁一个不太可信的模型。",
+        "en": "Lockdown: code handles the certain, humans the exceptions, a model the gray zone — one untrusted model."
+      },
+      "highlights": {
+        "zh": [],
+        "en": []
+      },
+      "repo": null,
+      "path": "blog/cage-for-a-model/"
+    },
+    {
       "id": "soul-for-u",
       "kind": "moon",
       "order": 9,
