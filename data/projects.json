@@ -6,11 +6,25 @@
       "order": 1,
       "size": 1.0,
       "monogram": "IO",
-      "accent": ["#7c5cff", "#3ad0ff"],
+      "accent": [
+        "#7c5cff",
+        "#3ad0ff"
+      ],
       "year": "2026",
-      "stack": ["Python", "LangGraph", "MCP", "Ollama"],
-      "title": { "zh": "Intent OS", "en": "Intent OS" },
-      "label": { "zh": "Intent OS", "en": "Intent OS" },
+      "stack": [
+        "Python",
+        "LangGraph",
+        "MCP",
+        "Ollama"
+      ],
+      "title": {
+        "zh": "Intent OS",
+        "en": "Intent OS"
+      },
+      "label": {
+        "zh": "Intent OS",
+        "en": "Intent OS"
+      },
       "tagline": {
         "zh": "把意图编译成可验证、可回滚的执行链",
         "en": "Compiling intent into verifiable, rollback-safe chains"
@@ -42,11 +56,25 @@
       "order": 2,
       "size": 0.85,
       "monogram": "JV",
-      "accent": ["#ffb35c", "#ff6b4a"],
+      "accent": [
+        "#ffb35c",
+        "#ff6b4a"
+      ],
       "year": "2026",
-      "stack": ["Batch", "Windows", "Java", "MCP"],
-      "title": { "zh": "JEnv for Windows", "en": "JEnv for Windows" },
-      "label": { "zh": "JEnv", "en": "JEnv" },
+      "stack": [
+        "Batch",
+        "Windows",
+        "Java",
+        "MCP"
+      ],
+      "title": {
+        "zh": "JEnv for Windows",
+        "en": "JEnv for Windows"
+      },
+      "label": {
+        "zh": "JEnv",
+        "en": "JEnv"
+      },
       "tagline": {
         "zh": "用纯批处理按名字切换 JDK",
         "en": "Switching JDKs by name, in pure batch"
@@ -78,11 +106,24 @@
       "order": 3,
       "size": 0.85,
       "monogram": "ML",
-      "accent": ["#ff6b8b", "#a855f7"],
+      "accent": [
+        "#ff6b8b",
+        "#a855f7"
+      ],
       "year": "2026",
-      "stack": ["Python", "Claude Code Hook", "LLM Security"],
-      "title": { "zh": "MiniMax Lockdown", "en": "MiniMax Lockdown" },
-      "label": { "zh": "Lockdown", "en": "Lockdown" },
+      "stack": [
+        "Python",
+        "Claude Code Hook",
+        "LLM Security"
+      ],
+      "title": {
+        "zh": "MiniMax Lockdown",
+        "en": "MiniMax Lockdown"
+      },
+      "label": {
+        "zh": "Lockdown",
+        "en": "Lockdown"
+      },
       "tagline": {
         "zh": "只锁一个不太可信的模型",
         "en": "A cage for one untrusted model"
@@ -114,11 +155,25 @@
       "order": 4,
       "size": 0.85,
       "monogram": "OH",
-      "accent": ["#3ddc97", "#2f9bd6"],
+      "accent": [
+        "#3ddc97",
+        "#2f9bd6"
+      ],
       "year": "2026",
-      "stack": ["Python", "Ollama", "uv", "REPL"],
-      "title": { "zh": "Local Ollama Harness", "en": "Local Ollama Harness" },
-      "label": { "zh": "Harness", "en": "Harness" },
+      "stack": [
+        "Python",
+        "Ollama",
+        "uv",
+        "REPL"
+      ],
+      "title": {
+        "zh": "Local Ollama Harness",
+        "en": "Local Ollama Harness"
+      },
+      "label": {
+        "zh": "Harness",
+        "en": "Harness"
+      },
       "tagline": {
         "zh": "终端里的本地代码助手",
         "en": "A local coding assistant in your terminal"
@@ -150,11 +205,25 @@
       "order": 5,
       "size": 0.85,
       "monogram": "MD",
-      "accent": ["#6f7bff", "#b06bff"],
+      "accent": [
+        "#6f7bff",
+        "#b06bff"
+      ],
       "year": "2026",
-      "stack": ["Flutter", "Milkdown", "WebView", "Android SAF"],
-      "title": { "zh": "Mdeditor", "en": "Mdeditor" },
-      "label": { "zh": "Mdeditor", "en": "Mdeditor" },
+      "stack": [
+        "Flutter",
+        "Milkdown",
+        "WebView",
+        "Android SAF"
+      ],
+      "title": {
+        "zh": "Mdeditor",
+        "en": "Mdeditor"
+      },
+      "label": {
+        "zh": "Mdeditor",
+        "en": "Mdeditor"
+      },
       "tagline": {
         "zh": "Android 上的 Markdown 编辑器",
         "en": "A Markdown editor for Android"
@@ -186,11 +255,24 @@
       "order": 6,
       "size": 0.85,
       "monogram": "OC",
-      "accent": ["#38d3f5", "#7c5cff"],
+      "accent": [
+        "#38d3f5",
+        "#7c5cff"
+      ],
       "year": "2026",
-      "stack": ["Python", "PaddleOCR", "MCP"],
-      "title": { "zh": "OCR MCP", "en": "OCR MCP" },
-      "label": { "zh": "OCR MCP", "en": "OCR MCP" },
+      "stack": [
+        "Python",
+        "PaddleOCR",
+        "MCP"
+      ],
+      "title": {
+        "zh": "OCR MCP",
+        "en": "OCR MCP"
+      },
+      "label": {
+        "zh": "OCR MCP",
+        "en": "OCR MCP"
+      },
       "tagline": {
         "zh": "给 agent 用的 OCR 工具服务",
         "en": "OCR as an MCP service for agents"
@@ -220,13 +302,27 @@
       "id": "site",
       "kind": "project",
       "order": 7,
-      "size": 0.7,
+      "size": 0.85,
       "monogram": "LL",
-      "accent": ["#5aa8ff", "#8ee6ff"],
+      "accent": [
+        "#5aa8ff",
+        "#8ee6ff"
+      ],
       "year": "2026",
-      "stack": ["HTML", "CSS", "ES Modules", "Canvas"],
-      "title": { "zh": "linuxlinking.github.io", "en": "linuxlinking.github.io" },
-      "label": { "zh": "This Site", "en": "This Site" },
+      "stack": [
+        "HTML",
+        "CSS",
+        "ES Modules",
+        "Canvas"
+      ],
+      "title": {
+        "zh": "linuxlinking.github.io",
+        "en": "linuxlinking.github.io"
+      },
+      "label": {
+        "zh": "This Site",
+        "en": "This Site"
+      },
       "tagline": {
         "zh": "你正在看的这个站",
         "en": "The site you are looking at"
@@ -256,13 +352,22 @@
       "id": "blog",
       "kind": "blog",
       "order": 8,
-      "size": 0.7,
+      "size": 0.85,
       "monogram": "W",
-      "accent": ["#c8a2ff", "#6f7bff"],
+      "accent": [
+        "#c8a2ff",
+        "#6f7bff"
+      ],
       "year": "",
       "stack": [],
-      "title": { "zh": "文字", "en": "Writing" },
-      "label": { "zh": "Writing", "en": "Writing" },
+      "title": {
+        "zh": "文字",
+        "en": "Writing"
+      },
+      "label": {
+        "zh": "Writing",
+        "en": "Writing"
+      },
       "tagline": {
         "zh": "开始写了",
         "en": "Now writing"
@@ -282,9 +387,12 @@
       "id": "post-harness-guard",
       "kind": "blog",
       "order": 8.1,
-      "size": 0.62,
+      "size": 0.85,
       "monogram": "守",
-      "accent": ["#3ddc97", "#2f9bd6"],
+      "accent": [
+        "#3ddc97",
+        "#2f9bd6"
+      ],
       "year": "2026",
       "stack": [],
       "title": {
@@ -314,9 +422,12 @@
       "id": "post-why-runtime",
       "kind": "blog",
       "order": 8.2,
-      "size": 0.62,
+      "size": 0.85,
       "monogram": "链",
-      "accent": ["#7c5cff", "#3ad0ff"],
+      "accent": [
+        "#7c5cff",
+        "#3ad0ff"
+      ],
       "year": "2026",
       "stack": [],
       "title": {
@@ -346,9 +457,12 @@
       "id": "post-milkdown-webview",
       "kind": "blog",
       "order": 8.3,
-      "size": 0.62,
+      "size": 0.85,
       "monogram": "桥",
-      "accent": ["#6f7bff", "#b06bff"],
+      "accent": [
+        "#6f7bff",
+        "#b06bff"
+      ],
       "year": "2026",
       "stack": [],
       "title": {
@@ -378,9 +492,12 @@
       "id": "post-model-cage",
       "kind": "blog",
       "order": 8.4,
-      "size": 0.62,
+      "size": 0.85,
       "monogram": "笼",
-      "accent": ["#ff6b8b", "#a855f7"],
+      "accent": [
+        "#ff6b8b",
+        "#a855f7"
+      ],
       "year": "2026",
       "stack": [],
       "title": {
@@ -410,13 +527,22 @@
       "id": "soul-for-u",
       "kind": "moon",
       "order": 9,
-      "size": 0.7,
+      "size": 0.85,
       "monogram": "☾",
-      "accent": ["#ffe6a3", "#ffb86b"],
+      "accent": [
+        "#ffe6a3",
+        "#ffb86b"
+      ],
       "year": "2026",
       "stack": [],
-      "title": { "zh": "Soul for U", "en": "Soul for U" },
-      "label": { "zh": "Soul for U", "en": "Soul for U" },
+      "title": {
+        "zh": "Soul for U",
+        "en": "Soul for U"
+      },
+      "label": {
+        "zh": "Soul for U",
+        "en": "Soul for U"
+      },
       "tagline": {
         "zh": "写给一个人的页面",
         "en": "A page written for one person"
