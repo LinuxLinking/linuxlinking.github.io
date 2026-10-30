@@ -1,4 +1,4 @@
-import { createHoneycomb } from "./honeycomb.js?v=hex1";
+import { createHoneycomb } from "./honeycomb.js?v=hex3";
 import { createI18n, loadStrings, resolveLang } from "./i18n.js";
 import { renderList } from "./list.js";
 import { startStarfield } from "./starfield.js";
