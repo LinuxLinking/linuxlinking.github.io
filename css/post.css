@@ -1,0 +1,264 @@
+.post-wrap {
+  position: relative;
+  z-index: 2;
+  width: min(760px, 100%);
+  margin: 0 auto;
+  padding: calc(var(--topbar-h) + 54px) clamp(18px, 5vw, 32px) 120px;
+  animation: post-in 0.6s var(--ease) both;
+}
+
+@keyframes post-in {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+}
+
+.post-kicker {
+  margin: 0 0 10px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  color: var(--fg-faint);
+}
+
+.post-wrap h1 {
+  margin: 0 0 14px;
+  font-size: clamp(26px, 5.4vw, 40px);
+  font-weight: 600;
+  letter-spacing: -0.015em;
+  line-height: 1.18;
+}
+
+.post-lede {
+  margin: 0 0 40px;
+  color: var(--fg-dim);
+  font-size: 14.5px;
+  line-height: 1.85;
+  padding-bottom: 28px;
+  border-bottom: 1px solid var(--line-soft);
+}
+
+/* ---- 正文排版 ---- */
+
+.post-body {
+  font-size: 15px;
+  line-height: 2;
+  color: rgba(232, 236, 246, 0.88);
+}
+
+.post-body h2 {
+  margin: 44px 0 14px;
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--fg-dim);
+}
+
+.post-body h3 {
+  margin: 30px 0 10px;
+  font-size: 17px;
+  font-weight: 550;
+  letter-spacing: -0.005em;
+  color: rgba(240, 243, 250, 0.94);
+}
+
+.post-body p {
+  margin: 0 0 16px;
+}
+
+.post-body strong {
+  color: rgba(240, 243, 250, 0.96);
+  font-weight: 600;
+}
+
+.post-body a {
+  color: var(--fg);
+  text-decoration: underline;
+  text-decoration-color: var(--line);
+  text-underline-offset: 3px;
+  transition: text-decoration-color 0.2s var(--ease);
+}
+
+.post-body a:hover {
+  text-decoration-color: var(--fg-dim);
+}
+
+.post-body ul,
+.post-body ol {
+  margin: 0 0 16px;
+  padding-left: 22px;
+}
+
+.post-body li {
+  margin-bottom: 7px;
+}
+
+.post-body li::marker {
+  color: var(--fg-faint);
+  font-family: var(--font-mono);
+  font-size: 12px;
+}
+
+/* 行内代码 */
+
+.post-body code {
+  font-family: var(--font-mono);
+  font-size: 0.86em;
+  padding: 2px 7px;
+  border-radius: 6px;
+  border: 1px solid var(--line-soft);
+  background: rgba(255, 255, 255, 0.04);
+  color: rgba(226, 232, 244, 0.94);
+  white-space: nowrap;
+}
+
+/* 代码块 */
+
+.post-body pre {
+  margin: 20px 0 22px;
+  padding: 18px 20px;
+  border-radius: 14px;
+  border: 1px solid var(--line);
+  background: rgba(6, 8, 14, 0.72);
+  overflow-x: auto;
+  line-height: 1.7;
+}
+
+.post-body pre code {
+  padding: 0;
+  border: 0;
+  background: none;
+  white-space: pre;
+  font-size: 12.5px;
+  color: rgba(210, 220, 238, 0.9);
+}
+
+/* 图 / ASCII 示意 */
+
+.post-body .fig {
+  margin: 22px 0 24px;
+  padding: 18px 16px;
+  border: 1px dashed var(--line);
+  border-radius: 14px;
+  overflow-x: auto;
+  text-align: center;
+}
+
+.post-body .fig pre {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+}
+
+.post-body .fig code {
+  font-size: 11.5px;
+  letter-spacing: 0.04em;
+  color: var(--fg-dim);
+  white-space: pre;
+}
+
+.post-body .fig figcaption {
+  margin-top: 10px;
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  color: var(--fg-faint);
+}
+
+/* 引言 */
+
+.post-body blockquote {
+  margin: 22px 0;
+  padding: 4px 0 4px 18px;
+  border-left: 2px solid var(--line);
+  color: var(--fg-dim);
+  font-size: 14px;
+  line-height: 1.9;
+}
+
+/* 结尾 */
+
+.post-foot {
+  margin-top: 52px;
+  padding-top: 24px;
+  border-top: 1px solid var(--line-soft);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.post-foot .btn {
+  font-size: 12.5px;
+  padding: 9px 15px;
+}
+
+/* ---- Markdown 渲染补充 ---- */
+
+.post-body.md > *:first-child {
+  margin-top: 0;
+}
+
+.post-body hr {
+  margin: 34px 0;
+  border: 0;
+  border-top: 1px solid var(--line-soft);
+}
+
+/* 表格 */
+
+.post-body table {
+  margin: 20px 0 24px;
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13.5px;
+  line-height: 1.7;
+}
+
+.post-body th,
+.post-body td {
+  padding: 9px 12px;
+  border: 1px solid var(--line);
+  text-align: left;
+  vertical-align: top;
+}
+
+.post-body th {
+  font-weight: 550;
+  background: rgba(255, 255, 255, 0.035);
+  color: rgba(240, 243, 250, 0.94);
+}
+
+.post-body td {
+  color: rgba(226, 232, 244, 0.86);
+}
+
+/* Mermaid 图表容器 */
+
+.post-body .md-mermaid {
+  margin: 24px 0 26px;
+  padding: 20px 16px;
+  border: 1px dashed var(--line);
+  border-radius: 14px;
+  overflow-x: auto;
+  text-align: center;
+}
+
+.post-body .md-mermaid svg {
+  max-width: 100%;
+  height: auto;
+}
+
+.post-body .md-mermaid-fail {
+  opacity: 0.75;
+}
+
+.post-body .md-mermaid-note {
+  margin: -14px 0 24px;
+  font-size: 11.5px;
+  letter-spacing: 0.08em;
+  color: var(--fg-faint);
+}

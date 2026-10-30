@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<!--
+  Markdown 文章壳。发布一篇新文章的步骤：
+  1. 建目录 blog/<slug>/，把本文件原样复制为 blog/<slug>/index.html（无需改动任何内容）
+  2. 同目录放 post.md：开头用 front matter 声明元数据，正文写 Markdown：
+
+       ---
+       title: 文章标题
+       date: 2026-10-31
+       tag: 项目标签（可选）
+       lede: 一两句话的导读（可选）
+       ---
+
+       正文……
+
+     图表直接写 ```mermaid 代码块，页面会惰性加载本地 mermaid 渲染（约 2.6MB，首次较慢）。
+  3. 在 data/posts.json 的 posts 数组里加一条记录（slug / date / title 双语 / summary 双语 / url）。
+
+  注意：本壳假定文章位于 blog/<slug>/ 这一层级（资源用 ../../ 前缀）。
+  纯 HTML 老模板见 blog/_template.html，新文章请一律走 Markdown。
+-->
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#05060a">
+<meta name="description" content="文章">
+<title>文章 · 钟闪闪</title>
+<link rel="icon" href="../../assets/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="../../css/base.css">
+<link rel="stylesheet" href="../../css/post.css">
+</head>
+<body class="page-post">
+
+<canvas id="stars" class="stars" aria-hidden="true"></canvas>
+<div class="vignette" aria-hidden="true"></div>
+
+<header class="topbar">
+  <a class="brand" href="../../" aria-label="Home">
+    <span class="brand-mark" aria-hidden="true">Z</span>
+    <span class="brand-name" data-i18n="brand">钟闪闪</span>
+  </a>
+  <div class="topbar-actions">
+    <div class="segmented" role="group" data-i18n-aria="a11y.lang">
+      <button class="seg" type="button" data-lang-btn="zh" lang="zh">中</button>
+      <button class="seg" type="button" data-lang-btn="en" lang="en">EN</button>
+    </div>
+    <a class="chip" href="../../blog/">返回蜂窝</a>
+  </div>
+</header>
+
+<main class="post-wrap">
+  <p class="post-kicker" id="post-kicker"></p>
+  <h1 id="post-title"></h1>
+  <p class="post-lede" id="post-lede" hidden></p>
+
+  <article class="post-body md" id="post-body"></article>
+
+  <div class="post-foot">
+    <a class="btn" href="../../blog/">← 更多文字</a>
+    <a class="btn" href="../../">返回蜂窝</a>
+  </div>
+</main>
+
+<footer class="foot">
+  <span>© 2026 <span data-i18n="brand">钟闪闪</span></span>
+  <span class="sep">·</span>
+  <a href="../../soul-for-u/">Soul for U ↗</a>
+  <span class="sep">·</span>
+  <a href="https://github.com/LinuxLinking" target="_blank" rel="noopener">GitHub ↗</a>
+</footer>
+
+<script type="module" src="../../js/post.js"></script>
+</body>
+</html>
