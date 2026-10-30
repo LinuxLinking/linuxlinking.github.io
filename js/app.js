@@ -14,6 +14,24 @@ const langButtons = Array.from(document.querySelectorAll("[data-lang-btn]"));
 const aboutBtn = document.getElementById("aboutBtn");
 const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
 
+const spotlightEl = document.querySelector(".spotlight");
+if (spotlightEl && !reduced && matchMedia("(pointer: fine)").matches) {
+  let spotRaf = 0;
+  let spotX = 0;
+  let spotY = 0;
+  addEventListener("pointermove", (e) => {
+    spotX = e.clientX;
+    spotY = e.clientY;
+    if (!spotRaf) {
+      spotRaf = requestAnimationFrame(() => {
+        spotRaf = 0;
+        spotlightEl.style.setProperty("--mx", `${spotX}px`);
+        spotlightEl.style.setProperty("--my", `${spotY}px`);
+      });
+    }
+  }, { passive: true });
+}
+
 const state = { lang: resolveLang(), projects: [] };
 let i18n = null;
 let honey = null;

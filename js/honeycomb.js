@@ -1,6 +1,7 @@
 const BASE_RADIUS = 90;
-const RING_RADIUS = 214;
+const RING_RADIUS = 198;
 const LABEL_THRESHOLD = 0.85;
+const INTRO_MS = 1000;
 
 const clamp = (v, min, max) => Math.min(max, Math.max(min, v));
 const easeOutCubic = (p) => 1 - Math.pow(1 - p, 3);
@@ -16,10 +17,12 @@ export function createHoneycomb({ container, stage, reducedMotion = false, onOpe
   let maxScale = 2.4;
   let box = { x: 0, y: 0, w: 1, h: 1 };
   let built = false;
+  let intro = !reducedMotion;
 
   let tweenId = 0;
   let frameQueued = false;
   let resizeTimer = 0;
+  let introTimer = 0;
 
   const pointers = new Map();
   let drag = null;
@@ -83,13 +86,33 @@ export function createHoneycomb({ container, stage, reducedMotion = false, onOpe
     maxScale = Math.max(2.2, fitScale * 2.2);
   }
 
+  // watchOS-style: icons shrink & dim with distance from the viewport center.
+  function updateNodeFocus() {
+    const rect = container.getBoundingClientRect();
+    const cx = rect.width / 2;
+    const cy = rect.height / 2;
+    const maxDist = Math.max(160, Math.min(cx, cy) * 0.92);
+
+    for (const node of nodes) {
+      const sx = cx + tx + node.x * scale;
+      const sy = cy + ty + node.y * scale;
+      const t = clamp(Math.hypot(sx - cx, sy - cy) / maxDist, 0, 1);
+      const f = 1 - Math.pow(t, 1.6) * 0.66;
+      const o = 0.42 + 0.58 * f;
+      node.el.style.setProperty("--f", f.toFixed(3));
+      node.el.style.setProperty("--o", o.toFixed(3));
+    }
+
+    stage.classList.toggle("show-labels", scale >= LABEL_THRESHOLD);
+  }
+
   function apply() {
     if (frameQueued) return;
     frameQueued = true;
     requestAnimationFrame(() => {
       frameQueued = false;
       stage.style.transform = `translate3d(${tx.toFixed(2)}px, ${ty.toFixed(2)}px, 0) scale(${scale.toFixed(3)})`;
-      stage.classList.toggle("show-labels", scale >= LABEL_THRESHOLD);
+      if (!intro) updateNodeFocus();
     });
   }
 
@@ -149,7 +172,7 @@ export function createHoneycomb({ container, stage, reducedMotion = false, onOpe
         tx: -box.x * fitScale,
         ty: -box.y * fitScale + fitOffsetY
       },
-      animate ? 520 : 0
+      animate ? 560 : 0
     );
   }
 
@@ -261,11 +284,11 @@ export function createHoneycomb({ container, stage, reducedMotion = false, onOpe
   }
 
   function openNode(node) {
-    const targetScale = Math.max(scale, 1.15);
+    const targetScale = Math.max(scale, 1.3);
     node.el.classList.add("is-opening");
     tweenTo(
       { s: targetScale, tx: -node.x * targetScale, ty: -node.y * targetScale },
-      440,
+      480,
       () => {
         if (typeof onOpen === "function") onOpen(node.data);
       }
@@ -296,14 +319,20 @@ export function createHoneycomb({ container, stage, reducedMotion = false, onOpe
     el.addEventListener("blur", clearActive);
   }
 
+  function endIntro() {
+    intro = false;
+    stage.classList.remove("is-intro");
+    updateNodeFocus();
+  }
+
   function setNodes(list) {
     nodes = layout(list);
     stage.innerHTML = "";
 
-    nodes.forEach((node) => {
+    nodes.forEach((node, i) => {
       const data = node.data;
       const el = document.createElement("a");
-      el.className = `node${data.kind === "moon" ? " is-moon" : ""}`;
+      el.className = `node${data.kind === "moon" ? " is-moon" : ""}${i === 0 ? " is-core" : ""}`;
       el.href = data.href;
       el.style.left = `${node.x.toFixed(2)}px`;
       el.style.top = `${node.y.toFixed(2)}px`;
@@ -311,6 +340,9 @@ export function createHoneycomb({ container, stage, reducedMotion = false, onOpe
       el.style.setProperty("--c1", (data.accent && data.accent[0]) || "#7c5cff");
       el.style.setProperty("--c2", (data.accent && data.accent[1]) || "#3ad0ff");
       el.setAttribute("aria-label", `${data.titleText} — ${data.taglineText}`.trim());
+
+      const zoom = document.createElement("span");
+      zoom.className = "node-zoom";
 
       const orb = document.createElement("span");
       orb.className = "orb";
@@ -322,7 +354,8 @@ export function createHoneycomb({ container, stage, reducedMotion = false, onOpe
       label.className = "node-label";
       label.textContent = data.labelText || data.titleText;
 
-      el.append(orb, label);
+      zoom.append(orb, label);
+      el.appendChild(zoom);
       node.el = el;
       bindNode(node, el);
       stage.appendChild(el);
@@ -333,6 +366,16 @@ export function createHoneycomb({ container, stage, reducedMotion = false, onOpe
       fit(false);
     } else {
       apply();
+    }
+
+    if (intro) {
+      updateNodeFocus();
+      nodes.forEach((node, i) => {
+        node.el.style.setProperty("--d", `${i === 0 ? 0 : 120 + i * 55}ms`);
+      });
+      stage.classList.add("is-intro");
+      clearTimeout(introTimer);
+      introTimer = setTimeout(endIntro, INTRO_MS + nodes.length * 55);
     }
   }
 

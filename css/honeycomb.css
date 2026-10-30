@@ -29,33 +29,52 @@
   will-change: transform;
 }
 
+/* ---------- node ---------- */
+
 .node {
   position: absolute;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 9px;
   transform: translate(-50%, -50%);
   border-radius: 50%;
   -webkit-tap-highlight-color: transparent;
   color: inherit;
 }
 
-.node .orb {
-  transition: transform 0.42s var(--ease), box-shadow 0.42s var(--ease), filter 0.35s var(--ease);
+.node-zoom {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 9px;
+  transform: scale(var(--f, 1));
+  opacity: var(--o, 1);
+  will-change: transform, opacity;
+}
+
+.stage.is-intro .node-zoom {
+  animation: node-pop 0.9s cubic-bezier(0.2, 0.9, 0.26, 1.18) backwards;
+  animation-delay: var(--d, 0ms);
+}
+
+@keyframes node-pop {
+  from {
+    transform: scale(0);
+    opacity: 0;
+  }
 }
 
 .node-label {
-  max-width: 160px;
+  max-width: 170px;
   font-size: 12px;
+  font-weight: 550;
   letter-spacing: 0.1em;
   text-transform: uppercase;
   text-align: center;
   line-height: 1.35;
   color: var(--fg-dim);
-  opacity: 0;
-  transform: translateY(-5px);
-  transition: opacity 0.34s var(--ease), transform 0.34s var(--ease), color 0.24s var(--ease);
+  text-shadow: 0 1px 10px rgba(3, 4, 8, 0.9);
+  opacity: clamp(0, calc((var(--f, 0) - 0.74) * 5), 1);
+  transform: translateY(-4px);
+  transition: opacity 0.3s var(--ease), transform 0.34s var(--ease), color 0.24s var(--ease);
   pointer-events: none;
 }
 
@@ -70,21 +89,32 @@
   color: var(--fg);
 }
 
-.node:hover .orb,
-.node.is-active .orb {
-  transform: scale(1.06);
+.node .orb {
+  transition: transform 0.42s var(--ease), box-shadow 0.42s var(--ease), filter 0.35s var(--ease);
 }
 
-.node .orb:hover {
+.node:hover .orb,
+.node.is-active .orb {
+  transform: scale(1.08);
+}
+
+.node:hover .orb {
   box-shadow:
-    0 26px 60px -24px var(--c1),
-    0 0 0 1px rgba(255, 255, 255, 0.22),
-    inset 0 0 0 1px rgba(255, 255, 255, 0.2),
-    inset 0 -20px 44px rgba(0, 0, 0, 0.32);
+    0 26px 60px -22px var(--c1),
+    0 0 52px -8px var(--c2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.4),
+    inset 0 -20px 44px rgba(0, 0, 0, 0.32),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.22);
+}
+
+.node:hover .orb::before,
+.node.is-active .orb::before {
+  opacity: 1;
+  animation: sheen-spin 1.4s linear infinite;
 }
 
 .node:active .orb {
-  transform: scale(0.97);
+  transform: scale(0.95);
 }
 
 .node:focus-visible .orb {
@@ -93,19 +123,47 @@
 }
 
 .node.is-opening .orb {
-  transform: scale(1.16);
+  transform: scale(1.18);
 }
 
 .node.is-moon .orb {
   font-size: calc(var(--r) * 0.7);
 }
 
-.stage.is-focusing .node:not(.is-active) .orb {
-  filter: saturate(0.66) brightness(0.86);
+/* core node gets a breathing pulse ring */
+.node.is-core .node-zoom::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: var(--r);
+  width: calc(var(--r) * 2);
+  height: calc(var(--r) * 2);
+  border-radius: 50%;
+  border: 1px solid rgba(140, 170, 255, 0.4);
+  transform: translate(-50%, -50%) scale(0.94);
+  animation: pulse-ring 3.4s ease-out infinite;
+  pointer-events: none;
 }
 
-.stage.is-focusing .node:not(.is-active) .node-label {
-  color: var(--fg-faint);
+@keyframes pulse-ring {
+  0% {
+    transform: translate(-50%, -50%) scale(0.94);
+    opacity: 0.55;
+  }
+  100% {
+    transform: translate(-50%, -50%) scale(1.65);
+    opacity: 0;
+  }
+}
+
+/* focus state: de-emphasize everything else */
+.stage.is-focusing .node:not(.is-active) .orb {
+  filter: saturate(0.55) brightness(0.8);
+}
+
+.stage.is-focusing .node:not(.is-active) .node-zoom {
+  transition: filter 0.3s var(--ease);
+  filter: blur(0.6px);
 }
 
 /* ---------- hint ---------- */
@@ -132,6 +190,20 @@
 
 .hint.is-hidden {
   opacity: 0;
+}
+
+/* ---------- cursor spotlight ---------- */
+
+.spotlight {
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background: radial-gradient(
+    420px circle at var(--mx, 50%) var(--my, 42%),
+    rgba(124, 156, 255, 0.08),
+    rgba(124, 156, 255, 0) 68%
+  );
 }
 
 /* ---------- list view ---------- */

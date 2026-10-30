@@ -6,6 +6,11 @@ export function startStarfield(canvas) {
 
   const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
   const pointer = { x: 0, y: 0, tx: 0, ty: 0 };
+  const nebulae = [
+    { x: 0.2, y: 0.3, r: 0.46, color: "104, 66, 190", alpha: 0.14, depth: 0.35 },
+    { x: 0.82, y: 0.66, r: 0.52, color: "36, 116, 190", alpha: 0.12, depth: 0.55 },
+    { x: 0.62, y: 0.14, r: 0.34, color: "178, 84, 140", alpha: 0.08, depth: 0.25 }
+  ];
   let width = 0;
   let height = 0;
   let stars = [];
@@ -70,6 +75,18 @@ export function startStarfield(canvas) {
 
     const px = pointer.x;
     const py = pointer.y;
+
+    for (const n of nebulae) {
+      const nx = n.x * width + px * 26 * n.depth;
+      const ny = n.y * height + py * 26 * n.depth;
+      const nr = n.r * Math.max(width, height);
+      const grad = ctx.createRadialGradient(nx, ny, 0, nx, ny, nr);
+      grad.addColorStop(0, `rgba(${n.color}, ${n.alpha})`);
+      grad.addColorStop(0.55, `rgba(${n.color}, ${n.alpha * 0.35})`);
+      grad.addColorStop(1, `rgba(${n.color}, 0)`);
+      ctx.fillStyle = grad;
+      ctx.fillRect(0, 0, width, height);
+    }
 
     for (const star of stars) {
       const sx = star.x + px * 16 * star.depth;

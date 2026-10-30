@@ -1,9 +1,9 @@
-const LANGS = ["zh", "en"];
+﻿const LANGS = ["zh", "en"];
 const STORE_KEY = "lang";
 
 const FALLBACK = {
   zh: {
-    brand: "钟山杉",
+    brand: "钟闪闪",
     "nav.honeycomb": "蜂窝",
     "nav.list": "列表",
     "nav.about": "关于",
