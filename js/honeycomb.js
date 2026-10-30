@@ -1,5 +1,4 @@
 const BASE_RADIUS = 90;
-const RING_RADIUS = 198;
 const LABEL_THRESHOLD = 0.85;
 const INTRO_MS = 1000;
 
@@ -38,15 +37,41 @@ export function createHoneycomb({ container, stage, reducedMotion = false, onOpe
       r: BASE_RADIUS * (data.size || 0.8)
     }));
 
-    const ring = laid.slice(1);
-    if (ring.length) {
-      const step = 360 / ring.length;
-      ring.forEach((node, i) => {
-        const jitterDeg = (((i * 97) % 11) - 5) * 0.55;
-        const angle = ((-90 + i * step + jitterDeg) * Math.PI) / 180;
-        const radius = RING_RADIUS + (((i * 61) % 9) - 4) * 1.4;
-        node.x = Math.cos(angle) * radius;
-        node.y = Math.sin(angle) * radius;
+    // 蜂窝布局：axial 坐标六边形环逐层密铺。
+    // 核心 = 第一个节点；其余按环填充，第 k 环 6k 格；
+    // 格位间距 s = 2 * 最大半径，保证任意相邻两球不重叠。
+    const rest = laid.slice(1);
+    if (rest.length) {
+      const maxR = Math.max(...laid.map((n) => n.r));
+      const s = maxR * 2;
+      const SQ3H = Math.sqrt(3) / 2;
+      const DIRS = [[1, 0], [1, -1], [0, -1], [-1, 0], [-1, 1], [0, 1]];
+
+      const cells = [];
+      let k = 1;
+      while (cells.length < rest.length) {
+        let q = -k;
+        let r = k;
+        const ring = [];
+        for (let side = 0; side < 6; side++) {
+          for (let step = 0; step < k; step++) {
+            ring.push([q, r]);
+            q += DIRS[side][0];
+            r += DIRS[side][1];
+          }
+        }
+        // 环未填满时均匀取位，保持六边形对称
+        const need = Math.min(rest.length - cells.length, ring.length);
+        for (let i = 0; i < need; i++) {
+          cells.push(ring[Math.round((i * ring.length) / need) % ring.length]);
+        }
+        k++;
+      }
+
+      cells.forEach(([q, r], i) => {
+        const node = rest[i];
+        node.x = s * (q + r / 2);
+        node.y = s * SQ3H * r;
       });
     }
 
