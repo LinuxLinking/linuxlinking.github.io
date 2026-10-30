@@ -264,12 +264,12 @@
       "title": { "zh": "文字", "en": "Writing" },
       "label": { "zh": "Writing", "en": "Writing" },
       "tagline": {
-        "zh": "还没写完的东西",
-        "en": "Things not yet finished"
+        "zh": "开始写了",
+        "en": "Now writing"
       },
       "summary": {
-        "zh": "代码之外的记录：想清楚的事、做坏的事、半夜想通的事。目前还是空的，空着也算一种状态。",
-        "en": "Notes beyond code: things thought through, things broken, things that clicked at 3 a.m. Empty for now — empty is also a state."
+        "zh": "代码之外的记录：守卫、runtime、混血架构、一只笼子。半夜想通的事，先写下来再说。",
+        "en": "Notes beyond code: a guard, a runtime, a hybrid editor, a cage. The things that clicked at 3 a.m., written down."
       },
       "highlights": {
         "zh": [],
