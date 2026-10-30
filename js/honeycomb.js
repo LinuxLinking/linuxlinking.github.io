@@ -39,11 +39,12 @@ export function createHoneycomb({ container, stage, reducedMotion = false, onOpe
 
     // 蜂窝布局：axial 坐标六边形环逐层密铺。
     // 核心 = 第一个节点；其余按环填充，第 k 环 6k 格；
-    // 格位间距 s = 2 * 最大半径，保证任意相邻两球不重叠。
+    // 格位间距 = 核心半径 + 环球最大半径 + 垫距，保证相邻不重叠且尽量紧密。
     const rest = laid.slice(1);
     if (rest.length) {
-      const maxR = Math.max(...laid.map((n) => n.r));
-      const s = maxR * 2;
+      const coreR = laid[0].r;
+      const ringR = Math.max(...rest.map((n) => n.r));
+      const s = coreR + ringR + 4;
       const SQ3H = Math.sqrt(3) / 2;
       const DIRS = [[1, 0], [1, -1], [0, -1], [-1, 0], [-1, 1], [0, 1]];
 
@@ -60,10 +61,11 @@ export function createHoneycomb({ container, stage, reducedMotion = false, onOpe
             r += DIRS[side][1];
           }
         }
-        // 环未填满时均匀取位，保持六边形对称
+        // 环未填满时均匀取位，保持六边形对称；
+        // 半格偏移让部分填充落在边中点（谷位），外环内收、不留顶点空洞
         const need = Math.min(rest.length - cells.length, ring.length);
         for (let i = 0; i < need; i++) {
-          cells.push(ring[Math.round((i * ring.length) / need) % ring.length]);
+          cells.push(ring[Math.floor(((i + 0.5) * ring.length) / need) % ring.length]);
         }
         k++;
       }
