@@ -1,0 +1,104 @@
+.blog-wrap {
+  position: relative;
+  z-index: 2;
+  width: min(760px, 100%);
+  margin: 0 auto;
+  padding: calc(var(--topbar-h) + 64px) clamp(18px, 5vw, 32px) 120px;
+}
+
+.blog-head {
+  margin-bottom: 44px;
+  animation: blog-in 0.6s var(--ease) both;
+}
+
+.blog-head h1 {
+  margin: 10px 0 0;
+  font-size: clamp(30px, 6vw, 48px);
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  line-height: 1.12;
+}
+
+@keyframes blog-in {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+}
+
+.posts {
+  animation: blog-in 0.7s 0.08s var(--ease) both;
+}
+
+.post-row {
+  display: block;
+  padding: 20px 0;
+  border-top: 1px solid var(--line-soft);
+  transition: padding 0.24s var(--ease);
+}
+
+.post-row:hover {
+  padding-left: 8px;
+}
+
+.post-date {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  color: var(--fg-faint);
+}
+
+.post-title {
+  margin: 6px 0 6px;
+  font-size: 19px;
+  font-weight: 550;
+  letter-spacing: -0.005em;
+}
+
+.post-sum {
+  margin: 0;
+  color: var(--fg-dim);
+  font-size: 13.5px;
+  line-height: 1.75;
+}
+
+.blog-empty {
+  padding: clamp(48px, 12vw, 96px) clamp(20px, 5vw, 34px);
+  text-align: center;
+  border: 1px dashed var(--line);
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.018);
+}
+
+.blog-empty-glyph {
+  font-size: 26px;
+  letter-spacing: 0.4em;
+  color: rgba(200, 162, 255, 0.7);
+  margin-bottom: 18px;
+}
+
+.blog-empty h2 {
+  margin: 0 0 10px;
+  font-size: 20px;
+  font-weight: 550;
+}
+
+.blog-empty p {
+  margin: 0 0 24px;
+  color: var(--fg-dim);
+  font-size: 13.5px;
+  line-height: 1.8;
+}
+
+.blog-skeleton {
+  height: 120px;
+  border-radius: 20px;
+  border: 1px dashed var(--line);
+  opacity: 0.5;
+}
+
+@media (max-width: 520px) {
+  .blog-head h1 {
+    font-size: 30px;
+  }
+}

@@ -1,193 +1,85 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="description" content="A soulful page written just for you — a digital letter delivered by moonlight.">
-<meta property="og:title" content="Soul for U">
-<meta property="og:description" content="Every soul that wanders the night is looking for another light to answer it.">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#05060a">
+<meta name="description" content="蜂窝式的项目星图，加上一些没写完的字。">
+<title>钟山杉 · 作品与文字</title>
+<meta property="og:title" content="钟山杉 · 作品与文字">
+<meta property="og:description" content="蜂窝式的项目星图，加上一些没写完的字。">
 <meta property="og:type" content="website">
-<meta property="og:image" content="https://images.unsplash.com/photo-1462331940025-496dfbfc7564?w=1200&h=630&fit=crop">
-<meta property="og:url" content="">
+<meta property="og:image" content="https://images.unsplash.com/photo-1462331940025-496dfbfc7564?w=1200&amp;h=630&amp;fit=crop">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="Soul for U">
-<meta name="twitter:description" content="Every soul that wanders the night is looking for another light to answer it.">
-<meta name="twitter:image" content="https://images.unsplash.com/photo-1462331940025-496dfbfc7564?w=1200&h=630&fit=crop">
-<title>Soul for U</title>
-<link rel="stylesheet" href="variables.css">
-<link rel="stylesheet" href="loader.css">
-<link rel="stylesheet" href="audio.css">
-<link rel="stylesheet" href="base.css">
-<link rel="stylesheet" href="components.css">
-<link rel="stylesheet" href="sections.css">
-<link rel="stylesheet" href="animations.css">
-<link rel="stylesheet" href="responsive.css">
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="css/base.css">
+<link rel="stylesheet" href="css/honeycomb.css">
 </head>
-<body>
+<body class="page-home">
 
-<!-- Loading Screen -->
-<div id="loader-screen" class="loader-screen">
-  <div class="loader-stars"></div>
-  <div class="loader-content">
-    <h1 class="loader-title">SOUL <em>for U</em></h1>
-    <div class="loader-progress">
-      <div class="loader-progress-bar"></div>
+<canvas id="stars" class="stars" aria-hidden="true"></canvas>
+<div class="vignette" aria-hidden="true"></div>
+
+<header class="topbar">
+  <a class="brand" href="./" aria-label="Home">
+    <span class="brand-mark" aria-hidden="true">Z</span>
+    <span class="brand-name" data-i18n="brand">钟山杉</span>
+  </a>
+  <div class="topbar-actions">
+    <div class="segmented" role="group" data-i18n-aria="a11y.view">
+      <button class="seg is-active" type="button" data-view="honeycomb" aria-pressed="true" data-i18n="nav.honeycomb">蜂窝</button>
+      <button class="seg" type="button" data-view="list" aria-pressed="false" data-i18n="nav.list">列表</button>
     </div>
-    <p class="loader-text">Loading your experience...</p>
+    <div class="segmented" role="group" data-i18n-aria="a11y.lang">
+      <button class="seg" type="button" data-lang-btn="zh" lang="zh">中</button>
+      <button class="seg" type="button" data-lang-btn="en" lang="en">EN</button>
+    </div>
+    <button class="chip" type="button" id="aboutBtn" data-i18n="nav.about">关于</button>
   </div>
-</div>
-
-<div class="stars" id="stars" aria-hidden="true"></div>
-
-<nav aria-label="Main Navigation">
-  <a class="logo" href="#top">SOUL <span>for U</span></a>
-  <div class="nav-links">
-    <a href="#about"     data-i18n="nav_about">About</a>
-    <a href="#gifts"     data-i18n="nav_gifts">Gifts</a>
-    <a href="#whispers"  data-i18n="nav_whispers">Whispers</a>
-    <a href="#letter"    data-i18n="nav_letter">Letter</a>
-    <span class="lang-switch" id="langSwitch" role="button" tabindex="0" aria-label="Switch language">中文</span>
-  </div>
-  <!-- Reading Progress Bar -->
-  <div class="progress-bar">
-    <div class="progress-bar-fill" id="progressBar"></div>
-  </div>
-</nav>
-
-<header class="hero" id="top">
-  <div class="hero-bg"></div>
-  <h1 class="title">SOUL <em>for U</em></h1>
-  <p class="subtitle" data-i18n="hero_sub">Every soul that wanders the night is looking for another light to answer it. This page is that answer — written only for you.</p>
-  <a class="cta" href="#about" data-i18n="hero_cta">Begin the Journey</a>
-  <div class="scroll-hint" aria-hidden="true">▾</div>
 </header>
 
-<section id="about" class="reveal">
-  <p class="kicker" data-i18n="kicker_about">01 · About</p>
-  <h2 data-i18n="h_about">What is <b>a Soul for U?</b></h2>
-  <div class="about-grid">
-    <div class="about-text">
-      <p data-i18n="about_p1">It is not a product. It is not even a place. It is <strong>a quiet room inside the noise</strong> — a small corner of the universe reserved for one person.</p>
-      <p data-i18n="about_p2">Here, time slows down. Starlight becomes language, silence becomes music, and every word you read was placed here gently, like a stone skipped across still water, hoping to reach your shore.</p>
-      <p data-i18n="about_p3">If you have ever felt unseen, this page exists to say: <strong>someone noticed. Someone always did.</strong></p>
-    </div>
-    <div class="about-img reveal">
-      <img src="https://images.unsplash.com/photo-1462331940025-496dfbfc7564?w=800&h=600&fit=crop" alt="Heart-shaped nebula" loading="lazy" decoding="async">
-    </div>
+<main id="honeycomb" class="honeycomb" data-i18n-aria="a11y.nodes">
+  <div id="stage" class="stage"></div>
+</main>
+
+<section id="listView" class="list-view" aria-hidden="true" inert></section>
+
+<div id="stateError" class="state-error" hidden></div>
+
+<div class="about" id="about" hidden>
+  <div class="about-backdrop" data-close-about></div>
+  <div class="about-card" role="dialog" aria-modal="true" aria-labelledby="aboutTitle">
+    <button class="about-close" type="button" data-close-about data-i18n-aria="about.close" aria-label="关闭">✕</button>
+    <p class="kicker" data-i18n="about.kicker">关于</p>
+    <h2 id="aboutTitle" data-i18n="about.title">关于这个站</h2>
+    <p class="about-body" data-i18n="about.body">在本地跑模型、把意图编译成可回滚的执行链、用一行批处理切换 JDK。白天写代码，夜里写字，偶尔给某个人做一个只会发光的页面。</p>
+    <ul class="about-links">
+      <li><a href="https://github.com/LinuxLinking" target="_blank" rel="noopener" data-i18n="about.github">GitHub ↗</a></li>
+      <li><a href="blog/" data-i18n="about.blog">文字 ↗</a></li>
+      <li><a href="soul-for-u/" data-i18n="about.soul">Soul for U ↗</a></li>
+    </ul>
   </div>
-</section>
+</div>
 
-<section id="gifts" class="reveal">
-  <p class="kicker" data-i18n="kicker_gifts">02 · Gifts</p>
-  <h2 data-i18n="h_gifts">Three things <b>I leave for you</b></h2>
-  <div class="cards">
-    <div class="card">
-      <img src="https://images.unsplash.com/photo-1519681393784-d120267933ba?w=800&h=600&fit=crop" alt="A sky of names" loading="lazy" decoding="async">
-      <div class="card-body">
-        <h3 data-i18n="gift1_t">A Sky of Names</h3>
-        <p data-i18n="gift1_d">Somewhere above the clouds there is a star quietly carrying your name. It has been burning long before we met, and will keep burning after.</p>
-      </div>
-    </div>
-    <div class="card">
-      <img src="https://images.unsplash.com/photo-1508610048659-a06b669e3321?w=800&h=600&fit=crop" alt="A lantern of courage" loading="lazy" decoding="async">
-      <div class="card-body">
-        <h3 data-i18n="gift2_t">A Lantern of Courage</h3>
-        <p data-i18n="gift2_d">For the nights when the world feels too heavy — may this little flame remind you that darkness is only where light chooses to rest.</p>
-      </div>
-    </div>
-    <div class="card">
-      <img src="https://images.unsplash.com/photo-1526047932273-341f2a7631f9?w=800&h=600&fit=crop" alt="An unwritten page" loading="lazy" decoding="async">
-      <div class="card-body">
-        <h3 data-i18n="gift3_t">An Unwritten Page</h3>
-        <p data-i18n="gift3_d">The most honest gift of all: a blank page, because our story has not finished being written. The next line belongs to you.</p>
-      </div>
-    </div>
-  </div>
-</section>
+<p class="hint" data-i18n="hint.gesture">拖动 · 滚轮缩放 · 双击复位</p>
 
-<section id="whispers" class="reveal">
-  <p class="kicker" data-i18n="kicker_whispers">03 · Whispers</p>
-  <h2 data-i18n="h_whispers">Whispers <b>from the quiet</b></h2>
-  <blockquote class="reveal">
-    <p data-i18n="q1">"In a universe of a trillion galaxies, two souls chose the same tiny blue dot, at the same breath of time. Do not call that coincidence."</p>
-    <footer>— Soul for U</footer>
-  </blockquote>
-  <blockquote class="reveal">
-    <p data-i18n="q2">"You are not a drop in the ocean. You are the entire ocean, folded small enough to fit inside one heartbeat."</p>
-    <footer>— Soul for U</footer>
-  </blockquote>
-  <blockquote class="reveal">
-    <p data-i18n="q3">"Some people are sentences. You are punctuation — the pause that gives every story meaning."</p>
-    <footer>— Soul for U</footer>
-  </blockquote>
-</section>
-
-<section id="letter" class="reveal">
-  <p class="kicker" data-i18n="kicker_letter">04 · Letter</p>
-  <h2 data-i18n="h_letter">A letter, <b>sealed with light</b></h2>
-  <div class="letter-wrap">
-    <div class="about-img reveal">
-      <img src="https://images.unsplash.com/photo-1579621970563-ebec7560ff3e?w=800&h=600&fit=crop" alt="Sealed letter" loading="lazy" decoding="async">
-    </div>
-    <div class="letter reveal">
-      <p data-i18n="letter_body">Dear you,
-
-I do not know when you will read this, or who you will have become by then. Perhaps the years will have taught you armor; perhaps they will have taught you wings.
-
-Either way, I hope one thing stays unchanged — that somewhere deep inside, you still believe in gentle things: late-night conversations, unexplained kindnesses, and souls that find each other without asking why.
-
-This whole page is my way of saying: I thought of you today.
-And tomorrow, probably, again.</p>
-      <p data-i18n="letter_sign">Yours, across the distance ✦</p>
-    </div>
-  </div>
-</section>
-
-<footer class="site-footer">
-  SOUL FOR U © 2026 · <span data-i18n="footer_note">Written in starlight, delivered by moonlight.</span>
+<footer class="foot">
+  <span>© 2026 <span data-i18n="brand">钟山杉</span></span>
+  <span class="sep">·</span>
+  <a href="soul-for-u/">Soul for U ↗</a>
+  <span class="sep">·</span>
+  <a href="https://github.com/LinuxLinking" target="_blank" rel="noopener">GitHub ↗</a>
 </footer>
 
-<!-- Bottom Dock: audio player + settings -->
-<div id="dock" class="dock">
-  <div class="dock-hit"></div>
-  <div class="dock-bar">
-    <!-- Audio Player -->
-    <div id="audio-player" class="audio-player">
-      <audio preload="auto"></audio>
-      <button class="audio-btn" aria-label="Toggle music">
-        <svg class="play-icon" viewBox="0 0 24 24">
-          <path d="M8 5v14l11-7z"/>
-        </svg>
-        <svg class="pause-icon" viewBox="0 0 24 24" style="display: none;">
-          <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>
-        </svg>
-      </button>
-      <div class="audio-info">
-        <span class="audio-title">Gentle Thoughts</span>
-        <span class="audio-artist">Soul for U</span>
-      </div>
-      <div class="audio-volume">
-        <div class="audio-volume-bar"></div>
-      </div>
-      <div class="audio-extra" aria-hidden="true">
-        <div class="audio-seek" role="slider" aria-label="Seek">
-          <div class="audio-seek-bar"></div>
-        </div>
-        <div class="audio-time">
-          <span class="time-current">0:00</span>
-          <span class="time-total">0:00</span>
-        </div>
-      </div>
+<noscript>
+  <div style="position:fixed;inset:0;z-index:70;display:grid;place-items:center;background:#05060a;text-align:center;padding:24px">
+    <div>
+      <p style="margin:0 0 12px;font-size:18px">这个星图需要 JavaScript。</p>
+      <p style="margin:0 0 18px;color:#8b93a7;font-size:14px">可以先去 <a href="https://github.com/LinuxLinking" style="color:#e8ecf6">GitHub</a> 或 <a href="soul-for-u/" style="color:#e8ecf6">Soul for U</a>。</p>
     </div>
-</div>
-</div>
+  </div>
+</noscript>
 
-<script src="i18n.js"></script>
-<script src="main.js" defer></script>
-<script src="stars.js"></script>
-<script src="scroll.js"></script>
-<script src="loader.js"></script>
-<script src="progress.js"></script>
-<script src="audio.js"></script>
+<script type="module" src="js/app.js"></script>
 </body>
 </html>

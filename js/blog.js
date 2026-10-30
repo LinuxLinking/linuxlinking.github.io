@@ -1,0 +1,80 @@
+import { createI18n, loadStrings, resolveLang } from "./i18n.js";
+import { startStarfield } from "./starfield.js";
+
+const listEl = document.getElementById("posts");
+const langButtons = Array.from(document.querySelectorAll("[data-lang-btn]"));
+
+const escapeHtml = (value) =>
+  String(value == null ? "" : value).replace(/[&<>"']/g, (ch) => ({
+    "&": "&amp;",
+    "<": "&lt;",
+    ">": "&gt;",
+    '"': "&quot;",
+    "'": "&#39;"
+  }[ch]));
+
+let i18n = null;
+let posts = [];
+
+async function loadPosts() {
+  try {
+    const res = await fetch("../data/posts.json", { cache: "no-store" });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const data = await res.json();
+    return Array.isArray(data.posts) ? data.posts : [];
+  } catch (err) {
+    console.warn("[blog] posts failed:", err);
+    return [];
+  }
+}
+
+function renderEmpty() {
+  listEl.innerHTML = `<div class="blog-empty">
+    <div class="blog-empty-glyph" aria-hidden="true">✦ ✦ ✦</div>
+    <h2>${escapeHtml(i18n.t("blog.empty"))}</h2>
+    <p>${escapeHtml(i18n.t("blog.emptyHint"))}</p>
+    <a class="btn" href="../">${escapeHtml(i18n.t("blog.back"))}</a>
+  </div>`;
+}
+
+function renderPosts() {
+  if (!posts.length) {
+    renderEmpty();
+    return;
+  }
+
+  const rows = posts
+    .slice()
+    .sort((a, b) => String(b.date || "").localeCompare(String(a.date || "")))
+    .map((post) => {
+      const title = post.title?.[i18n.lang] ?? post.title?.zh ?? post.slug;
+      const summary = post.summary?.[i18n.lang] ?? post.summary?.zh ?? "";
+      return `<a class="post-row" href="${escapeHtml(post.url || `${post.slug}/`)}">
+        <span class="post-date">${escapeHtml(post.date || "")}</span>
+        <h2 class="post-title">${escapeHtml(title)}</h2>
+        <p class="post-sum">${escapeHtml(summary)}</p>
+      </a>`;
+    })
+    .join("");
+
+  listEl.innerHTML = rows;
+}
+
+async function boot() {
+  startStarfield(document.getElementById("stars"));
+
+  const strings = await loadStrings("../data/i18n.json");
+  i18n = createI18n({ strings, lang: resolveLang() });
+
+  langButtons.forEach((btn) => {
+    btn.addEventListener("click", () => {
+      if (btn.dataset.langBtn !== i18n.lang) i18n.setLang(btn.dataset.langBtn);
+    });
+  });
+
+  posts = await loadPosts();
+  i18n.onChange(() => renderPosts());
+  renderPosts();
+}
+
+boot();
