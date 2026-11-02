@@ -1,6 +1,7 @@
 import { createHoneycomb } from "./honeycomb.js?v=e9ff3f9e";
 import { renderHome } from "./home.js?v=c67ae589";
 import { bootPage, escapeHtml } from "./shared.js?v=a89b5bc1";
+import { buildNodes } from "./nodes.js?v=24e36e67";
 
 const honeyEl = document.getElementById("honeycomb");
 const stageEl = document.getElementById("stage");
@@ -13,25 +14,18 @@ const viewButtons = Array.from(document.querySelectorAll("[data-view]"));
 const aboutBtn = document.getElementById("aboutBtn");
 const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-const state = { lang: "zh", projects: [], posts: [] };
+const state = { lang: "zh", projects: [], posts: [], now: {} };
 let i18n = null;
 let honey = null;
 let lastFocus = null;
 let gridScroll = 0;
 
-function hrefFor(node) {
-  if (node.kind === "blog") return node.path || "blog/";
-  if (node.kind === "moon") return node.path || "soul-for-u/";
-  return `project.html?id=${encodeURIComponent(node.id)}`;
-}
-
-function localize(projects, lang) {
-  return projects.map((node) => ({
+function localize(nodes, lang) {
+  return nodes.map((node) => ({
     ...node,
     titleText: node.title?.[lang] ?? node.title?.zh ?? node.id,
     labelText: node.label?.[lang] ?? node.label?.zh ?? node.id,
-    taglineText: node.tagline?.[lang] ?? node.tagline?.zh ?? "",
-    href: hrefFor(node)
+    taglineText: node.tagline?.[lang] ?? node.tagline?.zh ?? ""
   }));
 }
 
@@ -60,6 +54,19 @@ async function loadProjects() {
   }
 }
 
+/* 「此刻在做什么」的数据。作者维护 data/now.json，这里只负责取。 */
+async function loadNow() {
+  try {
+    const res = await fetch("data/now.json", { cache: "no-store" });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const data = await res.json();
+    return data?.now || {};   // { zh: { items: [...] }, en: { items: [...] } }
+  } catch (err) {
+    console.warn("[now] load failed:", err);
+    return {};
+  }
+}
+
 const VIEWS = ["grid", "honeycomb"];
 
 function readView() {
@@ -74,9 +81,9 @@ function readView() {
 }
 
 function refresh() {
-  const nodes = localize(state.projects, state.lang);
+  const nodes = localize(buildNodes({ projects: state.projects, posts: state.posts }), state.lang);
   honey.setNodes(nodes);
-  renderHome(gridBodyEl, { nodes, posts: state.posts, lang: state.lang, t: i18n.t });
+  renderHome(gridBodyEl, { nodes, posts: state.posts, now: state.now, lang: state.lang, t: i18n.t });
   document.title = i18n.t("meta.title.home");
   const desc = document.querySelector('meta[name="description"]');
   if (desc) desc.setAttribute("content", i18n.t("meta.desc.home"));
@@ -188,6 +195,7 @@ async function boot() {
 
   state.projects = projects;
   state.posts = await loadPosts();
+  state.now = await loadNow();
 
   honey = createHoneycomb({
     container: honeyEl,

@@ -1,4 +1,5 @@
 # 本地工具产物，不入库
+__pycache__/
 .zcode/
 .trae-html-share-packages/
 .screenshots/
