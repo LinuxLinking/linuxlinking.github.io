@@ -41,7 +41,7 @@
   <h1 id="post-title"><span class="i18n-zh" lang="zh-CN">为什么我不做 Agent，而做一层 Runtime</span><span class="i18n-en" lang="en">Why a Runtime, Not Another Agent Framework</span></h1>
   <p class="post-lede" id="post-lede"><span class="i18n-zh" lang="zh-CN">每个 agent 框架最终都会撞上同一堵墙。Intent OS 的回答是：不做第八十个框架，做框架之上的那层确定性——意图编译成带验收标准的计划，副作用过审批闸门，回执进哈希链。</span><span class="i18n-en" lang="en">Every agent harness hits the same wall. Intent OS answers by not being the 80th framework: compile intent into plans with acceptance criteria, gate side effects, and hash-chain the receipts.</span></p>
 
-  <article class="post-body md" id="post-body"><h2>Agent 的四种死法</h2>
+  <article class="post-body md" id="post-body"><div class="i18n-zh" lang="zh-CN"><h2>Agent 的四种死法</h2>
 <p>先用足够多的 agent 跑足够真实的任务，你会反复看到同四种结局：</p>
 <ol><li><strong>意图是一句 prompt</strong>。模型会执行什么，只有等它执行完你才知道。</li><li><strong>副作用凭模型心情</strong>。删不删文件、发不发请求，取决于模型这一轮的&quot;判断&quot;。</li><li><strong>结果活在聊天记录里</strong>。做过什么、做成了没有，翻聊天记录才能拼出来。</li><li><strong>一步失败，全链卡死</strong>。中间某步崩了，整个 run 要么傻等，要么从头再来。</li></ol>
 <p>市面上第八十个 agent 框架解决不了这些问题，因为它们都在同一层里打转——调度更聪明、提示词更精细、工具更多。但这些都是让模型「更靠谱」，而上面四种死法的共同点是：<strong>它们不能指望模型靠谱来解决。</strong></p>
@@ -91,7 +91,57 @@ hash = HMAC-SHA256(key, prev_hash + payload)     # 有密钥（root-only）</cod
 <p>仓库 README 第一段就写着：<strong>prototype / research implementation，公共 API 会变。</strong> 它现在能跑通的是「意图 → 计划 → 审批 → 执行 → 验收 → 回执」这条主干，规则引擎、多租户、并发调度都还在后面。我把它公开出来，是因为「关卡立在哪」这个问题的答案，比关卡本身先值得被讨论。</p>
 <h2>收束</h2>
 <p>Agent 框架回答「怎么让模型更聪明」，Intent OS 回答「怎么让模型的动作可验证」。前者是模型能力的杠杆，后者是工程信任的地基。</p>
-<p>仓库在 <a href="https://github.com/LinuxLinking/Local_Agent_IntentOS">LinuxLinking/Local_Agent_IntentOS</a>，MIT 协议。</p></article>
+<p>仓库在 <a href="https://github.com/LinuxLinking/Local_Agent_IntentOS">LinuxLinking/Local_Agent_IntentOS</a>，MIT 协议。</p></div><div class="i18n-en" lang="en"><h2>The four ways agents die</h2>
+<p>Run enough agents on enough real tasks and you keep seeing the same four endings:</p>
+<ol><li><strong>Intent is a single prompt.</strong> What the model will actually do, you only know once it has done it.</li><li><strong>Side effects depend on the model's mood.</strong> Whether a file gets deleted or a request gets sent depends on the model's &quot;judgement&quot; this turn.</li><li><strong>The result lives in the chat log.</strong> What was done and whether it worked can only be pieced together by scrolling through the conversation.</li><li><strong>One failed step stalls the whole chain.</strong> When something in the middle crashes, the run either waits stupidly or starts over from scratch.</li></ol>
+<p>The eightieth agent framework on the market does not solve these, because they all spin inside the same layer — smarter scheduling, finer prompts, more tools. But all of that is about making the model &quot;more reliable&quot;, and the common feature of the four deaths above is: <strong>they cannot be solved by counting on the model to be reliable.</strong></p>
+<h2>A position</h2>
+<p>Intent OS is not an agent, and not yet another framework. It sits above the agent:</p>
+<blockquote><p>The model decides <strong>how</strong> to do it; this layer guarantees <strong>that it was done right, that it can be traced, and that it can be rolled back</strong>.</p></blockquote>
+<p>The agent is replaceable scaffolding; this layer is the product. Swap the agent underneath and intent compilation, acceptance verification, approval scheduling, the audit hash chain and elastic rerouting all stay the same.</p>
+<h2>The life of a single run</h2>
+<p>Lay a run out flat and it looks like this:</p>
+<pre><code class="language-mermaid">flowchart TD
+    I([Intent]) --&gt; C[&quot;Compile: Plan DAG&lt;br/&gt;every node carries acceptance criteria&quot;]
+    C --&gt; G1{Plan-level approval}
+    G1 -- Rejected --&gt; X([Terminated])
+    G1 -- Approved --&gt; N[Execute one node]
+    N --&gt; S{Has side effects?}
+    S -- Yes --&gt; G2{Side-effect approval}
+    G2 -- Rejected --&gt; R[Reroute or suspend]
+    G2 -- Approved --&gt; E[Execute]
+    S -- No --&gt; E
+    E --&gt; V{Acceptance criteria}
+    V -- Pass --&gt; A[Receipt written to the hash chain]
+    V -- Fail --&gt; R
+    R -- Alternative executor exists --&gt; N
+    R -- Needs a human --&gt; SU([Suspended · awaiting recovery])
+    A --&gt; Q{More nodes?}
+    Q -- Yes --&gt; N
+    Q -- No --&gt; D([Done])</code></pre>
+<p>Here it is segment by segment.</p>
+<h3>Intent compilation: the Plan DAG</h3>
+<p>An intent arrives and is first compiled into a structured plan: nodes, dependencies, parameters, and — most importantly — <strong>the acceptance criteria each action carries with it</strong>. Acceptance is not &quot;the model thinks it is right&quot; but a machine-decidable predicate:</p>
+<ul><li><code>exit_code</code> — the target script exited with code 0</li><li><code>file_exists</code> — the artefact file exists</li><li><code>file_contains</code> — the artefact's contents contain a marker</li></ul>
+<p>Every acceptance result carries <strong>evidence</strong> rather than a dry boolean. When it fails you can see which criterion failed and on what evidence.</p>
+<h3>Approval gates: two levels</h3>
+<p>Side effects cannot be decided by the model alone. So there are two gates:</p>
+<ul><li><strong>Plan level</strong> — the whole plan is shown first: what will be touched, how broad the scope is, whether it is reversible.</li><li><strong>Side-effect level</strong> — once the plan is approved, every node with side effects is confirmed again before it runs: which tool, what parameters, what the blast radius is, whether it can be undone.</li></ul>
+<p>Honesty here: in the current version the gates are CLI question-and-answer. A rules engine (&quot;writes inside the sandbox are auto-approved, anything outside always asks a human&quot;) comes in the next stage. Putting the gate in the right <em>place</em> matters more than putting an automatic toll booth on it.</p>
+<h3>Audit: the hash chain</h3>
+<p>Every approval, execution and acceptance writes a receipt. Each record carries <code>prev_hash</code> and <code>hash</code>:</p>
+<pre><code class="language-text">hash = SHA256(prev_hash + canonical payload)        # no key
+hash = HMAC-SHA256(key, prev_hash + payload)         # with a key (root-only)</code></pre>
+<p><code>prev_hash</code> links back to the previous record, so <strong>tampering with any single record makes every hash after it stop matching</strong>. The log can be verified and replayed, and a finished run can be sealed. When someone later asks &quot;what exactly did it do that day&quot;, what you produce is not a chat transcript but a chain that is mathematically non-repudiable.</p>
+<h3>Rerouting and suspension</h3>
+<p>A failed acceptance is not the end of the world. The rerouting engine picks an alternative executor by severity, and records which ones have been used and which are blacklisted; with no alternative left, or with too much residual risk, it <strong>suspends</strong> — sealing the scene into a task file, handing it to a human for a decision, and resuming from that file once the decision comes back. A single-point failure no longer stalls the whole chain.</p>
+<h2>How it relates to my previous article</h2>
+<p>The protagonist of my previous essay, &quot;Distrust the Model, Encode the Guard&quot;, is PyPilot — and in this system it is <strong>just a replaceable L2 executor</strong>. The runtime does not care who is doing the work underneath: a local small model, a large cloud model, an MCP toolchain, they are all &quot;something that can execute a node&quot; as far as it is concerned. The guards police the discipline of a single step; the runtime polices the trustworthiness of the whole chain.</p>
+<h2>Honest limits</h2>
+<p>The first line of the repository README says it plainly: <strong>prototype / research implementation, the public API will change.</strong> What works today is the trunk line &quot;intent → plan → approval → execution → acceptance → receipt&quot;; the rules engine, multi-tenancy and concurrent scheduling are all still to come. I publish it because the answer to &quot;where do the gates go&quot; is worth discussing before the gates themselves are.</p>
+<h2>Closing</h2>
+<p>Agent frameworks answer &quot;how do we make the model smarter&quot;; Intent OS answers &quot;how do we make the model's actions verifiable&quot;. The first is a lever on model capability, the second is the foundation of engineering trust.</p>
+<p>The repository is <a href="https://github.com/LinuxLinking/Local_Agent_IntentOS">LinuxLinking/Local_Agent_IntentOS</a>, MIT licensed.</p></div></article>
 
   <section class="post-related"><p class="section-label"><span class="i18n-zh" lang="zh-CN">继续读</span><span class="i18n-en" lang="en">Keep reading</span></p><ul class="post-related-list"><li><a class="post-related-link" href="../../projects/intent-os/"><span class="i18n-zh" lang="zh-CN">Intent OS</span><span class="i18n-en" lang="en">Intent OS</span><span class="post-related-note"><span class="i18n-zh" lang="zh-CN">把意图编译成可验证、可回滚的执行链</span><span class="i18n-en" lang="en">Compiling intent into verifiable, rollback-safe chains</span></span></a></li><li><a class="post-related-link" href="../harness-guard-design/"><span class="i18n-zh" lang="zh-CN">小模型不可信，守卫必须是代码</span><span class="i18n-en" lang="en">Distrust the Model, Encode the Guard</span><span class="post-related-note">2026-10-31</span></a></li><li><a class="post-related-link" href="../milkdown-in-webview/"><span class="i18n-zh" lang="zh-CN">把 Milkdown 塞进 WebView：混血编辑器的取舍</span><span class="i18n-en" lang="en">Milkdown in a WebView: Trade-offs of a Hybrid Editor</span><span class="post-related-note">2026-10-31</span></a></li><li><a class="post-related-link" href="../cage-for-a-model/"><span class="i18n-zh" lang="zh-CN">给一个不太可信的模型造笼子</span><span class="i18n-en" lang="en">A Cage for One Untrusted Model</span><span class="post-related-note">2026-10-31</span></a></li></ul></section>
 

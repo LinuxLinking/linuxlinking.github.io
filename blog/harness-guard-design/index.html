@@ -41,7 +41,7 @@
   <h1 id="post-title"><span class="i18n-zh" lang="zh-CN">小模型不可信，守卫必须是代码</span><span class="i18n-en" lang="en">Distrust the Model, Encode the Guard</span></h1>
   <p class="post-lede" id="post-lede"><span class="i18n-zh" lang="zh-CN">在本地跑 3B 模型当编程助手，最大的问题不是它笨，是它不可靠。Local Ollama Harness 的答案是：把每一种失败模式都变成守卫里的一条确定性规则——模型只负责提议，裁决权在 harness。</span><span class="i18n-en" lang="en">A local 3B model isn&#x27;t dumb — it&#x27;s unreliable. Local Ollama Harness turns every known failure mode into a deterministic guard rule: the model proposes, the harness disposes.</span></p>
 
-  <article class="post-body md" id="post-body"><h2>失败模式清单</h2>
+  <article class="post-body md" id="post-body"><div class="i18n-zh" lang="zh-CN"><h2>失败模式清单</h2>
 <p>qwen2.5-coder:3b 能写出正确的 FizzBuzz，也能修好缩进错误。但它同样会：</p>
 <ul><li>写完文件一次都没跑过，就宣布「已创建并验证，退出码 0，正常」；</li><li>验证通过之后继续调工具，不知道自己已经做完了；</li><li>在同一个 <code>read_file</code> 上连刷五遍一模一样的输入；</li><li>一整轮吐出空字符串；</li><li>把 Action Input 的 JSON 写错——单引号、三引号、尾部还带一句废话；</li><li>自己幻觉出 <code>Observation:</code>，然后对着不存在的执行结果继续编。</li></ul>
 <p>这些不是假设，是 3B 模型的高频日常。所以这个项目的设计立场从一开始就定了：<strong>模型只负责提议，裁决权在 harness。</strong> 提示词可以引导它，但不能指望它。</p>
@@ -88,7 +88,54 @@
 <p>同样要承认：守卫不提升能力上限。它只是把下限封死——不再无限循环，不再假报完成。3B 解不出的题，加上守卫也解不出。</p>
 <h2>收束</h2>
 <p>整个 harness 的设计浓缩成一句话：<strong>别问模型能不能靠自觉，把自觉变成代码。</strong></p>
-<p>仓库在 <a href="https://github.com/LinuxLinking/local_ollama_harness">LinuxLinking/local_ollama_harness</a>，MIT 协议，四个工具、一个守卫、一份剧本测试，<code>uv run main.py</code> 就能跑。</p></article>
+<p>仓库在 <a href="https://github.com/LinuxLinking/local_ollama_harness">LinuxLinking/local_ollama_harness</a>，MIT 协议，四个工具、一个守卫、一份剧本测试，<code>uv run main.py</code> 就能跑。</p></div><div class="i18n-en" lang="en"><h2>A list of failure modes</h2>
+<p>qwen2.5-coder:3b can write a correct FizzBuzz and fix a broken indentation. But it will also:</p>
+<ul><li>write a file, never run it once, and announce &quot;created and verified, exit code 0, all good&quot;;</li><li>keep calling tools after verification passed, not knowing that it is already finished;</li><li>hammer the same <code>read_file</code> five times with byte-identical input;</li><li>emit an empty string for an entire turn;</li><li>get the Action Input JSON wrong — single quotes, triple quotes, trailing nonsense;</li><li>hallucinate its own <code>Observation:</code> and keep making up results that were never executed.</li></ul>
+<p>None of these are hypothetical; they are the daily routine of a 3B model. So the project's stance was settled from the start: <strong>the model only proposes; the harness disposes.</strong> A prompt can guide it, but you cannot count on it.</p>
+<h2>Overall structure: three nodes, one pipeline</h2>
+<p>The whole project is about 1200 lines running on LangGraph. The execution graph has a single spine:</p>
+<pre><code class="language-mermaid">flowchart LR
+    S([START]) --&gt; M[model]
+    M --&gt; G{guard}
+    G -- TOOL --&gt; A[act]
+    G -- HARNESS_VERIFY --&gt; A
+    G -- OBSERVE --&gt; L[loopback]
+    A --&gt; L
+    G -- FINAL / STOP --&gt; E([END])
+    L --&gt; M</code></pre>
+<p>The three nodes each have one job: <code>model</code> calls the model and parses its output; <code>guard</code> arbitrates — this step decides <em>what is allowed to happen</em>; <code>act</code> runs the tool and wraps the result into an Observation that is fed back in. The key is that the guard sits between model and act as a mandatory checkpoint: if the model wants a tool, the guard has to agree; if the model wants to wrap up, the guard has to accept; and if the model refuses to cooperate, the guard is entitled to make <code>act</code> ignore it.</p>
+<h3>Why a text protocol and not function calling</h3>
+<p>Small models follow strict JSON tool calls badly, but they are excellent at mimicking three lines of plain text. So the agent speaks the classic ReAct text protocol (<code>Thought / Action / Action Input</code>), and the parser carries three levels of fallback: if <code>json.loads</code> fails it tries <code>raw_decode</code> first to ignore trailing nonsense, then <code>ast.literal_eval</code> to accept Python literal syntax, and if that also fails it tags the output <code>__PARSE_FAILED__</code> and hands it to the guard. A parse failure is not an exception — it is an ordinary state inside the flow.</p>
+<p>The system prompt also spells out the workflow and the anti-loop rules. Writing the rules twice is not redundancy: the prompt is a <strong>soft constraint</strong>, meant to lure the model onto the right path; the guard is a <strong>hard constraint</strong>, meant to haul it back when it drifts. One layer is for the model to read, the other for the runtime to execute.</p>
+<h2>First line of defence: paths, 18 lines of code</h2>
+<p>The tools are the only surface where side effects happen. All four of them — <code>read_file</code>, <code>write_file</code>, <code>list_dir</code>, <code>run_python</code> — go through the same entry point:</p>
+<pre><code class="language-python">def safe_path(rel: str) -&gt; Path:
+    abs_path = ... .resolve()          # expand ../ and symlinks
+    try:
+        abs_path.relative_to(SANDBOX_DIR.resolve())
+    except ValueError:
+        raise ValueError(f&quot;path escapes the sandbox, only files inside are allowed: {rel}&quot;)</code></pre>
+<p><code>resolve()</code> expands symlinks and <code>../</code>, <code>relative_to</code> tests containment, and anything outside is rejected outright — no allowlist, no exception branch. <code>run_python</code> adds three more rules on top: only <code>.py</code> files execute, the working directory is pinned to the sandbox, and there is a 30-second timeout.</p>
+<p>On top of that, the exceptions of every tool are swallowed and turned into string Observations — the loop can never crash, and the error message itself becomes feedback fed back to the model.</p>
+<h2>Second line of defence: behaviour arbitration, one pure function</h2>
+<p>The path guard decides <em>where you may touch</em>; the behaviour guard decides <em>what you are allowed to do</em>. The core is an arbitration function of roughly 170 lines in <code>guards/policy.py</code>:</p>
+<pre><code class="language-text">GuardView  ──&gt;  evaluate_guards()  ──&gt;  GuardOutcome
+(input: this step's action + counters)   (output: verdict + counter deltas)</code></pre>
+<p>It arbitrates rule by rule in a fixed priority order, each rule matching one failure mode from the list above:</p>
+<ol><li><strong>Write then verify</strong> — after a <code>write_file</code>, the next step must be <code>run_python</code>. The model wants to <code>read_file</code> the file back first? Feed it a reminder; if it sidesteps twice, the harness runs it on the model's behalf and feeds back the real exit code and output. Note this is not a retry — it is <em>running it for you</em>: if the model refuses to get on with it, it gets put on it.</li><li><strong>Stop after verifying</strong> — after a <code>run_python</code> returns exit code 0, further tool calls are intercepted with &quot;verification passed, please give the Final Answer&quot;. Another small-model disease: it fixed the thing without knowing that it had fixed it.</li><li><strong>Loop breaker</strong> — consecutive identical (Action, Input) pairs start counting. First time: a vague warning, &quot;please move on to the next step&quot;; second time: a three-line template that can be copied verbatim; fourth time: a hard stop that ends the turn.</li><li><strong>Empty-output fallback</strong> — an empty string does not get to be a Final Answer, otherwise one empty reply would silently end the whole task. Feed back &quot;the output is empty, please wrap up&quot;.</li><li><strong>Parse-failure retry</strong> — give it a chance to rewrite the format; three misses and the turn stops hard.</li><li>None of the above — run the tool normally.</li></ol>
+<h3>The ladder of intervention</h3>
+<p>Read the rules above as a sequence and they share one shape: <strong>remind → give a template → run it for them → hard stop.</strong> This is basically how you onboard a new hire: first a reminder; if the reminder does not work, hand them a model answer to copy; if that still fails, do it for them; and if they truly cannot, call it and wrap up. Every rung has a counter behind it, so no rung can loop forever.</p>
+<p>Incidentally, hallucinated Observations have two gates: on the generation side <code>Observation:</code> is a stop sequence, and on the parsing side the output is truncated at the first <code>Observation:</code>. Observation results can only come from a real execution.</p>
+<h2>Why the guards have to be pure functions</h2>
+<p><code>GuardView</code> and <code>GuardOutcome</code> are frozen dataclasses; <code>evaluate_guards</code> makes no model calls, does no IO and touches no global state — you feed it a view, it hands back a verdict, and the counters come back as deltas that the graph node accumulates. It does not even touch prompts; the wording of the feedback is injected by the <code>nudges</code> module.</p>
+<p>What that buys you shows up in <code>tests/test_guards.py</code>: a FakeLLM replays scripted outputs, and six cases cover every failure mode — &quot;verification-first fallback&quot;, &quot;loop-break escalation&quot;, &quot;empty-output fallback&quot;, &quot;verification enforcement&quot;, … no model download, no GPU, under a second to run. The test names are the design intent.</p>
+<p>Guard logic is most afraid of &quot;change one thing, break another&quot;. As a pure function it becomes ordinary code: you can adjust thresholds freely, and the scripted tests will tell you whether you broke something.</p>
+<h2>Honest limits</h2>
+<p>The guards defend against elementary mistakes, not against malicious code. <code>run_python</code> executes inside the sandbox directory, but it can import any installed library and reach the network, and the guards do not care about that at all — the threat model here is &quot;the foreseeable mistakes of a 3B model&quot;, not an adversarial attacker. Actually defending against an untrusted model is a different craft; my other project, Lockdown, is exactly that.</p>
+<p>Equally worth admitting: guards do not raise the ceiling of what the model can do. They only seal the floor — no more infinite loops, no more false reports of completion. A problem a 3B model cannot solve will not become solvable just because guards are added.</p>
+<h2>Closing</h2>
+<p>The design of the whole harness condenses into one sentence: <strong>don't ask whether the model can be trusted to restrain itself — turn restraint into code.</strong></p>
+<p>The repository is <a href="https://github.com/LinuxLinking/local_ollama_harness">LinuxLinking/local_ollama_harness</a>, MIT licensed: four tools, one guard, one scripted test suite. <code>uv run main.py</code> and it runs.</p></div></article>
 
   <section class="post-related"><p class="section-label"><span class="i18n-zh" lang="zh-CN">继续读</span><span class="i18n-en" lang="en">Keep reading</span></p><ul class="post-related-list"><li><a class="post-related-link" href="../../projects/ollama-harness/"><span class="i18n-zh" lang="zh-CN">Local Ollama Harness</span><span class="i18n-en" lang="en">Local Ollama Harness</span><span class="post-related-note"><span class="i18n-zh" lang="zh-CN">终端里的本地代码助手</span><span class="i18n-en" lang="en">A local coding assistant in your terminal</span></span></a></li><li><a class="post-related-link" href="../why-runtime-not-agent/"><span class="i18n-zh" lang="zh-CN">为什么我不做 Agent，而做一层 Runtime</span><span class="i18n-en" lang="en">Why a Runtime, Not Another Agent Framework</span><span class="post-related-note">2026-10-31</span></a></li><li><a class="post-related-link" href="../milkdown-in-webview/"><span class="i18n-zh" lang="zh-CN">把 Milkdown 塞进 WebView：混血编辑器的取舍</span><span class="i18n-en" lang="en">Milkdown in a WebView: Trade-offs of a Hybrid Editor</span><span class="post-related-note">2026-10-31</span></a></li><li><a class="post-related-link" href="../cage-for-a-model/"><span class="i18n-zh" lang="zh-CN">给一个不太可信的模型造笼子</span><span class="i18n-en" lang="en">A Cage for One Untrusted Model</span><span class="post-related-note">2026-10-31</span></a></li></ul></section>
 

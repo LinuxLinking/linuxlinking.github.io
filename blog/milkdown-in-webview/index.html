@@ -41,7 +41,7 @@
   <h1 id="post-title"><span class="i18n-zh" lang="zh-CN">把 Milkdown 塞进 WebView：混血编辑器的取舍</span><span class="i18n-en" lang="en">Milkdown in a WebView: Trade-offs of a Hybrid Editor</span></h1>
   <p class="post-lede" id="post-lede"><span class="i18n-zh" lang="zh-CN">Flutter 做壳，WebView 里跑 Milkdown，中间靠一个 JS 桥说话——这不是偷懒，是在「自己写编辑器」和「接受 web 技术」之间做的明确取舍。这篇讲清楚四个决定及其代价。</span><span class="i18n-en" lang="en">A Flutter shell, Milkdown in a WebView, one JS bridge between them — a deliberate trade, not a shortcut. One bridge protocol, persisted SAF URIs, hand-rolled OOXML, one-way theming.</span></p>
 
-  <article class="post-body md" id="post-body"><h2>为什么是混血</h2>
+  <article class="post-body md" id="post-body"><div class="i18n-zh" lang="zh-CN"><h2>为什么是混血</h2>
 <p>Android 上做 Markdown 编辑器，第一道选择题就是：编辑器内核用什么写？</p>
 <p>纯 Flutter 方案意味着自己实现所见即所得的富文本编辑——光光标定位、选区、输入法合成事件这三件事就够写一年。而 Markdown 编辑器这个赛道，web 生态里已经有成熟得多的答案，比如 Milkdown：基于 ProseMirror，所见即所得，插件体系完整。</p>
 <p>所以我选了混血：<strong>Flutter 做壳（文件、设置、导出、主题），WebView 里跑 Milkdown（编辑区）</strong>，中间架一座桥。代价是两套渲染体系、一条必须精心维护的边界；换来的是一个真正好用的编辑内核。</p>
@@ -76,7 +76,42 @@
 <p>单向意味着编辑区永远是主题的消费者，不会反过来影响壳。两个世界只有一座桥、一种协议、一个方向——混血架构想要不精神分裂，这是底线。</p>
 <h2>收束</h2>
 <p>混血不丢人。丢人的是混了血却没有边界：桥上消息随手加、文件偷偷拷、依赖随手拖。Mdeditor 的四个决定——单一桥协议、SAF URI 持久化、手写 OOXML、主题单向流——说到底是同一件事：<strong>每接受一次「别人的技术」，就把边界画清楚一次。</strong></p>
-<p>仓库在 <a href="https://github.com/LinuxLinking/Mdeditor">LinuxLinking/Mdeditor</a>，GPL-3.0，中英日法四语 README。</p></article>
+<p>仓库在 <a href="https://github.com/LinuxLinking/Mdeditor">LinuxLinking/Mdeditor</a>，GPL-3.0，中英日法四语 README。</p></div><div class="i18n-en" lang="en"><h2>Why hybrid</h2>
+<p>The first question when building a Markdown editor on Android is: what do you write the editing core in?</p>
+<p>The all-Flutter option means implementing WYSIWYG rich-text editing yourself — caret positioning, selection and IME composition events alone would take a year. And in the Markdown editor space the web ecosystem already has far more mature answers, Milkdown among them: built on ProseMirror, WYSIWYG, with a complete plugin system.</p>
+<p>So I went hybrid: <strong>Flutter as the shell (files, settings, export, theme), Milkdown in a WebView (the editing surface)</strong>, with a bridge between them. The price is two rendering systems and one boundary that has to be maintained with care. What you get in return is an editing core that is genuinely good to use.</p>
+<pre><code class="language-mermaid">flowchart LR
+    subgraph F[&quot;Flutter shell&quot;]
+        UI[&quot;Pages / settings / theme&quot;]
+        IO[&quot;SAF file channel&quot;]
+        EX[&quot;Export: DOCX / PDF&quot;]
+    end
+    subgraph W[&quot;WebView&quot;]
+        B[&quot;MdBridge JS channel&quot;]
+        M[&quot;Milkdown editor&quot;]
+    end
+    UI &lt;--&gt; B
+    B &lt;--&gt; M
+    IO --&gt; F
+    F -- &quot;md text&quot; --&gt; B
+    B -- &quot;changed event&quot; --&gt; F</code></pre>
+<h2>Decision one: only one protocol crosses the bridge</h2>
+<p>The easiest way for a WebView bridge to rot is to let message formats be improvised. Mdeditor pins down a single <code>MdBridge</code> channel whose messages are always JSON of the form <code>{type, ...}</code>: once initialisation is done the core replies <code>ready</code>, and every edit pushes a <code>changed</code> message carrying the full text.</p>
+<p>The Flutter side receives with <code>addJavaScriptChannel('MdBridge', ...)</code> and sends with <code>evaluateJavascript</code>. The protocol is small enough to have only two message types, and that is exactly why it is stable — the complexity of a bridge is not in how much it can carry, but in whether both ends agree on when to say what.</p>
+<h2>Decision two: the file stays where the user put it</h2>
+<p>The first thing many editors do when opening a file is <strong>copy it into their own sandbox</strong> and copy it back on save. That is an invisible migration for the user: after editing one file, a stray copy has appeared in phone storage.</p>
+<p>Mdeditor goes through Android SAF: once the file is authorised, the Kotlin side calls <code>takePersistableUriPermission</code> on the URI, which makes that authorisation <strong>persist across restarts</strong>. Open, edit and save always target the original URI — the file never moves, only its contents change. The recent-files list stores URIs rather than copy paths, so &quot;the one I edited in the Downloads folder yesterday&quot; is still in the same place when you tap it today.</p>
+<p>The price is that the SAF API is notoriously roundabout; every operation goes through an intent and column resolution. But that is the tax you pay for respecting where the user's files live.</p>
+<h2>Decision three: write the DOCX yourself, don't drag in the whole family</h2>
+<p>When exporting DOCX, the convenient choice is to pull in a cross-platform document library. On Android those libraries are often tens of megabytes and they fight with Flutter's build system. Mdeditor's choice is to <strong>write the OOXML by hand</strong> — <code>document.xml</code>, the stylesheet, numbering, headers and footers, the table of contents, media relationships — generating each part and then zipping it up.</p>
+<p>This is not showing off; it is control: code-block highlighting maps token by token, images are embedded through <code>media/</code> plus a relationship table, and the table-of-contents field refreshes itself when Word opens the file. The whole export runs on an isolate (<code>compute</code>), so the UI never stutters.</p>
+<p>One trap along the way is worth recording: the markdown package escapes <code>&lt;</code> and <code>&amp;</code> into HTML entities by default, and DOCX's XML has to escape them again — two rounds of escaping stacked, the code in the body text came out as <code>&amp;amp;lt;</code>. The fix is <code>encodeHtml: false</code> to switch off the first round and hand ownership of escaping entirely to the DOCX generator. <strong>When two layers of escaping sit on one chain, you have to be explicit about which layer owns it.</strong></p>
+<h2>Decision four: the theme is a one-way flow</h2>
+<p>The Flutter shell and the WebView each have their own styling system, and if the theme is not synchronised you get the split where &quot;the shell is dark and the editing area is bright&quot;. Mdeditor packs the design tokens of the shell — colours, fonts, the code-highlight palette — into a <code>NativeEditorTheme</code> and pushes them one way into the WebView when the theme changes; on the Milkdown side they are mapped to CSS variables.</p>
+<p>One-way means the editing area is always a consumer of the theme and can never push back on the shell. Two worlds, one bridge, one protocol, one direction — that is the floor for a hybrid architecture not to lose its mind.</p>
+<h2>Closing</h2>
+<p>Hybrid is not shameful. What is shameful is mixing blood without a boundary: adding messages ad hoc, quietly copying files, dragging in dependencies. The four decisions of Mdeditor — a single bridge protocol, persisted SAF URIs, hand-rolled OOXML, one-way theming — are ultimately the same thing: <strong>every time you accept someone else's technology, draw the boundary again.</strong></p>
+<p>The repository is <a href="https://github.com/LinuxLinking/Mdeditor">LinuxLinking/Mdeditor</a>, GPL-3.0, with a README in Chinese, English, Japanese and French.</p></div></article>
 
   <section class="post-related"><p class="section-label"><span class="i18n-zh" lang="zh-CN">继续读</span><span class="i18n-en" lang="en">Keep reading</span></p><ul class="post-related-list"><li><a class="post-related-link" href="../../projects/mdeditor/"><span class="i18n-zh" lang="zh-CN">Mdeditor</span><span class="i18n-en" lang="en">Mdeditor</span><span class="post-related-note"><span class="i18n-zh" lang="zh-CN">Flutter 壳、Milkdown 芯的 Android Markdown 编辑器</span><span class="i18n-en" lang="en">A Flutter shell around a Milkdown core, on Android</span></span></a></li><li><a class="post-related-link" href="../harness-guard-design/"><span class="i18n-zh" lang="zh-CN">小模型不可信，守卫必须是代码</span><span class="i18n-en" lang="en">Distrust the Model, Encode the Guard</span><span class="post-related-note">2026-10-31</span></a></li><li><a class="post-related-link" href="../why-runtime-not-agent/"><span class="i18n-zh" lang="zh-CN">为什么我不做 Agent，而做一层 Runtime</span><span class="i18n-en" lang="en">Why a Runtime, Not Another Agent Framework</span><span class="post-related-note">2026-10-31</span></a></li><li><a class="post-related-link" href="../cage-for-a-model/"><span class="i18n-zh" lang="zh-CN">给一个不太可信的模型造笼子</span><span class="i18n-en" lang="en">A Cage for One Untrusted Model</span><span class="post-related-note">2026-10-31</span></a></li></ul></section>
 
