@@ -7,6 +7,11 @@
 const NEUTRAL_ACCENT = ["#7c5cff", "#3ad0ff"];
 const POST_SIZE = 0.85;
 
+/* posts.json 的 url 相对 /blog/，而首页在根目录，所以站内链接要补前缀。 */
+export function postHref(post) {
+  return `blog/${post.url || `${post.slug}/`}`;
+}
+
 export function buildNodes({ projects = [], posts = [] } = {}) {
   const accents = new Map();
   for (const project of projects) {
@@ -34,7 +39,7 @@ export function buildNodes({ projects = [], posts = [] } = {}) {
     title: post.title || {},
     label: post.label || {},
     tagline: post.summary || {},
-    href: `blog/${post.url || `${post.slug}/`}`
+    href: postHref(post)
   });
 
   return [

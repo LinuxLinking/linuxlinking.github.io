@@ -1,7 +1,7 @@
 import { createHoneycomb } from "./honeycomb.js?v=e9ff3f9e";
-import { renderHome } from "./home.js?v=69eaf8fa";
+import { renderHome } from "./home.js?v=cab0bc6c";
 import { bootPage, escapeHtml } from "./shared.js?v=a89b5bc1";
-import { buildNodes } from "./nodes.js?v=24e36e67";
+import { buildNodes } from "./nodes.js?v=b189be2a";
 
 const honeyEl = document.getElementById("honeycomb");
 const stageEl = document.getElementById("stage");

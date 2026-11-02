@@ -4,7 +4,7 @@ import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
 
-import { buildNodes } from "./nodes.js";
+import { buildNodes, postHref } from "./nodes.js";
 
 const here = dirname(fileURLToPath(import.meta.url));
 const root = join(here, "..");
@@ -52,4 +52,9 @@ test("项目节点 href 指向详情页", () => {
 test("文章节点 href 指向博客下的文章页", () => {
   const nodes = buildNodes({ projects, posts });
   assert.equal(nodes.find((n) => n.id === "harness-guard-design").href, "blog/harness-guard-design/");
+});
+
+test("postHref 补上 blog 前缀", () => {
+  assert.equal(postHref(posts[0]), "blog/harness-guard-design/");
+  assert.equal(postHref({ slug: "x" }), "blog/x/");
 });

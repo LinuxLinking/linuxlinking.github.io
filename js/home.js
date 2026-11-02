@@ -1,4 +1,5 @@
 import { escapeHtml } from "./shared.js?v=a89b5bc1";
+import { postHref } from "./nodes.js?v=b189be2a";
 
 /* 首页默认视图：编辑式排版 —— 大标题 + 编号索引行 + 文字条目。
    蜂窝星图退居第二视图（见 app.js），两套视图读的是同一份 projects.json / posts.json。 */
@@ -53,7 +54,7 @@ function projectRow(node, index, related) {
 function postLine(post, lang) {
   const title = post.title?.[lang] ?? post.title?.zh ?? post.slug;
   const summary = summarize(post.summary?.[lang] ?? post.summary?.zh ?? "");
-  const href = post.url || `${post.slug}/`;
+  const href = postHref(post);
 
   return `<a class="post-line" href="${escapeHtml(href)}">
     <span class="post-line-date">${escapeHtml(post.date || "")}</span>
@@ -107,7 +108,7 @@ export function renderHome(root, { nodes, posts, now, lang, t }) {
   for (const post of posts) {
     if (!post.projectId) continue;
     const title = post.title?.[lang] ?? post.title?.zh ?? post.slug;
-    const href = post.url || `${post.slug}/`;
+    const href = postHref(post);
     if (!byProject.has(post.projectId)) byProject.set(post.projectId, []);
     byProject.get(post.projectId).push({ title, href });
   }
