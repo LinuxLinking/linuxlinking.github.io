@@ -11,9 +11,11 @@ artifact is plain HTML + CSS + ES modules.
 
 ## What's inside
 
-- **Project grid** (default home view) — cards with a monogram badge, year, tagline and stack chips
-- **Honeycomb star map** (second view) — anchor-point zoom, drag, pinch, double-click to reset
-- **Canvas starfield** background, with a static fallback under `prefers-reduced-motion`
+- **Editorial index** (default home view) — a serif hero, then projects as a numbered index
+  (`01 │ Intent OS │ 2026`), each with its own accent swatch
+- **Star map** (second view) — anchor-point zoom, drag, pinch, double-click to reset
+- **Paper / editorial design** — warm off-white ground, ink text, hairline rules, one vermillion
+  accent, serif display type. No glass, no blur, no glow.
 - **zh / en switching** across all pages (`?lang=en` → `localStorage` → `navigator.language`)
 - [Writing](https://linuxlinking.github.io/blog/) — a blog
 - [Soul for U](https://linuxlinking.github.io/soul-for-u/) — a page written for one person
@@ -23,15 +25,45 @@ artifact is plain HTML + CSS + ES modules.
 Native HTML, CSS and ES modules. The only tooling is `tools/build.py` (Python 3.9+, standard library
 only).
 
+## Design system
+
+Paper / editorial: warm off-white ground, ink text, hairline rules, one vermillion accent, serif
+display type. Everything is a token in `:root` in `css/base.css` — retheming means editing that one
+block, not the stylesheets.
+
+| token | value | used for |
+|---|---|---|
+| `--bg` | `#f6f5f0` | paper ground |
+| `--fg` / `--fg-dim` / `--fg-faint` | `#1a1a18` / `#57554e` / `#8b887f` | ink, secondary, tertiary |
+| `--line` / `--line-strong` | `#e3e0d7` / `#cbc7ba` | hairlines, rules |
+| `--surface` / `--surface-soft` | `#ffffff` / `#fbfaf7` | cards, code chips |
+| `--accent` | `#b4422a` | the single accent: active state, links, selection |
+| `--radius-lg` / `--radius-md` | `6px` / `3px` | near-square corners |
+| `--font-display` / `--font-sans` / `--font-mono` | serif / sans / mono stacks | headings, UI, meta |
+
+Type is **system fonts only** — no web fonts, no CDN:
+
+- `--font-display` puts the Western serifs first (`Iowan Old Style`, `Palatino Linotype`, Georgia,
+  `Times New Roman`).
+- Chinese needs its own rule. `css/base.css` declares a `local()`-only `@font-face` named
+  `Display CJK` with a `unicode-range` covering CJK ranges, so CJK glyphs resolve to a Song/Serif
+  face (`Songti SC` on macOS, `Noto Serif SC` on Linux, `SimSun`/`STSong` elsewhere) instead of
+  falling back to a sans face. `local()` means nothing is downloaded.
+- `--font-mono` carries numbers, dates and labels; `.kicker` and `.section-label` are mono
+  uppercase.
+
+Background is a static 32px CSS dot grid on `body` — no canvas, no JS starfield.
+`prefers-reduced-motion` collapses every transition and animation to ~0.
+
 ## Directory map
 
 ```
 /
 ├─ layouts/                 page shells
-│  ├─ base.html             shared chrome: topbar, starfield, footer, blocks
+│  ├─ base.html             shared chrome: topbar, footer, blocks
 │  └─ post.html             Markdown post shell (front matter + body)
 ├─ pages/                   page fragments — the parts you actually edit
-│  ├─ index.html            home (grid + honeycomb)
+│  ├─ index.html            home (index + star map)
 │  ├─ project.html          project detail template
 │  ├─ blog.html             blog index
 │  └─ 404.html              not-found
@@ -41,7 +73,10 @@ only).
 │  └─ i18n.json             every UI string, zh + en
 ├─ tools/build.py           assembler: templates → pages, hash stamping, validation
 ├─ css/                     base.css (tokens + primitives) + per-page stylesheets
+│                           home.css (home index) · honeycomb.css · detail.css
+│                           blog.css · post.css
 ├─ js/                      ES modules; shared.js holds the common boot sequence
+│                           home.js renders the home index rows
 ├─ blog/<slug>/             post.md (source) + generated index.html
 ├─ soul-for-u/              untouched sub-site
 └─ docs/superpowers/specs/  design specs
@@ -99,7 +134,7 @@ resolve, that every registered post has a `post.md`, and that no generated page 
    }
    ```
 
-3. Run `python tools/build.py`. The article page appears in the blog index and on the home grid
+3. Run `python tools/build.py`. The article page appears in the blog index and on the home index
    automatically.
 
 Posts are listed on the home page and the blog index straight from `posts.json` — no page needs to
@@ -130,6 +165,7 @@ browsing is ever added, add the field and the index page in the same change.
   mermaid) — the only exception to "hand-written", and they are vendored on purpose.
 - CSS design tokens live in `:root` in `css/base.css`; use them instead of hard-coded colors,
   radii, shadows and z-index values. Shared primitives: `.pill`, `.card`, `.orb`, `.page-wrap`.
+- No `backdrop-filter`, no blur, no glow, no glass — the visual language is flat paper.
 - Keep `?v=` hashes out of hand-written files — `build.py` owns them.
 
 ## Run locally

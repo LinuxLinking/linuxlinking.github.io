@@ -376,7 +376,7 @@
         "HTML",
         "CSS",
         "ES Modules",
-        "Canvas"
+        "Python"
       ],
       "title": {
         "zh": "linuxlinking.github.io",
@@ -391,19 +391,19 @@
         "en": "The site you are looking at"
       },
       "summary": {
-        "zh": "零构建、零依赖的手写静态站：首页是项目网格，另有星图视图、Canvas 星场与中英切换，全部由原生 HTML/CSS/ES module 完成，没有一个外部库。源码由一个零依赖的 Python 脚本组装，产物仍是可直接发布的静态文件。",
-        "en": "A hand-written static site with no build step and no dependencies: a project-grid homepage plus a star-map view, a Canvas starfield and zh/en switching, all in native HTML, CSS and ES modules. The sources are assembled by a dependency-free Python script; the output is still plain static files you can publish as-is."
+        "zh": "零依赖的手写静态站：纸面排版的首页、星图第二视图、中英切换，全部由原生 HTML/CSS/ES module 完成，没有一个外部库。源码由一个零依赖的 Python 脚本组装，产物仍是可直接发布的静态文件。",
+        "en": "A hand-written static site with no dependencies: an editorial paper layout, a star-map second view and zh/en switching, all in native HTML, CSS and ES modules. The sources are assembled by a dependency-free Python script; the output is still plain static files you can publish as-is."
       },
       "highlights": {
         "zh": [
-          "无框架、无 CDN、无构建",
-          "首页项目网格 + 星图双视图，视图选择会记住",
+          "无框架、无 CDN、无网络字体",
+          "首页编辑式索引 + 星图双视图，视图选择会记住",
           "prefers-reduced-motion 下静态降级",
           "Soul for U 原样保留在 /soul-for-u/"
         ],
         "en": [
-          "No framework, no CDN, no build",
-          "A project grid and a star map, and the choice is remembered",
+          "No framework, no CDN, no web fonts",
+          "An editorial index and a star map, and the choice is remembered",
           "Static fallback under prefers-reduced-motion",
           "Soul for U preserved untouched at /soul-for-u/"
         ]
