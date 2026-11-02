@@ -44,9 +44,9 @@ test("没有 projectId 的文章用中性色", () => {
   assert.deepEqual(post.accent, ["#7c5cff", "#3ad0ff"]);
 });
 
-test("项目节点 href 指向详情页", () => {
+test("项目节点 href 指向自己的静态页", () => {
   const nodes = buildNodes({ projects, posts });
-  assert.equal(nodes.find((n) => n.id === "intent-os").href, "project.html?id=intent-os");
+  assert.equal(nodes.find((n) => n.id === "intent-os").href, "projects/intent-os/");
 });
 
 test("文章节点 href 指向博客下的文章页", () => {

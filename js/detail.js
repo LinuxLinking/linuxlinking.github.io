@@ -1,35 +1,17 @@
-import { bootPage, escapeHtml } from "./shared.js?v=33539a65";
+import { bootPage, escapeHtml } from "./shared.js?v=391cfcd3";
+
+/* 项目详情：页面在构建期就生成了静态的 projects/<id>/index.html，
+   项目数据由构建期内联进页面里的 application/json —— 不用再运行时查表，
+   禁 JS 也能看到标题、tagline 与摘要。 */
 
 const wrap = document.getElementById("detail");
-const requestedId = new URLSearchParams(location.search).get("id");
+const dataEl = document.getElementById("project-data");
 let i18n = null;
-let projects = [];
+let data = null;
 
 function pick(obj, lang, fallback = "") {
   if (!obj) return fallback;
   return obj[lang] ?? obj.zh ?? fallback;
-}
-
-async function loadProjects() {
-  try {
-    const res = await fetch("data/projects.json", { cache: "no-store" });
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    const data = await res.json();
-    return Array.isArray(data.projects) ? data.projects : [];
-  } catch (err) {
-    console.error("[detail] load failed:", err);
-    return null;
-  }
-}
-
-function renderNotice(title, body, primaryLabel, primaryHref) {
-  wrap.innerHTML = `<div class="card detail-card detail-notice">
-    <p class="kicker">404</p>
-    <h1>${escapeHtml(title)}</h1>
-    <p>${escapeHtml(body)}</p>
-    <a class="btn primary" href="${escapeHtml(primaryHref)}">${escapeHtml(primaryLabel)}</a>
-  </div>`;
-  document.title = `${title} · ${i18n.t("brand")}`;
 }
 
 function renderError() {
@@ -37,28 +19,12 @@ function renderError() {
     <p class="kicker">error</p>
     <h1>${escapeHtml(i18n.t("error.data"))}</h1>
     <p>${escapeHtml(i18n.t("error.dataHint"))}</p>
-    <a class="btn primary" href="./">${escapeHtml(i18n.t("detail.back"))}</a>
+    <a class="btn primary" href="../../">${escapeHtml(i18n.t("detail.back"))}</a>
   </div>`;
 }
 
 function renderProject(lang) {
-  const list = projects
-    .filter((p) => p.kind === "project")
-    .slice()
-    .sort((a, b) => a.order - b.order);
-
-  const index = list.findIndex((p) => p.id === requestedId);
-  if (index === -1) {
-    renderNotice(
-      i18n.t("detail.notFound"),
-      i18n.t("detail.notFoundBody"),
-      i18n.t("detail.back"),
-      "./"
-    );
-    return;
-  }
-
-  const project = list[index];
+  const project = data.project;
   const title = pick(project.title, lang);
   const tagline = pick(project.tagline, lang);
   const summary = pick(project.summary, lang);
@@ -67,8 +33,8 @@ function renderProject(lang) {
   const meta = [project.year, ...stack].filter(Boolean).join(" · ");
   const c1 = project.accent?.[0] || "#7c5cff";
   const c2 = project.accent?.[1] || "#3ad0ff";
-  const prev = list[(index - 1 + list.length) % list.length];
-  const next = list[(index + 1) % list.length];
+  const prev = `../../projects/${encodeURIComponent(data.prev)}/`;
+  const next = `../../projects/${encodeURIComponent(data.next)}/`;
 
   const stackSection = stack.length
     ? `<section class="detail-section">
@@ -143,9 +109,9 @@ function renderProject(lang) {
       ${actionsSection}
     </article>
     <nav class="detail-nav" aria-label="Project navigation">
-      <a class="btn" href="project.html?id=${encodeURIComponent(prev.id)}">← ${escapeHtml(i18n.t("detail.prev"))}</a>
-      <a class="btn" href="./">${escapeHtml(i18n.t("detail.back"))}</a>
-      <a class="btn" href="project.html?id=${encodeURIComponent(next.id)}">${escapeHtml(i18n.t("detail.next"))} →</a>
+      <a class="btn" href="${prev}">← ${escapeHtml(i18n.t("detail.prev"))}</a>
+      <a class="btn" href="../../">${escapeHtml(i18n.t("detail.back"))}</a>
+      <a class="btn" href="${next}">${escapeHtml(i18n.t("detail.next"))} →</a>
     </nav>
   </div>`;
 
@@ -155,18 +121,13 @@ function renderProject(lang) {
 }
 
 async function boot() {
-  i18n = await bootPage({ stringsPath: "data/i18n.json" });
+  i18n = await bootPage({ stringsPath: "../../data/i18n.json" });
 
-  const data = await loadProjects();
-  if (!data) {
+  try {
+    data = JSON.parse(dataEl.textContent);
+  } catch (err) {
+    console.error("[detail] inline data missing:", err);
     renderError();
-    return;
-  }
-  projects = data;
-
-  const target = projects.find((p) => p.id === requestedId);
-  if (target && target.kind !== "project" && target.path) {
-    location.replace(target.path);
     return;
   }
 

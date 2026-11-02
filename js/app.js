@@ -1,7 +1,7 @@
 import { createMap } from "./map.js?v=0bda1abc";
-import { renderHome } from "./home.js?v=eb31360f";
-import { bootPage, escapeHtml } from "./shared.js?v=33539a65";
-import { buildNodes } from "./nodes.js?v=192a1a44";
+import { renderHome } from "./home.js?v=975ff9e8";
+import { bootPage, escapeHtml } from "./shared.js?v=391cfcd3";
+import { buildNodes } from "./nodes.js?v=e7ea1fbc";
 
 const mapEl = document.getElementById("map");
 const stageEl = document.getElementById("stage");

@@ -16,6 +16,7 @@ from __future__ import annotations
 
 import argparse
 import hashlib
+import html
 import json
 import re
 import sys
@@ -37,6 +38,9 @@ SITE_PAGES = [
 
 # 博文壳：本身不产出文件，而是作为每篇文章的正文模板套进 base.html
 POST_LAYOUT = "layouts/post.html"
+
+# 项目详情：每个项目一个静态页，产物是 projects/<id>/index.html
+PROJECT_PAGE = "pages/detail.html"
 
 META_RE = re.compile(r"^<!--meta\s*\n(.*?)^-->\s*$", re.S | re.M)
 BLOCK_RE = re.compile(r"<!--block\s+(\w+)-->\s*(.*?)\s*<!--endblock(?:\s+\1)?-->", re.S)
@@ -102,6 +106,36 @@ def prefixes_for(out_path: str) -> tuple[str, str]:
     """
     depth = out_path.count("/")
     return "../" * depth, ("../" * depth if depth else "./")
+
+
+def zh_text(value) -> str:
+    """取中文文案。数据里是 {zh, en}，缺 zh 时退回 en。"""
+    if isinstance(value, dict):
+        return value.get("zh") or value.get("en") or ""
+    return value or ""
+
+
+def redirect_targets(projects: list[dict]) -> dict[str, str]:
+    """旧的项目详情地址现在去哪：project.html?id=<slug> -> projects/<slug>/。"""
+    targets: dict[str, str] = {}
+    for project in projects:
+        pid = project.get("id")
+        if not pid:
+            continue
+        if project.get("kind") == "project":
+            targets[pid] = f"projects/{pid}/"
+        elif project.get("path"):
+            targets[pid] = project["path"]
+    return targets
+
+
+def site_path_exists(target: str, project_ids: set[str]) -> bool:
+    """站内路径是否存在。projects/<id>/ 是构建期生成的目录，先看 id 在不在项目表里。"""
+    path = target.rstrip("/")
+    if path.startswith("projects/"):
+        parts = path.split("/")
+        return len(parts) == 2 and parts[1] in project_ids
+    return (ROOT / path).exists()
 
 
 # ---------------------------------------------------------------- 缓存指纹
@@ -272,6 +306,7 @@ def build_page(
     content: str,
     out_path: str,
     hashes: dict[str, str],
+    extra: dict[str, str] | None = None,
 ) -> str:
     asset_prefix, link_prefix = prefixes_for(out_path)
     css_files = [f"css/{c.strip()}" for c in meta.get("css", "").split(",") if c.strip()]
@@ -301,6 +336,7 @@ def build_page(
         "pageDecor": blocks.get("pageDecor", ""),
         "content": content,
     }
+    values.update(extra or {})
     return render(shell, values)
 
 
@@ -308,18 +344,63 @@ def build_all(hashes: dict[str, str]) -> list[tuple[Path, str]]:
     shell = strip_comments((LAYOUTS / "base.html").read_text(encoding="utf-8"))
     post_layout = (ROOT / POST_LAYOUT).read_text(encoding="utf-8")
     posts = json.loads((ROOT / "data" / "posts.json").read_text(encoding="utf-8"))["posts"]
+    projects = json.loads((ROOT / "data" / "projects.json").read_text(encoding="utf-8"))["projects"]
+    strings = json.loads((ROOT / "data" / "i18n.json").read_text(encoding="utf-8"))
+    brand = strings.get("zh", {}).get("brand", "")
 
     written: list[tuple[Path, str]] = []
+
+    # 旧的项目详情地址只做跳转，映射表内联进页面
+    redirect_map = json.dumps(redirect_targets(projects), ensure_ascii=False).replace("<", "\\u003c")
 
     for src, out in SITE_PAGES:
         source = (ROOT / src).read_text(encoding="utf-8")
         meta, blocks, content = parse_page(source)
-        written.append((ROOT / out, build_page(shell, meta, blocks, content, out, hashes)))
+        written.append(
+            (ROOT / out, build_page(shell, meta, blocks, content, out, hashes, {"redirectMap": redirect_map}))
+        )
 
     for post in posts:
         out = f"blog/{post['slug']}/index.html"
         meta, blocks, content = parse_page(post_layout)
         written.append((ROOT / out, build_page(shell, meta, blocks, content, out, hashes)))
+
+    # 每个项目一个静态页：项目数据内联进页面，禁 JS 也能看到标题与摘要
+    detail_meta, detail_blocks, detail_content = parse_page(
+        (ROOT / PROJECT_PAGE).read_text(encoding="utf-8")
+    )
+    ordered = sorted(
+        (p for p in projects if p.get("kind") == "project"),
+        key=lambda p: p.get("order") or 0,
+    )
+    for index, project in enumerate(ordered):
+        out = f"projects/{project['id']}/index.html"
+        payload = json.dumps(
+            {
+                "project": project,
+                "prev": ordered[(index - 1) % len(ordered)]["id"],
+                "next": ordered[(index + 1) % len(ordered)]["id"],
+            },
+            ensure_ascii=False,
+        ).replace("<", "\\u003c")
+        accent = project.get("accent") or []
+        meta_line = " · ".join(
+            x for x in [project.get("year"), *(project.get("stack") or [])] if x
+        )
+        extra = {
+            "projectTitle": html.escape(zh_text(project.get("title"))),
+            "projectBrand": html.escape(brand),
+            "projectTagline": html.escape(zh_text(project.get("tagline"))),
+            "projectSummary": html.escape(zh_text(project.get("summary"))),
+            "projectMeta": html.escape(meta_line),
+            "projectMonogram": html.escape(project.get("monogram") or "·"),
+            "projectC1": html.escape(accent[0] if len(accent) > 0 else "#7c5cff"),
+            "projectC2": html.escape(accent[1] if len(accent) > 1 else "#3ad0ff"),
+            "projectJson": payload,
+        }
+        written.append(
+            (ROOT / out, build_page(shell, detail_meta, detail_blocks, detail_content, out, hashes, extra))
+        )
 
     return written
 
@@ -332,6 +413,11 @@ def validate(projects: list[dict], posts: list[dict], now: dict | None = None) -
     dupes = {i for i in ids if ids.count(i) > 1}
     if dupes:
         fail(f"projects.json 有重复 id: {sorted(dupes)}")
+
+    for project in projects:
+        pid = project.get("id") or ""
+        if project.get("kind") == "project" and not re.fullmatch(r"[a-z0-9][a-z0-9-]*", pid):
+            fail(f"项目 id 不能做目录名: {pid}")
 
     for project in projects:
         for link in project.get("links") or []:
@@ -376,7 +462,7 @@ def validate(projects: list[dict], posts: list[dict], now: dict | None = None) -
                 if not href:
                     continue
                 target = href.split("?", 1)[0]
-                if not (ROOT / target).exists():
+                if not site_path_exists(target, project_ids):
                     fail(f"now.json 的 {lang} 条目指向不存在的路径: {href}")
 
 

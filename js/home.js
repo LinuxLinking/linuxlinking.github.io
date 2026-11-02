@@ -1,5 +1,5 @@
-import { escapeHtml } from "./shared.js?v=33539a65";
-import { postHref } from "./nodes.js?v=192a1a44";
+import { escapeHtml } from "./shared.js?v=391cfcd3";
+import { postHref } from "./nodes.js?v=e7ea1fbc";
 
 /* 首页默认视图：海报式排版 —— 巨型重体标题 + 编号索引行 + 文字条目。
    图纸退居第二视图（见 app.js），两套视图读的是同一份 projects.json / posts.json。 */

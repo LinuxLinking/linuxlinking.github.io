@@ -21,6 +21,8 @@ artifact is plain HTML + CSS + ES modules.
 - **zh / en switching** across all pages (`?lang=en` → `localStorage` → `navigator.language`)
 - [Writing](https://linuxlinking.github.io/blog/) — a blog
 - [Soul for U](https://linuxlinking.github.io/soul-for-u/) — a page written for one person
+- **One address per project** — `/projects/<slug>/` is a real static page, shareable and indexable;
+  the old `project.html?id=<slug>` links redirect there
 
 ## Stack
 
@@ -74,7 +76,8 @@ Background is a static inline SVG print-noise texture on `body` — no canvas, n
 │  └─ post.html             Markdown post shell (front matter + body)
 ├─ pages/                   page fragments — the parts you actually edit
 │  ├─ index.html            home (index + schematic)
-│  ├─ project.html          project detail template
+│  ├─ detail.html           project detail template (one page per project)
+│  ├─ project.html          old project address → redirect page
 │  ├─ blog.html             blog index
 │  └─ 404.html              not-found
 ├─ data/                    the single source of truth for content
@@ -91,14 +94,17 @@ Background is a static inline SVG print-noise texture on `body` — no canvas, n
 │                           home.js renders the home index rows
 │                           map.js draws the schematic (directory layout + pan/zoom)
 │                           nodes.js merges projects + posts into the site node list
+│                           detail.js renders a project page from its inlined data
+│                           project-redirect.js sends the old ?id= links to the new pages
 ├─ blog/<slug>/             post.md (source) + generated index.html
+├─ projects/<id>/           generated project page — one directory per project
 ├─ soul-for-u/              untouched sub-site
 └─ docs/superpowers/specs/  design specs
 ```
 
-Generated files (root `index.html`, `project.html`, `404.html`, `blog/*/index.html`) are committed
-to the repo so GitHub Pages can serve them directly. **Edit `layouts/` and `pages/`, not the
-generated HTML.**
+Generated files (root `index.html`, `project.html`, `404.html`, `blog/*/index.html`,
+`projects/*/index.html`) are committed to the repo so GitHub Pages can serve them directly.
+**Edit `layouts/` and `pages/`, not the generated HTML.**
 
 ## Build
 
@@ -107,20 +113,24 @@ python tools/build.py          # assemble + stamp hashes
 python tools/build.py --check  # validate only, fail if anything is stale
 ```
 
-`build.py` does four things:
+`build.py` does five things:
 
 1. Renders `layouts/base.html` + each `pages/*.html` fragment into the root pages.
 2. Renders `layouts/post.html` for every entry in `data/posts.json` into `blog/<slug>/index.html`.
-3. Rewrites `?v=<hash>` on every CSS/JS reference and on every ES module import, using the
+3. Renders `pages/detail.html` once per project into `projects/<id>/index.html`, with the project
+   data inlined as JSON. Title, tagline and summary are written into the HTML itself, so the page
+   still reads without JavaScript and can be indexed.
+4. Rewrites `?v=<hash>` on every CSS/JS reference and on every ES module import, using the
    file's content hash. A module's hash folds in the hashes of the modules it imports, so
    changing one file re-stamps every page that depends on it — returning visitors get the new
    file instead of a stale cached copy. An existing `?v=` in the file is normalised away, so
    the script stays idempotent.
-4. Regenerates the offline fallback strings in `js/i18n.js` from `data/i18n.json`, so the two
+5. Regenerates the offline fallback strings in `js/i18n.js` from `data/i18n.json`, so the two
    never drift.
 
-`--check` verifies JSON validity, that project ids and post slugs are unique, that project links
-resolve, that every registered post has a `post.md`, and that no generated page is stale.
+`--check` verifies JSON validity, that project ids and post slugs are unique, that a project id
+can be used as a directory name, that project links resolve, that every registered post has a
+`post.md`, that `now.json` links point at real pages, and that no generated page is stale.
 
 ## Writing a new post
 

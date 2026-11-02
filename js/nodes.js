@@ -26,7 +26,7 @@ export function buildNodes({ projects = [], posts = [] } = {}) {
 
   const projectToNode = (node) => ({
     ...node,
-    href: `project.html?id=${encodeURIComponent(node.id)}`
+    href: `projects/${node.id}/`
   });
 
   // posts.json 的 url 相对 /blog/，而节点链接是从首页发出的，所以要补前缀。

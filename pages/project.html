@@ -1,14 +1,28 @@
 <!--meta
-title: 项目 · 钟闪闪
-description: 项目详情
+title: 跳转中 · 钟闪闪
+description: 项目详情已迁移到独立地址
 bodyClass: page-detail
 css: base.css, detail.css
-js: detail.js
-headExtra: <meta property="og:type" content="article">
+js: project-redirect.js
 -->
 
 <!--block topbarAction-->
 <a class="chip" href="{{link}}" data-i18n="detail.back">回到首页</a>
 <!--endblock-->
 
-<main id="detail"></main>
+<!-- 旧的项目详情地址。现在每个项目有自己的页面，这里只负责把人带过去。 -->
+<main id="detail">
+  <div class="page-wrap detail-wrap">
+    <article class="card detail-card">
+      <header class="detail-head">
+        <div>
+          <p class="kicker">redirect</p>
+          <h1 class="detail-title">这个地址换了</h1>
+          <p class="detail-summary">项目详情现在有自己的地址了。如果这里停住，点「回到首页」。</p>
+        </div>
+      </header>
+    </article>
+  </div>
+</main>
+
+<script type="application/json" id="redirect-map">{{redirectMap}}</script>

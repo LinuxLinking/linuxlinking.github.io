@@ -90,6 +90,58 @@ class FingerprintTests(unittest.TestCase):
     def test_hash_is_stable_when_nothing_changes(self):
         self.assertEqual(build.content_hash(self.mid), build.content_hash(self.mid))
 
+class ProjectPageTests(unittest.TestCase):
+    """阶段 2：每个项目一个静态页，旧地址改成跳转。"""
+
+    def setUp(self):
+        self.projects = load("data/projects.json")["projects"]
+        self.posts = load("data/posts.json")["posts"]
+        self.now = load("data/now.json")
+        self.written = dict(build.build_all(build.asset_hashes()))
+
+    def project_pages(self):
+        return [p for p in self.projects if p.get("kind") == "project"]
+
+    def test_every_project_gets_a_static_page(self):
+        for project in self.project_pages():
+            path = ROOT / "projects" / project["id"] / "index.html"
+            self.assertIn(path, self.written, f"{project['id']} 没有生成静态页")
+
+    def test_static_page_carries_title_and_summary_without_js(self):
+        html = self.written[ROOT / "projects" / "intent-os" / "index.html"]
+        self.assertIn("Intent OS", html)
+        self.assertIn("把意图编译成可验证、可回滚的执行链", html)
+        self.assertIn('<script type="application/json" id="project-data">', html)
+
+    def test_static_page_uses_two_level_relative_prefixes(self):
+        html = self.written[ROOT / "projects" / "intent-os" / "index.html"]
+        self.assertIn('href="../../css/base.css', html)
+        self.assertIn('href="../../blog/"', html)
+        self.assertIn('src="../../js/detail.js', html)
+
+    def test_old_address_redirects_to_the_new_one(self):
+        html = self.written[ROOT / "project.html"]
+        self.assertIn('"intent-os": "projects/intent-os/"', html)
+        self.assertIn('"blog": "blog/"', html)
+        self.assertIn('"soul-for-u": "soul-for-u/"', html)
+
+    def test_project_id_that_cannot_be_a_directory_is_rejected(self):
+        projects = copy.deepcopy(self.projects)
+        projects[0]["id"] = "Intent OS"
+        with self.assertRaises(SystemExit):
+            build.validate(projects, self.posts, self.now)
+
+    def test_now_href_to_a_project_page_is_accepted(self):
+        now = copy.deepcopy(self.now)
+        now["now"]["zh"]["items"][0]["href"] = "projects/intent-os/"
+        build.validate(self.projects, self.posts, now)
+
+    def test_now_href_to_an_unknown_project_page_is_rejected(self):
+        now = copy.deepcopy(self.now)
+        now["now"]["zh"]["items"][0]["href"] = "projects/no-such-project/"
+        with self.assertRaises(SystemExit):
+            build.validate(self.projects, self.posts, now)
+
 
 if __name__ == "__main__":
     unittest.main()
