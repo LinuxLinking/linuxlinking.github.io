@@ -2,7 +2,8 @@
 """生成社交卡片 assets/og.png（1200×630）。
 
 社交平台不认 SVG，Open Graph 必须是 PNG/JPG。这里不引任何图像库：
-自己写 PNG（zlib + struct，标准库够用），画一张跟站点同一套视觉的暗底海报。
+自己写 PNG（zlib + struct，标准库够用），画一张跟站点同一套视觉的
+Windows XP 桌面 —— 蓝色壁纸上一个 IE 窗口，底下压着任务栏。
 
     python tools/og_image.py
 """
@@ -17,14 +18,31 @@ ROOT = Path(__file__).resolve().parent.parent
 OUT = ROOT / "assets" / "og.png"
 
 WIDTH, HEIGHT = 1200, 630
-BG = (0x14, 0x12, 0x0F)
-INK = (0xF2, 0xEC, 0xE0)
-ACCENT = (0xF2, 0x60, 0x3F)
-LINE = (0x3A, 0x34, 0x2B)
+
+# 桌面：Bliss 的蓝天
+DESKTOP_TOP = (0x6A, 0xA8, 0xE0)
+DESKTOP_BOTTOM = (0x2E, 0x6C, 0xB0)
+
+# 窗口：XP 标题栏渐变 + 米色立体面 + 白纸
+TITLE_TOP = (0x1B, 0x5E, 0xC8)
+TITLE_BOTTOM = (0x08, 0x2E, 0x74)
+TASKBAR_TOP = (0x2A, 0x6F, 0xD0)
+TASKBAR_BOTTOM = (0x14, 0x4A, 0xA0)
+FACE = (0xEC, 0xEC, 0xEC)
+PAPER = (0xFF, 0xFF, 0xFF)
+BORDER = (0x7F, 0x9D, 0xB9)
+
+# 内容
+INK = (0x1A, 0x1A, 0x1A)
+DIM = (0x9A, 0x9A, 0x9A)
+LINK = (0x00, 0x00, 0xEE)
+START = (0x3E, 0x9A, 0x3E)
+CLOSE = (0xC7, 0x39, 0x2F)
+ACCENTS = [(0x6F, 0x7B, 0xFF), (0xB0, 0x6B, 0xFF), (0x2F, 0x9E, 0x8F)]
 
 
 def blank_canvas() -> list[bytearray]:
-    return [bytearray(bytes(BG) * WIDTH) for _ in range(HEIGHT)]
+    return [bytearray(bytes(DESKTOP_BOTTOM) * WIDTH) for _ in range(HEIGHT)]
 
 
 def fill_rect(canvas, x: int, y: int, w: int, h: int, color) -> None:
@@ -38,47 +56,61 @@ def fill_rect(canvas, x: int, y: int, w: int, h: int, color) -> None:
         canvas[yy][x0 * 3:x1 * 3] = row
 
 
-def fill_line(canvas, x0: int, y0: int, x1: int, y1: int, thickness: int, color) -> None:
-    """粗线段：Bresenham 取点，每个点铺一个厚度方块。"""
-    steps = max(abs(x1 - x0), abs(y1 - y0))
-    if steps == 0:
-        return
-    for i in range(steps + 1):
-        x = round(x0 + (x1 - x0) * i / steps)
-        y = round(y0 + (y1 - y0) * i / steps)
-        fill_rect(canvas, x, y - thickness // 2, thickness, thickness, color)
+def fill_gradient(canvas, x: int, y: int, w: int, h: int, top, bottom) -> None:
+    """竖直渐变。桌面、标题栏、任务栏都是上下渐变，所以只有这一个方向。"""
+    for i in range(h):
+        t = i / max(1, h - 1)
+        color = bytes(round(top[c] + (bottom[c] - top[c]) * t) for c in range(3))
+        fill_rect(canvas, x, y + i, w, 1, color)
 
 
-def draw_poster() -> list[bytearray]:
-    """暗底 + 朱红 Z 标 + 几道文字线 + 上下两条横规。"""
+def draw_card() -> list[bytearray]:
+    """XP 桌面：壁纸上一个 IE 窗口，底下压着任务栏。"""
     canvas = blank_canvas()
+    fill_gradient(canvas, 0, 0, WIDTH, HEIGHT, DESKTOP_TOP, DESKTOP_BOTTOM)
 
-    # 顶规
-    fill_rect(canvas, 90, 96, 1020, 2, INK)
+    win_x, win_y, win_w, win_h = 180, 52, 840, 512
 
-    # 朱红方块，里面反白一个 Z
-    box_x, box_y, box, pad = 90, 165, 300, 62
-    fill_rect(canvas, box_x, box_y, box, box, ACCENT)
-    fill_rect(canvas, box_x + pad, box_y + pad, box - pad * 2, 30, BG)
-    fill_rect(canvas, box_x + pad, box_y + box - pad - 30, box - pad * 2, 30, BG)
-    fill_line(
-        canvas,
-        box_x + box - pad,
-        box_y + pad + 15,
-        box_x + pad,
-        box_y + box - pad - 15,
-        30,
-        BG,
-    )
+    # 窗口外框
+    fill_rect(canvas, win_x - 4, win_y - 4, win_w + 8, win_h + 8, (0x08, 0x32, 0x78))
 
-    # 右侧的文字块：一道实线领起，下面三道细线
-    fill_rect(canvas, 450, 186, 640, 20, INK)
-    fill_rect(canvas, 450, 248, 530, 8, LINE)
-    fill_rect(canvas, 450, 292, 590, 8, LINE)
-    fill_rect(canvas, 450, 336, 430, 8, LINE)
+    # 标题栏
+    fill_gradient(canvas, win_x, win_y, win_w, 36, TITLE_TOP, TITLE_BOTTOM)
+    fill_rect(canvas, win_x + 12, win_y + 9, 18, 18, PAPER)
+    fill_rect(canvas, win_x + 40, win_y + 12, 300, 12, PAPER)
+    fill_rect(canvas, win_x + win_w - 34, win_y + 7, 22, 22, CLOSE)
+    fill_rect(canvas, win_x + win_w - 28, win_y + 13, 10, 10, PAPER)
 
-    # 底规
-    fill_rect(canvas, 90, 520, 1020, 6, ACCENT)
+    # 菜单栏 + 工具栏
+    bar_y = win_y + 36
+    fill_rect(canvas, win_x, bar_y, win_w, 26, FACE)
+    fill_rect(canvas, win_x, bar_y, win_w, 1, (0xC0, 0xC0, 0xC0))
+    for i in range(4):
+        fill_rect(canvas, win_x + 12 + i * 40, bar_y + 4, 26, 18, (0xD4, 0xD0, 0xC8))
+        fill_rect(canvas, win_x + 12 + i * 40, bar_y + 4, 26, 1, (0xFF, 0xFF, 0xFF))
+    fill_rect(canvas, win_x + 180, bar_y + 2, win_w - 196, 22, PAPER)
+    fill_rect(canvas, win_x + 180, bar_y + 2, win_w - 196, 1, BORDER)
+
+    # 内容区：白纸
+    body_y = bar_y + 26
+    fill_rect(canvas, win_x, body_y, win_w, win_h - 62, PAPER)
+    fill_rect(canvas, win_x, body_y, win_w, 1, BORDER)
+
+    # 纸上的内容：标题、链接、三行作品
+    fill_rect(canvas, win_x + 40, body_y + 44, 420, 24, INK)
+    fill_rect(canvas, win_x + 40, body_y + 84, 300, 13, LINK)
+    for i, accent in enumerate(ACCENTS):
+        row_y = body_y + 138 + i * 52
+        fill_rect(canvas, win_x + 40, row_y, 20, 20, accent)
+        fill_rect(canvas, win_x + 72, row_y + 2, 300, 8, INK)
+        fill_rect(canvas, win_x + 72, row_y + 18, 520, 7, DIM)
+
+    # 任务栏
+    task_y = HEIGHT - 46
+    fill_gradient(canvas, 0, task_y, WIDTH, 46, TASKBAR_TOP, TASKBAR_BOTTOM)
+    fill_rect(canvas, 12, task_y + 6, 84, 34, START)
+    fill_rect(canvas, 12, task_y + 6, 84, 2, (0x6A, 0xC4, 0x6A))
+    fill_rect(canvas, 110, task_y + 12, 210, 22, (0xC8, 0xD8, 0xF0))
 
     return canvas
 
@@ -108,7 +140,7 @@ def encode_png(canvas) -> bytes:
 
 def main() -> int:
     OUT.parent.mkdir(parents=True, exist_ok=True)
-    OUT.write_bytes(encode_png(draw_poster()))
+    OUT.write_bytes(encode_png(draw_card()))
     print(f"og_image: 写出 {OUT.relative_to(ROOT)}（{WIDTH}×{HEIGHT}）")
     return 0
 
