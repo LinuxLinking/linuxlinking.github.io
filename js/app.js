@@ -1,7 +1,6 @@
 import { createHoneycomb } from "./honeycomb.js?v=e9ff3f9e";
-import { createI18n, loadStrings, resolveLang } from "./i18n.js?v=b69bb391";
-import { renderList } from "./list.js?v=04b817cc";
-import { startStarfield } from "./starfield.js?v=d6c07621";
+import { renderList } from "./list.js?v=7f7fd53d";
+import { bootPage, escapeHtml } from "./shared.js?v=2e114873";
 
 const honeyEl = document.getElementById("honeycomb");
 const stageEl = document.getElementById("stage");
@@ -10,7 +9,6 @@ const aboutEl = document.getElementById("about");
 const stateErrorEl = document.getElementById("stateError");
 const hintEl = document.querySelector(".hint");
 const viewButtons = Array.from(document.querySelectorAll("[data-view]"));
-const langButtons = Array.from(document.querySelectorAll("[data-lang-btn]"));
 const aboutBtn = document.getElementById("aboutBtn");
 const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
 
@@ -32,19 +30,10 @@ if (spotlightEl && !reduced && matchMedia("(pointer: fine)").matches) {
   }, { passive: true });
 }
 
-const state = { lang: resolveLang(), projects: [] };
+const state = { lang: "zh", projects: [] };
 let i18n = null;
 let honey = null;
 let lastFocus = null;
-
-const escapeHtml = (value) =>
-  String(value == null ? "" : value).replace(/[&<>"']/g, (ch) => ({
-    "&": "&amp;",
-    "<": "&lt;",
-    ">": "&gt;",
-    '"': "&quot;",
-    "'": "&#39;"
-  }[ch]));
 
 function hrefFor(node) {
   if (node.kind === "blog") return node.path || "blog/";
@@ -160,12 +149,6 @@ function wireUi() {
     btn.addEventListener("click", () => setView(btn.dataset.view));
   });
 
-  langButtons.forEach((btn) => {
-    btn.addEventListener("click", () => {
-      if (btn.dataset.langBtn !== i18n.lang) i18n.setLang(btn.dataset.langBtn);
-    });
-  });
-
   if (aboutBtn) aboutBtn.addEventListener("click", openAbout);
   if (aboutEl) {
     aboutEl.querySelectorAll("[data-close-about]").forEach((el) => {
@@ -182,10 +165,7 @@ function wireUi() {
 }
 
 async function boot() {
-  startStarfield(document.getElementById("stars"));
-
-  const strings = await loadStrings("data/i18n.json");
-  i18n = createI18n({ strings, lang: state.lang });
+  i18n = await bootPage({ stringsPath: "data/i18n.json" });
   state.lang = i18n.lang;
 
   const projects = await loadProjects();

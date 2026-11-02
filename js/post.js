@@ -1,8 +1,5 @@
 import { marked } from "./vendor/marked.esm.js";
-import { createI18n, loadStrings, resolveLang } from "./i18n.js?v=b69bb391";
-import { startStarfield } from "./starfield.js?v=d6c07621";
-
-const langButtons = Array.from(document.querySelectorAll("[data-lang-btn]"));
+import { bootPage } from "./shared.js?v=2e114873";
 
 const el = {
   kicker: document.getElementById("post-kicker"),
@@ -99,15 +96,7 @@ function markMermaidFailure(blocks) {
 /* ---- 引导 ---- */
 
 async function boot() {
-  startStarfield(document.getElementById("stars"));
-
-  const strings = await loadStrings("../../data/i18n.json");
-  const i18n = createI18n({ strings, lang: resolveLang() });
-  langButtons.forEach((btn) => {
-    btn.addEventListener("click", () => {
-      if (btn.dataset.langBtn !== i18n.lang) i18n.setLang(btn.dataset.langBtn);
-    });
-  });
+  await bootPage({ stringsPath: "../../data/i18n.json" });
 
   let md;
   try {

@@ -1,11 +1,4 @@
-const escapeHtml = (value) =>
-  String(value == null ? "" : value).replace(/[&<>"']/g, (ch) => ({
-    "&": "&amp;",
-    "<": "&lt;",
-    ">": "&gt;",
-    '"': "&quot;",
-    "'": "&#39;"
-  }[ch]));
+import { escapeHtml } from "./shared.js?v=2e114873";
 
 function row(node) {
   const c1 = (node.accent && node.accent[0]) || "#7c5cff";

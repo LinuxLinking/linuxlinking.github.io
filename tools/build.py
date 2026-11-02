@@ -167,6 +167,50 @@ def sync_js_versions() -> list[Path]:
     return touched
 
 
+# ---------------------------------------------------------------- i18n 兜底文案
+
+FALLBACK_BEGIN = "/* FALLBACK:BEGIN */"
+FALLBACK_END = "/* FALLBACK:END */"
+
+
+def render_fallback_block(strings: dict) -> str:
+    """把 data/i18n.json 渲染成 i18n.js 里的 FALLBACK 常量。
+
+    文案只维护一份：data/i18n.json。js/i18n.js 里的兜底副本由脚本生成，
+    这样离线时看到的也是最新文案，而不是一份手抄的过期清单。
+    """
+    lines = [FALLBACK_BEGIN, "const FALLBACK = {"]
+    for lang in sorted(strings):
+        bucket = strings[lang]
+        lines.append(f"  {lang}: {{")
+        for key in sorted(bucket):
+            value = json.dumps(bucket[key], ensure_ascii=False)
+            lines.append(f"    {json.dumps(key, ensure_ascii=False)}: {value},")
+        lines.append("  },")
+    lines.append("};")
+    lines.append(FALLBACK_END)
+    return "\n".join(lines)
+
+
+def sync_i18n_fallback() -> Path | None:
+    """把 data/i18n.json 的内容写进 js/i18n.js 的 FALLBACK 块。"""
+    strings = json.loads((ROOT / "data" / "i18n.json").read_text(encoding="utf-8"))
+    path = JS_DIR / "i18n.js"
+    source = path.read_text(encoding="utf-8")
+
+    start = source.find(FALLBACK_BEGIN)
+    end = source.find(FALLBACK_END)
+    if start == -1 or end == -1:
+        fail("js/i18n.js 缺少 FALLBACK:BEGIN / FALLBACK:END 标记")
+
+    updated = source[:start] + render_fallback_block(strings) + source[end + len(FALLBACK_END):]
+    if updated == source:
+        return None
+
+    path.write_text(updated, encoding="utf-8", newline="\n")
+    return path
+
+
 # ---------------------------------------------------------------- 组装
 
 
@@ -290,13 +334,25 @@ def main() -> int:
     validate(projects, posts)
 
     if args.check:
+        stale = []
+        i18n_path = JS_DIR / "i18n.js"
+        strings = json.loads((ROOT / "data" / "i18n.json").read_text(encoding="utf-8"))
+        source = i18n_path.read_text(encoding="utf-8")
+        start = source.find(FALLBACK_BEGIN)
+        end = source.find(FALLBACK_END)
+        expected = (
+            source[:start] + render_fallback_block(strings) + source[end + len(FALLBACK_END):]
+            if start != -1 and end != -1
+            else None
+        )
+        if expected != source:
+            stale.append("js/i18n.js 的兜底文案与 data/i18n.json 不一致")
+
         written = build_all(asset_hashes())
-        stale = [
-            path.relative_to(ROOT).as_posix()
-            for path, html in written
-            if not path.exists()
-            or path.read_text(encoding="utf-8") != GENERATED_NOTE + "\n" + html
-        ]
+        for path, html in written:
+            if not path.exists() or path.read_text(encoding="utf-8") != GENERATED_NOTE + "\n" + html:
+                stale.append(path.relative_to(ROOT).as_posix())
+
         if stale:
             fail(
                 "以下生成物与源码不一致，请跑 python tools/build.py：\n  "
@@ -305,6 +361,7 @@ def main() -> int:
         print(f"build: 校验通过，{len(written)} 个页面均为最新")
         return 0
 
+    sync_i18n_fallback()
     sync_js_versions()
     written = build_all(asset_hashes())
 

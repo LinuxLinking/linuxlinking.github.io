@@ -1,18 +1,6 @@
-import { createI18n, loadStrings, resolveLang } from "./i18n.js?v=b69bb391";
-import { startStarfield } from "./starfield.js?v=d6c07621";
+import { bootPage, escapeHtml } from "./shared.js?v=2e114873";
 
 const listEl = document.getElementById("posts");
-const langButtons = Array.from(document.querySelectorAll("[data-lang-btn]"));
-
-const escapeHtml = (value) =>
-  String(value == null ? "" : value).replace(/[&<>"']/g, (ch) => ({
-    "&": "&amp;",
-    "<": "&lt;",
-    ">": "&gt;",
-    '"': "&quot;",
-    "'": "&#39;"
-  }[ch]));
-
 let i18n = null;
 let posts = [];
 
@@ -61,16 +49,7 @@ function renderPosts() {
 }
 
 async function boot() {
-  startStarfield(document.getElementById("stars"));
-
-  const strings = await loadStrings("../data/i18n.json");
-  i18n = createI18n({ strings, lang: resolveLang() });
-
-  langButtons.forEach((btn) => {
-    btn.addEventListener("click", () => {
-      if (btn.dataset.langBtn !== i18n.lang) i18n.setLang(btn.dataset.langBtn);
-    });
-  });
+  i18n = await bootPage({ stringsPath: "../data/i18n.json" });
 
   posts = await loadPosts();
   i18n.onChange(() => renderPosts());
