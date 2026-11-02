@@ -44,6 +44,24 @@ class ValidateTests(unittest.TestCase):
         with self.assertRaises(SystemExit):
             build.validate(self.projects, self.posts, now)
 
+    def test_unknown_project_id_is_rejected(self):
+        posts = copy.deepcopy(self.posts)
+        posts[0]["projectId"] = "no-such-project"
+        with self.assertRaises(SystemExit):
+            build.validate(self.projects, posts, self.now)
+
+    def test_post_without_label_is_rejected(self):
+        posts = copy.deepcopy(self.posts)
+        posts[0].pop("label", None)
+        with self.assertRaises(SystemExit):
+            build.validate(self.projects, posts, self.now)
+
+    def test_post_without_monogram_is_rejected(self):
+        posts = copy.deepcopy(self.posts)
+        posts[0].pop("monogram", None)
+        with self.assertRaises(SystemExit):
+            build.validate(self.projects, posts, self.now)
+
 
 if __name__ == "__main__":
     unittest.main()

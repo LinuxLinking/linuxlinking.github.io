@@ -320,6 +320,18 @@ def validate(projects: list[dict], posts: list[dict], now: dict | None = None) -
         if not (ROOT / "blog" / url).is_dir():
             fail(f"文章 {slug} 的 url 指向不存在的目录: {url}")
 
+    project_ids = {p.get("id") for p in projects}
+
+    for post in posts:
+        slug = post.get("slug")
+        pid = post.get("projectId")
+        if pid and pid not in project_ids:
+            fail(f"文章 {slug} 的 projectId 指向不存在的项目: {pid}")
+        if not post.get("label"):
+            fail(f"文章 {slug} 缺少 label（星图节点标签用）")
+        if not post.get("monogram"):
+            fail(f"文章 {slug} 缺少 monogram（星图节点字形用）")
+
     if now is not None:
         for lang, bucket in (now.get("now") or {}).items():
             items = bucket.get("items") or []

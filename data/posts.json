@@ -3,6 +3,12 @@
     {
       "slug": "harness-guard-design",
       "date": "2026-10-31",
+      "projectId": "ollama-harness",
+      "label": {
+        "zh": "守卫设计",
+        "en": "Guard Design"
+      },
+      "monogram": "守",
       "title": {
         "zh": "小模型不可信，守卫必须是代码",
         "en": "Distrust the Model, Encode the Guard"
@@ -16,6 +22,12 @@
     {
       "slug": "why-runtime-not-agent",
       "date": "2026-10-31",
+      "projectId": "intent-os",
+      "label": {
+        "zh": "一层 Runtime",
+        "en": "A Runtime"
+      },
+      "monogram": "链",
       "title": {
         "zh": "为什么我不做 Agent，而做一层 Runtime",
         "en": "Why a Runtime, Not Another Agent Framework"
@@ -29,6 +41,12 @@
     {
       "slug": "milkdown-in-webview",
       "date": "2026-10-31",
+      "projectId": "mdeditor",
+      "label": {
+        "zh": "混血编辑器",
+        "en": "Hybrid Editor"
+      },
+      "monogram": "桥",
       "title": {
         "zh": "把 Milkdown 塞进 WebView：混血编辑器的取舍",
         "en": "Milkdown in a WebView: Trade-offs of a Hybrid Editor"
@@ -42,6 +60,12 @@
     {
       "slug": "cage-for-a-model",
       "date": "2026-10-31",
+      "projectId": "lockdown",
+      "label": {
+        "zh": "造笼子",
+        "en": "The Cage"
+      },
+      "monogram": "笼",
       "title": {
         "zh": "给一个不太可信的模型造笼子",
         "en": "A Cage for One Untrusted Model"
