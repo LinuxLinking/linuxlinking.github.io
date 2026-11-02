@@ -1,80 +1,88 @@
-/* 外壳几何由 base.css 的 .page-wrap 提供，详情页只是更宽一点。 */
+/* 项目详情：去掉玻璃大卡，改成无框长文版式。
+   外壳几何由 base.css 的 .page-wrap 提供，这里只保留详情页自己的宽度与排版。 */
+
 .detail-wrap {
-  width: min(820px, 100%);
+  width: min(780px, 100%);
 }
 
+/* 详情页不要框：去掉 .card 带来的白底与描边，让内容直接落在纸上 */
 .detail-card {
-  padding: clamp(22px, 4vw, 42px);
-  background: linear-gradient(165deg, rgba(17, 21, 34, 0.72), rgba(8, 10, 18, 0.82));
-  backdrop-filter: blur(14px);
-  box-shadow: 0 40px 90px -50px rgba(0, 0, 0, 0.9);
-  animation: detail-in 0.6s var(--ease) both;
+  border: 0;
+  background: none;
+  animation: detail-in 0.5s var(--ease) both;
 }
 
 @keyframes detail-in {
   from {
     opacity: 0;
-    transform: translateY(16px);
+    transform: translateY(10px);
   }
 }
 
 .detail-head {
   display: flex;
   align-items: center;
-  gap: clamp(18px, 3vw, 28px);
-  margin-bottom: 26px;
+  gap: clamp(16px, 3vw, 22px);
+  margin-bottom: 30px;
 }
 
 .detail-head .orb {
-  --r: clamp(44px, 9vw, 64px);
+  --r: clamp(34px, 6vw, 44px);
   flex: 0 0 auto;
 }
 
 .detail-meta {
-  margin: 0 0 8px;
+  margin: 0 0 10px;
+  font-family: var(--font-mono);
   font-size: 11px;
-  letter-spacing: 0.18em;
+  letter-spacing: 0.16em;
   text-transform: uppercase;
-  color: var(--fg-dim);
+  color: var(--fg-faint);
 }
 
 .detail-title {
-  margin: 0 0 8px;
-  font-size: clamp(26px, 5vw, 40px);
-  font-weight: 600;
-  letter-spacing: -0.015em;
-  line-height: 1.15;
+  margin: 0 0 10px;
+  font-family: var(--font-display);
+  font-size: clamp(30px, 5.4vw, 48px);
+  font-weight: 400;
+  letter-spacing: -0.025em;
+  line-height: 1.08;
 }
 
 .detail-tagline {
   margin: 0;
   color: var(--fg-dim);
-  font-size: 14.5px;
+  font-size: 15px;
   line-height: 1.7;
 }
 
 .detail-summary {
-  margin: 0 0 30px;
-  padding-bottom: 28px;
-  border-bottom: 1px solid var(--line-soft);
-  font-size: 15px;
-  line-height: 1.9;
+  margin: 0 0 40px;
+  padding-bottom: 34px;
+  border-bottom: 1px solid var(--line);
+  font-family: var(--font-display);
+  font-size: 18px;
+  line-height: 1.75;
   color: var(--fg-soft);
 }
 
 .detail-section {
-  margin-bottom: 28px;
+  margin-bottom: 40px;
 }
 
 .detail-section h2 {
-  margin: 0 0 12px;
+  margin: 0 0 16px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--line);
+  font-family: var(--font-mono);
   font-size: 11px;
   font-weight: 500;
-  letter-spacing: 0.22em;
+  letter-spacing: 0.2em;
   text-transform: uppercase;
-  color: var(--fg-dim);
+  color: var(--fg-faint);
 }
 
+/* 技术栈：不再是胶囊，改成一行等宽斜杠串 */
 .detail-stack {
   display: flex;
   flex-wrap: wrap;
@@ -82,60 +90,58 @@
   margin: 0;
   padding: 0;
   list-style: none;
-}
-
-.detail-stack li {
-  padding: 5px 12px;
-  border-radius: var(--radius-pill);
-  border: 1px solid var(--line);
-  background: var(--surface-soft);
-  font-size: 12px;
-  letter-spacing: 0.03em;
+  font-family: var(--font-mono);
+  font-size: 12.5px;
+  letter-spacing: 0.04em;
   color: var(--fg-dim);
 }
 
+.detail-stack li:not(:last-child)::after {
+  content: "/";
+  margin-left: 8px;
+  color: var(--fg-faint);
+}
+
+/* 要点：带编号的行列表，不再是卡片格 */
 .highlights {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: 12px;
   margin: 0;
   padding: 0;
   list-style: none;
   counter-reset: hl;
+  border-top: 1px solid var(--line);
 }
 
 .highlights li {
   position: relative;
-  padding: 16px 44px 15px 18px;
-  border: 1px solid var(--line-soft);
-  border-radius: var(--radius-md);
-  background: var(--surface-soft);
+  padding: 20px 0 20px 44px;
+  border-bottom: 1px solid var(--line);
   counter-increment: hl;
 }
 
 .highlights li::before {
   content: counter(hl, decimal-leading-zero);
   position: absolute;
-  top: 15px;
-  right: 16px;
+  left: 0;
+  top: 21px;
   font-family: var(--font-mono);
-  font-size: 11px;
+  font-size: 11.5px;
   letter-spacing: 0.06em;
   color: var(--fg-faint);
 }
 
 .highlight-title {
-  margin: 0 0 6px;
-  font-size: 14.5px;
-  font-weight: 600;
-  letter-spacing: 0.01em;
+  margin: 0 0 7px;
+  font-family: var(--font-display);
+  font-size: 19px;
+  font-weight: 400;
+  letter-spacing: -0.01em;
   color: var(--fg);
 }
 
 .highlight-body {
   margin: 0;
-  font-size: 13px;
-  line-height: 1.75;
+  font-size: 14.5px;
+  line-height: 1.8;
   color: var(--fg-dim);
 }
 
@@ -144,12 +150,14 @@
   flex-wrap: wrap;
   align-items: center;
   gap: 10px;
-  margin-top: 30px;
+  margin-top: 40px;
+  padding-top: 30px;
+  border-top: 1px solid var(--line);
 }
 
 .action-note {
   font-size: 12px;
-  letter-spacing: 0.03em;
+  letter-spacing: 0.02em;
   color: var(--fg-faint);
 }
 
@@ -158,13 +166,15 @@
   align-items: center;
   justify-content: space-between;
   gap: 10px;
-  margin-top: 26px;
+  margin-top: 40px;
+  padding-top: 24px;
+  border-top: 1px solid var(--line);
   flex-wrap: wrap;
 }
 
 .detail-nav .btn {
   font-size: 12.5px;
-  padding: 9px 15px;
+  padding: 8px 14px;
 }
 
 .detail-nav .spacer {
@@ -178,19 +188,23 @@
 
 .detail-notice {
   text-align: center;
-  padding: clamp(40px, 10vw, 90px) 10px;
+  padding: clamp(50px, 12vw, 110px) 10px;
 }
 
 .detail-notice h1 {
-  margin: 0 0 10px;
-  font-size: clamp(24px, 5vw, 32px);
-  font-weight: 600;
+  margin: 0 0 14px;
+  font-family: var(--font-display);
+  font-size: clamp(28px, 6vw, 44px);
+  font-weight: 400;
+  letter-spacing: -0.02em;
+  line-height: 1.15;
 }
 
 .detail-notice p {
-  margin: 0 0 24px;
+  margin: 0 0 26px;
   color: var(--fg-dim);
-  font-size: 14px;
+  font-size: 14.5px;
+  line-height: 1.8;
 }
 
 @media (max-width: 520px) {
@@ -198,11 +212,11 @@
     align-items: flex-start;
   }
 
-  .detail-title {
-    font-size: 24px;
+  .detail-summary {
+    font-size: 16.5px;
   }
 
   .highlights li {
-    padding: 14px 40px 13px 16px;
+    padding-left: 36px;
   }
 }

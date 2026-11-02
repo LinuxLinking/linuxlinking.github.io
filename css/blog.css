@@ -1,82 +1,93 @@
-/* 外壳几何由 base.css 的 .page-wrap 提供，这里只保留博客自己的留白差异。 */
+/* 博客列表：编辑式条目行。
+   外壳几何由 base.css 的 .page-wrap 提供，这里只保留博客自己的留白与版式。 */
+
 .blog-wrap {
-  padding-top: calc(var(--topbar-h) + 64px);
+  padding-top: calc(var(--topbar-h) + 76px);
 }
 
 .blog-head {
-  margin-bottom: 44px;
+  margin-bottom: 40px;
   animation: page-in 0.6s var(--ease) both;
 }
 
 .blog-head h1 {
-  margin: 10px 0 0;
-  font-size: clamp(30px, 6vw, 48px);
-  font-weight: 600;
-  letter-spacing: -0.02em;
-  line-height: 1.12;
+  margin: 16px 0 0;
+  font-family: var(--font-display);
+  font-size: clamp(36px, 6.5vw, 62px);
+  font-weight: 400;
+  letter-spacing: -0.025em;
+  line-height: 1.05;
 }
 
 .posts {
   animation: page-in 0.7s 0.08s var(--ease) both;
+  border-top: 1px solid var(--line-strong);
 }
 
 .post-row {
-  display: block;
-  padding: 20px 0;
-  border-top: 1px solid var(--line-soft);
-  transition: padding 0.24s var(--ease);
+  display: grid;
+  grid-template-columns: 7.5rem minmax(0, 1fr);
+  align-items: baseline;
+  gap: 6px 18px;
+  padding: 24px 0;
+  border-bottom: 1px solid var(--line);
+  transition: background 0.2s var(--ease);
 }
 
 .post-row:hover {
-  padding-left: 8px;
+  background: var(--surface-soft);
 }
 
 .post-date {
+  grid-row: 1 / span 2;
   font-family: var(--font-mono);
-  font-size: 11px;
+  font-size: 11.5px;
   letter-spacing: 0.08em;
   color: var(--fg-faint);
 }
 
 .post-title {
-  margin: 6px 0 6px;
-  font-size: 19px;
-  font-weight: 550;
-  letter-spacing: -0.005em;
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: clamp(19px, 2.6vw, 25px);
+  font-weight: 400;
+  letter-spacing: -0.015em;
+  line-height: 1.25;
 }
 
 .post-sum {
   margin: 0;
   color: var(--fg-dim);
-  font-size: 13.5px;
+  font-size: 14px;
   line-height: 1.75;
 }
 
 .blog-empty {
   padding: clamp(48px, 12vw, 96px) clamp(20px, 5vw, 34px);
   text-align: center;
-  border: 1px dashed var(--line);
+  border: 1px dashed var(--line-strong);
   border-radius: var(--radius-lg);
   background: var(--surface-soft);
 }
 
 .blog-empty-glyph {
-  font-size: 26px;
+  font-size: 22px;
   letter-spacing: 0.4em;
-  color: rgba(200, 162, 255, 0.7);
+  color: var(--fg-faint);
   margin-bottom: 18px;
 }
 
 .blog-empty h2 {
   margin: 0 0 10px;
-  font-size: 20px;
-  font-weight: 550;
+  font-family: var(--font-display);
+  font-size: 24px;
+  font-weight: 400;
 }
 
 .blog-empty p {
   margin: 0 0 24px;
   color: var(--fg-dim);
-  font-size: 13.5px;
+  font-size: 14px;
   line-height: 1.8;
 }
 
@@ -88,7 +99,11 @@
 }
 
 @media (max-width: 520px) {
-  .blog-head h1 {
-    font-size: 30px;
+  .post-row {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .post-date {
+    grid-row: auto;
   }
 }

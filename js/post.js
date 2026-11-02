@@ -32,15 +32,16 @@ function renderMarkdown(md) {
 
 /* ---- Mermaid：仅当文中出现语言为 mermaid 的代码块时才加载 ---- */
 
+/* Mermaid 配色跟着纸面主题走：白底、墨线、朱红强调。 */
 const MERMAID_THEME_VARS = {
   background: "transparent",
-  primaryColor: "#1c2133",
-  primaryTextColor: "#e8ecf6",
-  primaryBorderColor: "#3a4361",
-  lineColor: "#8b93a8",
-  secondaryColor: "#232a40",
-  tertiaryColor: "#161b2a",
-  textColor: "#c9d1e4",
+  primaryColor: "#ffffff",
+  primaryTextColor: "#1a1a18",
+  primaryBorderColor: "#cbc7ba",
+  lineColor: "#57554e",
+  secondaryColor: "#fbfaf7",
+  tertiaryColor: "#f6f5f0",
+  textColor: "#1a1a18",
   fontSize: "13px",
 };
 

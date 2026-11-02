@@ -1,3 +1,7 @@
+/* 星图视图：纸上的节点图。
+   交互逻辑（缩放/拖拽/双击复位、--f 焦点衰减）全在 js/honeycomb.js 里，
+   这里只负责把它画成扁平圆牌 + 墨色标签。 */
+
 .honeycomb {
   position: fixed;
   inset: 0;
@@ -5,7 +9,7 @@
   touch-action: none;
   cursor: grab;
   opacity: 1;
-  transition: opacity 0.34s var(--ease);
+  transition: opacity 0.3s var(--ease);
   overscroll-behavior: none;
 }
 
@@ -44,36 +48,36 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 9px;
+  gap: 10px;
   transform: scale(var(--f, 1));
   opacity: var(--o, 1);
   will-change: transform, opacity;
 }
 
 .stage.is-intro .node-zoom {
-  animation: node-pop 0.9s cubic-bezier(0.2, 0.9, 0.26, 1.18) backwards;
+  animation: node-pop 0.7s cubic-bezier(0.2, 0.9, 0.26, 1.12) backwards;
   animation-delay: var(--d, 0ms);
 }
 
 @keyframes node-pop {
   from {
-    transform: scale(0);
+    transform: scale(0.86);
     opacity: 0;
   }
 }
 
 .node-label {
-  max-width: 170px;
-  font-size: 12px;
-  font-weight: 550;
-  letter-spacing: 0.1em;
+  max-width: 180px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
   text-align: center;
-  line-height: 1.35;
+  line-height: 1.4;
   color: var(--fg-dim);
-  text-shadow: 0 1px 10px rgba(3, 4, 8, 0.9);
   opacity: clamp(0, calc((var(--f, 0) - 0.74) * 5), 1);
-  transform: translateY(-4px);
+  transform: translateY(-3px);
   transition: opacity 0.3s var(--ease), transform 0.34s var(--ease), color 0.24s var(--ease);
   pointer-events: none;
 }
@@ -90,80 +94,39 @@
 }
 
 .node .orb {
-  transition: transform 0.42s var(--ease), box-shadow 0.42s var(--ease), filter 0.35s var(--ease);
+  transition: transform 0.28s var(--ease), border-color 0.28s var(--ease),
+    background 0.28s var(--ease);
 }
 
 .node:hover .orb,
 .node.is-active .orb {
-  transform: scale(1.08);
-}
-
-.node:hover .orb {
-  box-shadow:
-    0 26px 60px -22px var(--c1),
-    0 0 52px -8px var(--c2),
-    inset 0 1px 0 rgba(255, 255, 255, 0.4),
-    inset 0 -20px 44px rgba(0, 0, 0, 0.32),
-    inset 0 0 0 1px rgba(255, 255, 255, 0.22);
-}
-
-.node:hover .orb::before,
-.node.is-active .orb::before {
-  opacity: 1;
-  animation: sheen-spin 1.4s linear infinite;
+  transform: scale(1.06);
+  border-color: var(--c1, #7c5cff);
+  background: color-mix(in srgb, var(--c1, #7c5cff) 8%, #ffffff);
 }
 
 .node:active .orb {
-  transform: scale(0.95);
+  transform: scale(0.97);
 }
 
 .node:focus-visible .orb {
-  outline: 2px solid rgba(200, 220, 255, 0.8);
-  outline-offset: 6px;
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 5px;
 }
 
 .node.is-opening .orb {
-  transform: scale(1.18);
+  transform: scale(1.12);
 }
 
 .node.is-moon .orb {
-  font-size: calc(var(--r) * 0.7);
-}
-
-/* core node gets a breathing pulse ring */
-.node.is-core .node-zoom::before {
-  content: "";
-  position: absolute;
-  left: 50%;
-  top: var(--r);
-  width: calc(var(--r) * 2);
-  height: calc(var(--r) * 2);
-  border-radius: 50%;
-  border: 1px solid rgba(140, 170, 255, 0.4);
-  transform: translate(-50%, -50%) scale(0.94);
-  animation: pulse-ring 3.4s ease-out infinite;
-  pointer-events: none;
-}
-
-@keyframes pulse-ring {
-  0% {
-    transform: translate(-50%, -50%) scale(0.94);
-    opacity: 0.55;
-  }
-  100% {
-    transform: translate(-50%, -50%) scale(1.65);
-    opacity: 0;
-  }
+  font-size: calc(var(--r) * 0.62);
+  color: var(--accent);
 }
 
 /* focus state: de-emphasize everything else */
 .stage.is-focusing .node:not(.is-active) .orb {
-  filter: saturate(0.55) brightness(0.8);
-}
-
-.stage.is-focusing .node:not(.is-active) .node-zoom {
-  transition: filter 0.3s var(--ease);
-  filter: blur(0.6px);
+  border-color: var(--line);
+  background: var(--surface);
 }
 
 /* ---------- hint ---------- */
@@ -175,13 +138,13 @@
   z-index: var(--z-hint);
   margin: 0;
   transform: translateX(-50%);
-  padding: 6px 14px;
-  border-radius: var(--radius-pill);
-  border: 1px solid var(--line-soft);
-  background: rgba(8, 10, 18, 0.5);
-  backdrop-filter: blur(6px);
+  padding: 6px 13px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--line);
+  background: var(--surface);
+  font-family: var(--font-mono);
   font-size: 11px;
-  letter-spacing: 0.1em;
+  letter-spacing: 0.08em;
   color: var(--fg-faint);
   white-space: nowrap;
   pointer-events: none;
@@ -190,20 +153,6 @@
 
 .hint.is-hidden {
   opacity: 0;
-}
-
-/* ---------- cursor spotlight ---------- */
-
-.spotlight {
-  position: fixed;
-  inset: 0;
-  z-index: var(--z-vignette);
-  pointer-events: none;
-  background: radial-gradient(
-    420px circle at var(--mx, 50%) var(--my, 42%),
-    rgba(124, 156, 255, 0.08),
-    rgba(124, 156, 255, 0) 68%
-  );
 }
 
 /* ---------- data error ---------- */
@@ -216,6 +165,7 @@
   place-items: center;
   padding: 24px;
   text-align: center;
+  background: var(--bg);
 }
 
 .state-error[hidden] {
@@ -224,7 +174,8 @@
 
 .state-error p {
   margin: 0 0 6px;
-  font-size: 16px;
+  font-family: var(--font-display);
+  font-size: 22px;
 }
 
 .state-error small {
@@ -236,15 +187,15 @@
 
 @media (max-width: 700px) {
   .node-label {
-    font-size: 10.5px;
+    font-size: 10px;
     letter-spacing: 0.08em;
   }
 
   .hint {
     bottom: 40px;
     font-size: 10px;
-    letter-spacing: 0.06em;
-    padding: 5px 11px;
+    letter-spacing: 0.05em;
+    padding: 5px 10px;
   }
 }
 

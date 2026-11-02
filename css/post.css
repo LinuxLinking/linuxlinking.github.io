@@ -1,87 +1,96 @@
-/* 外壳几何由 base.css 的 .page-wrap 提供，这里只保留文章自己的入场动效。 */
+/* 文章页：衬线长文版式。
+   外壳几何由 base.css 的 .page-wrap 提供，这里只保留文章自己的入场动效与正文排版。 */
+
 .post-wrap {
-  animation: page-in 0.6s var(--ease) both;
+  width: min(720px, 100%);
+  animation: page-in 0.5s var(--ease) both;
 }
 
 .post-kicker {
-  margin: 0 0 10px;
+  margin: 0 0 14px;
   font-family: var(--font-mono);
   font-size: 11px;
-  letter-spacing: 0.18em;
+  letter-spacing: 0.16em;
   color: var(--fg-faint);
 }
 
 .post-wrap h1 {
-  margin: 0 0 14px;
-  font-size: clamp(26px, 5.4vw, 40px);
-  font-weight: 600;
-  letter-spacing: -0.015em;
-  line-height: 1.18;
+  margin: 0 0 20px;
+  font-family: var(--font-display);
+  font-size: clamp(30px, 5.6vw, 46px);
+  font-weight: 400;
+  letter-spacing: -0.025em;
+  line-height: 1.1;
 }
 
 .post-lede {
-  margin: 0 0 40px;
+  margin: 0 0 44px;
   color: var(--fg-dim);
-  font-size: 14.5px;
-  line-height: 1.85;
-  padding-bottom: 28px;
-  border-bottom: 1px solid var(--line-soft);
+  font-size: 16px;
+  line-height: 1.8;
+  padding-bottom: 30px;
+  border-bottom: 1px solid var(--line);
 }
 
 /* ---- 正文排版 ---- */
 
 .post-body {
-  font-size: 15px;
-  line-height: 2;
-  color: var(--fg-soft);
+  font-family: var(--font-display);
+  font-size: 17px;
+  line-height: 1.78;
+  color: var(--fg);
 }
 
 .post-body h2 {
-  margin: 44px 0 14px;
-  font-size: 12px;
-  font-weight: 500;
-  letter-spacing: 0.22em;
-  text-transform: uppercase;
-  color: var(--fg-dim);
+  margin: 52px 0 18px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--line);
+  font-family: var(--font-display);
+  font-size: 25px;
+  font-weight: 400;
+  letter-spacing: -0.015em;
+  line-height: 1.25;
+  color: var(--fg-strong);
 }
 
 .post-body h3 {
-  margin: 30px 0 10px;
-  font-size: 17px;
-  font-weight: 550;
-  letter-spacing: -0.005em;
+  margin: 36px 0 12px;
+  font-family: var(--font-display);
+  font-size: 19px;
+  font-weight: 400;
+  letter-spacing: -0.01em;
   color: var(--fg-strong);
 }
 
 .post-body p {
-  margin: 0 0 16px;
+  margin: 0 0 18px;
 }
 
 .post-body strong {
+  font-weight: 700;
   color: var(--fg-strong);
-  font-weight: 600;
 }
 
 .post-body a {
-  color: var(--fg);
+  color: var(--accent);
   text-decoration: underline;
-  text-decoration-color: var(--line);
+  text-decoration-color: rgba(180, 66, 42, 0.35);
   text-underline-offset: 3px;
   transition: text-decoration-color 0.2s var(--ease);
 }
 
 .post-body a:hover {
-  text-decoration-color: var(--fg-dim);
+  text-decoration-color: var(--accent);
 }
 
 .post-body ul,
 .post-body ol {
-  margin: 0 0 16px;
-  padding-left: 22px;
+  margin: 0 0 18px;
+  padding-left: 24px;
 }
 
 .post-body li {
-  margin-bottom: 7px;
+  margin-bottom: 9px;
 }
 
 .post-body li::marker {
@@ -94,23 +103,25 @@
 
 .post-body code {
   font-family: var(--font-mono);
-  font-size: 0.86em;
-  padding: 2px 7px;
-  border-radius: 6px;
-  border: 1px solid var(--line-soft);
-  background: rgba(255, 255, 255, 0.04);
+  font-size: 0.82em;
+  padding: 2px 6px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--line);
+  background: var(--surface-soft);
   color: var(--fg-code);
-  white-space: nowrap;
+  /* 长标识符在窄屏必须能断行，否则整行会被撑出视口 */
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
 }
 
 /* 代码块 */
 
 .post-body pre {
-  margin: 20px 0 22px;
-  padding: 18px 20px;
+  margin: 24px 0 26px;
+  padding: 20px 22px;
   border-radius: var(--radius-md);
   border: 1px solid var(--line);
-  background: rgba(6, 8, 14, 0.72);
+  background: var(--surface);
   overflow-x: auto;
   line-height: 1.7;
 }
@@ -120,6 +131,7 @@
   border: 0;
   background: none;
   white-space: pre;
+  overflow-wrap: normal;
   font-size: 12.5px;
   color: var(--fg-pre);
 }
@@ -127,9 +139,9 @@
 /* 图 / ASCII 示意 */
 
 .post-body .fig {
-  margin: 22px 0 24px;
-  padding: 18px 16px;
-  border: 1px dashed var(--line);
+  margin: 26px 0 28px;
+  padding: 20px 18px;
+  border: 1px dashed var(--line-strong);
   border-radius: var(--radius-md);
   overflow-x: auto;
   text-align: center;
@@ -151,28 +163,30 @@
 
 .post-body .fig figcaption {
   margin-top: 10px;
+  font-family: var(--font-mono);
   font-size: 11px;
-  letter-spacing: 0.14em;
+  letter-spacing: 0.12em;
   color: var(--fg-faint);
 }
 
 /* 引言 */
 
 .post-body blockquote {
-  margin: 22px 0;
-  padding: 4px 0 4px 18px;
-  border-left: 2px solid var(--line);
+  margin: 26px 0;
+  padding: 2px 0 2px 20px;
+  border-left: 2px solid var(--accent);
   color: var(--fg-dim);
-  font-size: 14px;
-  line-height: 1.9;
+  font-style: italic;
+  font-size: 16px;
+  line-height: 1.8;
 }
 
 /* 结尾 */
 
 .post-foot {
-  margin-top: 52px;
-  padding-top: 24px;
-  border-top: 1px solid var(--line-soft);
+  margin-top: 60px;
+  padding-top: 26px;
+  border-top: 1px solid var(--line);
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -182,7 +196,7 @@
 
 .post-foot .btn {
   font-size: 12.5px;
-  padding: 9px 15px;
+  padding: 8px 14px;
 }
 
 /* ---- Markdown 渲染补充 ---- */
@@ -192,32 +206,33 @@
 }
 
 .post-body hr {
-  margin: 34px 0;
+  margin: 40px 0;
   border: 0;
-  border-top: 1px solid var(--line-soft);
+  border-top: 1px solid var(--line);
 }
 
 /* 表格 */
 
 .post-body table {
-  margin: 20px 0 24px;
+  margin: 24px 0 28px;
   width: 100%;
   border-collapse: collapse;
   font-size: 13.5px;
   line-height: 1.7;
+  font-family: var(--font-sans);
 }
 
 .post-body th,
 .post-body td {
-  padding: 9px 12px;
+  padding: 10px 12px;
   border: 1px solid var(--line);
   text-align: left;
   vertical-align: top;
 }
 
 .post-body th {
-  font-weight: 550;
-  background: rgba(255, 255, 255, 0.035);
+  font-weight: 600;
+  background: var(--surface-soft);
   color: var(--fg-strong);
 }
 
@@ -228,10 +243,11 @@
 /* Mermaid 图表容器 */
 
 .post-body .md-mermaid {
-  margin: 24px 0 26px;
-  padding: 20px 16px;
-  border: 1px dashed var(--line);
+  margin: 28px 0 30px;
+  padding: 22px 16px;
+  border: 1px solid var(--line);
   border-radius: var(--radius-md);
+  background: var(--surface);
   overflow-x: auto;
   text-align: center;
 }
@@ -246,7 +262,8 @@
 }
 
 .post-body .md-mermaid-note {
-  margin: -14px 0 24px;
+  margin: -16px 0 26px;
+  font-family: var(--font-mono);
   font-size: 11.5px;
   letter-spacing: 0.08em;
   color: var(--fg-faint);
