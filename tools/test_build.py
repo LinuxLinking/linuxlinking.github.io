@@ -297,6 +297,40 @@ class XpDesktopTests(unittest.TestCase):
             self.assertIn(project["summary"]["en"], html)
 
 
+class IeChromeTests(unittest.TestCase):
+    """IE 窗口的外壳：文字跟语言走，标题栏按钮齐全。"""
+
+    def setUp(self):
+        self.written = dict(build.build_all(build.asset_hashes()))
+        self.strings = load("data/i18n.json")
+
+    def test_window_chrome_text_is_bilingual(self):
+        html = self.written[ROOT / "index.html"]
+        for key in ("menu.file", "menu.help", "win.go", "win.done"):
+            self.assertIn(f'data-i18n="{key}"', html)
+        for key in ("win.back", "win.home", "win.close", "win.min", "win.max"):
+            self.assertIn(f'data-i18n-title="{key}"', html)
+
+    def test_chrome_strings_exist_in_both_languages(self):
+        for key in ("menu.file", "win.back", "win.min", "win.done"):
+            self.assertIn(key, self.strings["zh"])
+            self.assertIn(key, self.strings["en"])
+
+    def test_menu_bar_is_built_with_both_languages(self):
+        html = self.written[ROOT / "index.html"]
+        self.assertIn('data-i18n="menu.file"><span class="i18n-zh"', html)
+        self.assertIn(self.strings["en"]["menu.file"], html)
+
+    def test_window_title_bar_has_all_three_buttons(self):
+        html = self.written[ROOT / "index.html"]
+        for act in ("min", "max", "close"):
+            self.assertIn(f'data-act="{act}"', html)
+
+    def test_home_button_never_loads_the_desktop_inside_the_window(self):
+        source = (ROOT / "js" / "xp.js").read_text(encoding="utf-8")
+        self.assertNotIn("frame.src = home", source)
+
+
 class BilingualPostTests(unittest.TestCase):
     """post.en.md 存在时，英文正文要一起进 HTML。"""
 

@@ -735,9 +735,9 @@ def ie_window(
     两边共用同一份结构，所以看上去一模一样。
     """
     close = (
-        f'<a class="xp-tbtn is-close" href="{esc(home_href)}" title="关闭">✕</a>'
+        f'<a class="xp-tbtn is-close" href="{esc(home_href)}" data-i18n-title="win.close">✕</a>'
         if close_is_link
-        else '<button class="xp-tbtn is-close" type="button" data-act="close" title="关闭">✕</button>'
+        else '<button class="xp-tbtn is-close" type="button" data-act="close" data-i18n-title="win.close">✕</button>'
     )
     cls = "xp-window is-page" if page else "xp-window"
     return (
@@ -746,23 +746,30 @@ def ie_window(
         '<div class="xp-title">'
         f'<span class="ic" data-slot="icon">{icon_svg}</span>'
         f'<span class="t" data-slot="title">{esc(title_zh)}</span>'
+        '<button class="xp-tbtn" type="button" data-act="min" data-i18n-title="win.min">▁</button>'
+        '<button class="xp-tbtn" type="button" data-act="max" data-i18n-title="win.max">□</button>'
         f"{close}"
         "</div>"
         '<div class="xp-menubar">'
-        "<span>文件(F)</span><span>编辑(E)</span><span>查看(V)</span>"
-        "<span>收藏夹(A)</span><span>工具(T)</span><span>帮助(H)</span>"
+        '<span data-i18n="menu.file">文件(F)</span>'
+        '<span data-i18n="menu.edit">编辑(E)</span>'
+        '<span data-i18n="menu.view">查看(V)</span>'
+        '<span data-i18n="menu.fav">收藏夹(A)</span>'
+        '<span data-i18n="menu.tools">工具(T)</span>'
+        '<span data-i18n="menu.help">帮助(H)</span>'
         "</div>"
         '<div class="xp-toolbar">'
-        '<button class="xp-tool" type="button" data-act="back" title="后退"><span>◀</span></button>'
-        '<button class="xp-tool" type="button" data-act="fwd" title="前进"><span>▶</span></button>'
-        '<button class="xp-tool" type="button" data-act="reload" title="刷新"><span>↻</span></button>'
-        '<button class="xp-tool" type="button" data-act="home" title="主页"><span>⌂</span></button>'
+        '<button class="xp-tool" type="button" data-act="back" data-i18n-title="win.back"><span>◀</span></button>'
+        '<button class="xp-tool" type="button" data-act="fwd" data-i18n-title="win.fwd"><span>▶</span></button>'
+        '<button class="xp-tool" type="button" data-act="reload" data-i18n-title="win.reload"><span>↻</span></button>'
+        '<button class="xp-tool" type="button" data-act="home" data-i18n-title="win.home"><span>⌂</span></button>'
         '<div class="xp-address"><span class="ico">🗎</span>'
-        f'<input type="text" readonly value="{esc(url)}" data-slot="url" aria-label="地址"></div>'
-        '<button class="xp-go" type="button" data-act="go">转到</button>'
+        f'<input type="text" readonly value="{esc(url)}" data-slot="url" data-i18n-aria="win.address"></div>'
+        '<button class="xp-go" type="button" data-act="go" data-i18n="win.go">转到</button>'
         "</div>"
         f'<div class="xp-view" data-slot="view">{body}</div>'
-        '<div class="xp-status"><span class="zone" data-slot="zone">完成</span><span class="xp-grip"></span></div>'
+        '<div class="xp-status"><span class="zone" data-slot="zone" data-i18n="win.done">完成</span>'
+        '<span class="xp-grip"></span></div>'
         "</div>"
     )
 
@@ -777,7 +784,7 @@ def window_template() -> str:
             icon_svg=xp_icon("ie", size=16),
             url="",
             home_href="index.html",
-            body='<iframe title="内容" data-slot="frame" loading="lazy"></iframe>',
+            body='<iframe title="内容" data-i18n-title="win.content" data-slot="frame" loading="lazy"></iframe>',
         )
         + "</template>"
     )

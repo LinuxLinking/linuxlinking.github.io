@@ -1,4 +1,4 @@
-import { i18n } from "./site.js?v=bf8684d4";
+import { i18n } from "./site.js?v=ed800fe7";
 
 /* Windows XP 桌面与 IE 窗口的脚本。
 
@@ -59,6 +59,18 @@ function label(el) {
 
 /* ---------------------------------------------------------------- 窗口 */
 
+/* 窗口里的页面是 iframe，而 iframe 自己不会滚动：内容会被裁掉，也看不见滚动条。
+   把 iframe 撑到内容高度，滚动交给外层的 .xp-view —— 两种窗口共用一套滚动条。 */
+function fitFrame(frame) {
+  try {
+    const doc = frame.contentDocument;
+    if (!doc || !doc.body) return;
+    frame.style.height = Math.max(doc.documentElement.scrollHeight, doc.body.scrollHeight) + "px";
+  } catch (err) {
+    /* 跨域读不到内容高度，保持原样 */
+  }
+}
+
 function openWindow({ url, title, titleEn, iconSvg }) {
   const tpl = document.getElementById("xpWinTpl");
   if (!tpl || !desktopEl || !desktopEl.clientWidth) return null;
@@ -77,7 +89,20 @@ function openWindow({ url, title, titleEn, iconSvg }) {
   const frame = view.querySelector("iframe");
   frame.src = withLang(url);
   frame.addEventListener("load", () => {
-    win.querySelector('[data-slot="zone"]').textContent = "完成";
+    fitFrame(frame);
+    try {
+      const doc = frame.contentDocument;
+      // mermaid 图是异步画上去的，画完高度变了要再量一次
+      if (doc && doc.body && !frame.dataset.xpWatch) {
+        frame.dataset.xpWatch = "1";
+        new MutationObserver(() => fitFrame(frame)).observe(doc.body, {
+          childList: true,
+          subtree: true,
+        });
+      }
+    } catch (err) {
+      /* 跨域 */
+    }
   });
 
   const left = 40 + (cascade % 6) * 26;
@@ -91,6 +116,7 @@ function openWindow({ url, title, titleEn, iconSvg }) {
   win.style.height = h + "px";
 
   desktopEl.appendChild(win);
+  i18n.apply(win);
   win.dataset.key = key;
   windows.set(key, { win, frame, taskBtn: null, title: win.dataset.titleZh, url });
   focusWindow(key);
@@ -139,17 +165,22 @@ function closeWindow(key) {
   windows.delete(key);
 }
 
-function wireToolbar(win, frame) {
+function wireToolbar(win, frame, key) {
   win.querySelectorAll(".xp-tool").forEach((btn) => {
     btn.addEventListener("click", () => {
       const act = btn.dataset.act;
       const home = win.dataset.home || "index.html";
       if (frame) {
+        if (act === "home") {
+          // 桌面本身就是首页。把桌面再塞进 iframe 里只会套出一层子桌面，
+          // 所以「主页」在桌面开的窗口里就是关掉窗口、回到桌面。
+          closeWindow(key);
+          return;
+        }
         try {
           if (act === "back") frame.contentWindow.history.back();
           else if (act === "fwd") frame.contentWindow.history.forward();
           else if (act === "reload") frame.contentWindow.location.reload();
-          else if (act === "home") frame.src = home;
         } catch (err) {
           /* 跨域时浏览器不允许操作 frame 的历史，忽略 */
         }
@@ -188,11 +219,12 @@ function wireWindow(key) {
       } else if (act === "max") {
         win.classList.toggle("is-max");
         btn.textContent = win.classList.contains("is-max") ? "❐" : "□";
+        if (frame) requestAnimationFrame(() => fitFrame(frame));
       }
     });
   });
 
-  wireToolbar(win, frame);
+  wireToolbar(win, frame, key);
 
   const title = win.querySelector(".xp-title");
   let drag = null;
@@ -421,6 +453,12 @@ function boot() {
   tickClock();
   setInterval(tickClock, 20000);
 
+  window.addEventListener("resize", () => {
+    windows.forEach((entry) => {
+      if (entry.frame) fitFrame(entry.frame);
+    });
+  });
+
   wireIcons();
   wireStartMenu();
   wireMap();
@@ -443,7 +481,11 @@ function boot() {
     syncTitles();
     // 窗口里的页面各有各的语言实例，只能重载一次让它们跟上
     windows.forEach((entry) => {
-      if (entry.frame && entry.url) entry.frame.src = withLang(entry.url);
+      if (!entry.frame || !entry.url) return;
+      entry.frame.src = withLang(entry.url);
+      // 地址栏也要换，不然上面还挂着上一种语言的 ?lang=
+      const slot = entry.win.querySelector('[data-slot="url"]');
+      if (slot) slot.value = new URL(withLang(entry.url), location.href).href;
     });
     if (mapView) mapView.setNodes(localize(mapNodes, i18n.lang));
   });

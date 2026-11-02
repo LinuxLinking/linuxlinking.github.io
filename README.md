@@ -17,10 +17,12 @@ social card.
 - **The XP desktop** (home) — Bliss-style wallpaper drawn in pure CSS, a column-major grid of
   shortcuts (7 projects · Writing · 4 essays · Soul for U · Site Map), and a taskbar with a start
   button, quick-launch icons, a task list, a language toggle and a clock.
-- **IE windows** — clicking a shortcut opens a real window: gradient title bar, menu bar,
-  toolbar with back / forward / reload / home, an address bar showing the page's own URL, a
-  status bar and a resize grip. Windows drag, stack, minimize, maximize, close, and each one
-  gets a taskbar button.
+- **IE windows** — clicking a shortcut opens a real window: gradient title bar with
+  minimize / maximize / close, menu bar, toolbar with back / forward / reload / home, an address
+  bar showing the page's own URL, and a status bar. The window scrolls on its own XP scrollbar.
+  Windows drag, stack, minimize, maximize, close, and each one gets a taskbar button. The whole
+  chrome follows the language — switch to English and the menus, tooltips and status bar switch
+  with it.
 - **The start menu** — the XP two-column menu: Internet Explorer / My Computer / Site Map /
   Soul for U on the left, the seven projects on the blue right column, with the "right now" note
   as the subtitle and log-off / shut-down at the bottom.

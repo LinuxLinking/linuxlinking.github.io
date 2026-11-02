@@ -32,11 +32,28 @@ const FALLBACK = {
     "map.other": "OTHER",
     "map.projects": "PROJECTS",
     "map.writing": "WRITING",
+    "menu.edit": "Edit(E)",
+    "menu.fav": "Favorites(A)",
+    "menu.file": "File(F)",
+    "menu.help": "Help(H)",
+    "menu.tools": "Tools(T)",
+    "menu.view": "View(V)",
     "meta.desc.home": "Zhong Shanshan's projects and writing: seven open-source tools — Mdeditor (a Flutter Markdown editor), Intent OS (a runtime above the LLM), a local Ollama coding harness, an OCR MCP server and JEnv for Windows — plus four essays on agents, runtimes and guards.",
     "nf.back": "Back home",
     "nf.body": "That address doesn't exist. Head back home — seven projects and a few unfinished pieces of writing are waiting there.",
     "nf.title": "Nothing here",
     "post.related": "Keep reading",
+    "win.address": "Address",
+    "win.back": "Back",
+    "win.close": "Close",
+    "win.content": "Content",
+    "win.done": "Done",
+    "win.fwd": "Forward",
+    "win.go": "Go",
+    "win.home": "Home",
+    "win.max": "Maximize",
+    "win.min": "Minimize",
+    "win.reload": "Refresh",
   },
   zh: {
     "a11y.lang": "语言 / Language",
@@ -64,11 +81,28 @@ const FALLBACK = {
     "map.other": "其他",
     "map.projects": "作品",
     "map.writing": "文字",
+    "menu.edit": "编辑(E)",
+    "menu.fav": "收藏夹(A)",
+    "menu.file": "文件(F)",
+    "menu.help": "帮助(H)",
+    "menu.tools": "工具(T)",
+    "menu.view": "查看(V)",
     "meta.desc.home": "钟闪闪的作品与文字：七个开源项目——Flutter 的 Markdown 编辑器 Mdeditor、LLM 之上的运行时 Intent OS、本地 Ollama 编码助手、OCR 的 MCP 服务、Windows 上的 JDK 切换器 JEnv——外加四篇文章。",
     "nf.back": "回到首页",
     "nf.body": "这个地址不存在。回到首页，那里有七个项目和几篇没写完的字。",
     "nf.title": "这一页是空的",
     "post.related": "继续读",
+    "win.address": "地址",
+    "win.back": "后退",
+    "win.close": "关闭",
+    "win.content": "内容",
+    "win.done": "完成",
+    "win.fwd": "前进",
+    "win.go": "转到",
+    "win.home": "主页",
+    "win.max": "最大化",
+    "win.min": "最小化",
+    "win.reload": "刷新",
   },
 };
 /* FALLBACK:END */
@@ -116,6 +150,11 @@ export function createI18n({ lang }) {
 
     root.querySelectorAll("[data-i18n-aria]").forEach((el) => {
       el.setAttribute("aria-label", t(el.dataset.i18nAria));
+    });
+
+    // 提示框里的字（标题栏按钮、地址栏）没法在构建期写成双语，运行时换。
+    root.querySelectorAll("[data-i18n-title]").forEach((el) => {
+      el.setAttribute("title", t(el.dataset.i18nTitle));
     });
 
     document.querySelectorAll("[data-lang-btn]").forEach((btn) => {
