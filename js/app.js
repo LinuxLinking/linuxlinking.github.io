@@ -1,35 +1,17 @@
 import { createHoneycomb } from "./honeycomb.js?v=e9ff3f9e";
-import { renderGrid } from "./grid.js?v=80c5e931";
+import { renderHome } from "./home.js?v=c67ae589";
 import { bootPage, escapeHtml } from "./shared.js?v=a89b5bc1";
 
 const honeyEl = document.getElementById("honeycomb");
 const stageEl = document.getElementById("stage");
-const gridEl = document.getElementById("gridView");
-const gridBodyEl = document.getElementById("gridBody");
+const gridEl = document.getElementById("homeView");
+const gridBodyEl = document.getElementById("homeBody");
 const aboutEl = document.getElementById("about");
 const stateErrorEl = document.getElementById("stateError");
 const hintEl = document.querySelector(".hint");
 const viewButtons = Array.from(document.querySelectorAll("[data-view]"));
 const aboutBtn = document.getElementById("aboutBtn");
 const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
-
-const spotlightEl = document.querySelector(".spotlight");
-if (spotlightEl && !reduced && matchMedia("(pointer: fine)").matches) {
-  let spotRaf = 0;
-  let spotX = 0;
-  let spotY = 0;
-  addEventListener("pointermove", (e) => {
-    spotX = e.clientX;
-    spotY = e.clientY;
-    if (!spotRaf) {
-      spotRaf = requestAnimationFrame(() => {
-        spotRaf = 0;
-        spotlightEl.style.setProperty("--mx", `${spotX}px`);
-        spotlightEl.style.setProperty("--my", `${spotY}px`);
-      });
-    }
-  }, { passive: true });
-}
 
 const state = { lang: "zh", projects: [], posts: [] };
 let i18n = null;
@@ -94,7 +76,7 @@ function readView() {
 function refresh() {
   const nodes = localize(state.projects, state.lang);
   honey.setNodes(nodes);
-  renderGrid(gridBodyEl, { nodes, posts: state.posts, lang: state.lang, t: i18n.t });
+  renderHome(gridBodyEl, { nodes, posts: state.posts, lang: state.lang, t: i18n.t });
   document.title = i18n.t("meta.title.home");
   const desc = document.querySelector('meta[name="description"]');
   if (desc) desc.setAttribute("content", i18n.t("meta.desc.home"));

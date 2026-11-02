@@ -1,0 +1,255 @@
+/* 首页默认视图：编辑式排版 —— 大标题 + 编号索引行 + 文字条目 + 一张安静的收尾卡片。
+   视觉语言：纸底 + 墨字 + 发丝线，每个项目保留一枚自己的颜色作为色卡。 */
+
+.home-view {
+  position: relative;
+  z-index: var(--z-content);
+  min-height: 100%;
+  padding: calc(var(--topbar-h) + 72px) clamp(20px, 5vw, 48px) 96px;
+  opacity: 1;
+  transition: opacity 0.3s var(--ease);
+}
+
+.home-view.is-hidden {
+  opacity: 0;
+  pointer-events: none;
+  visibility: hidden;
+}
+
+.home-inner {
+  width: min(1080px, 100%);
+  margin: 0 auto;
+}
+
+/* ---------- hero ---------- */
+
+.home-hero {
+  padding-bottom: 44px;
+  animation: page-in 0.6s var(--ease) both;
+}
+
+.home-hero h1 {
+  margin: 18px 0 0;
+  font-family: var(--font-display);
+  font-size: clamp(38px, 7vw, 76px);
+  font-weight: 400;
+  letter-spacing: -0.025em;
+  line-height: 1.04;
+}
+
+.home-lede {
+  margin: 22px 0 0;
+  max-width: 58ch;
+  color: var(--fg-dim);
+  font-size: 16px;
+  line-height: 1.75;
+}
+
+.hero-rule {
+  margin: 44px 0 0;
+  border: 0;
+  border-top: 1px solid var(--line-strong);
+}
+
+/* ---------- section ---------- */
+
+.home-section {
+  margin-top: 64px;
+  animation: page-in 0.7s 0.06s var(--ease) both;
+}
+
+.section-label {
+  margin: 0 0 0;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--fg-faint);
+}
+
+/* ---------- 项目索引行 ---------- */
+
+.index-list {
+  margin-top: 18px;
+  border-top: 1px solid var(--line-strong);
+}
+
+.index-row {
+  display: grid;
+  grid-template-columns: 3.4rem minmax(0, 1fr) auto;
+  align-items: baseline;
+  gap: 0 18px;
+  padding: 26px 0;
+  border-bottom: 1px solid var(--line);
+  transition: background 0.2s var(--ease);
+}
+
+.index-row:hover {
+  background: var(--surface-soft);
+}
+
+.index-num {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  color: var(--fg-faint);
+}
+
+.index-body {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  min-width: 0;
+}
+
+.index-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-family: var(--font-display);
+  font-size: clamp(21px, 3vw, 30px);
+  font-weight: 400;
+  letter-spacing: -0.015em;
+  line-height: 1.2;
+}
+
+.index-swatch {
+  flex: 0 0 auto;
+  width: 10px;
+  height: 10px;
+  background: var(--c1);
+}
+
+.index-tagline {
+  color: var(--fg-dim);
+  font-size: 14.5px;
+  line-height: 1.7;
+}
+
+.index-meta {
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  letter-spacing: 0.06em;
+  color: var(--fg-faint);
+  text-align: right;
+  white-space: nowrap;
+}
+
+/* ---------- 文字条目 ---------- */
+
+.post-list {
+  margin-top: 18px;
+  border-top: 1px solid var(--line-strong);
+}
+
+.post-line {
+  display: grid;
+  grid-template-columns: 7.5rem minmax(0, 1fr);
+  align-items: baseline;
+  gap: 18px;
+  padding: 22px 0;
+  border-bottom: 1px solid var(--line);
+  transition: background 0.2s var(--ease);
+}
+
+.post-line:hover {
+  background: var(--surface-soft);
+}
+
+.post-line-date {
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  letter-spacing: 0.08em;
+  color: var(--fg-faint);
+}
+
+.post-line-body {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+
+.post-line-title {
+  font-family: var(--font-display);
+  font-size: clamp(18px, 2.4vw, 23px);
+  font-weight: 400;
+  letter-spacing: -0.01em;
+  line-height: 1.25;
+}
+
+.post-line-sum {
+  color: var(--fg-dim);
+  font-size: 13.5px;
+  line-height: 1.7;
+}
+
+/* ---------- 收尾卡片 ---------- */
+
+.moon-line {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-top: 64px;
+  padding: 20px 0;
+  border-top: 1px solid var(--line-strong);
+  border-bottom: 1px solid var(--line-strong);
+  transition: background 0.2s var(--ease);
+}
+
+.moon-line:hover {
+  background: var(--surface-soft);
+}
+
+.moon-glyph {
+  flex: 0 0 auto;
+  font-size: 22px;
+  line-height: 1;
+  color: var(--accent);
+}
+
+.moon-body {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+}
+
+.moon-title {
+  font-family: var(--font-display);
+  font-size: 19px;
+  letter-spacing: -0.01em;
+}
+
+.moon-sub {
+  color: var(--fg-dim);
+  font-size: 13px;
+}
+
+.moon-go {
+  margin-left: auto;
+  color: var(--fg-faint);
+}
+
+/* ---------- 窄屏 ---------- */
+
+@media (max-width: 700px) {
+  .index-row {
+    grid-template-columns: 2.6rem minmax(0, 1fr);
+    gap: 0 12px;
+    padding: 22px 0;
+  }
+
+  .index-meta {
+    grid-column: 2;
+    margin-top: 8px;
+    text-align: left;
+    white-space: normal;
+  }
+
+  .post-line {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 6px;
+  }
+}
