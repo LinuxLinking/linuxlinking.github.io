@@ -60,7 +60,7 @@
   margin: 0 0 40px;
   padding-bottom: 34px;
   border-bottom: 1px solid var(--line);
-  font-family: var(--font-display);
+  font-family: var(--font-read);
   font-size: 18px;
   line-height: 1.75;
   color: var(--fg-soft);

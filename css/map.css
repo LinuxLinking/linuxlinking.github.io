@@ -1,0 +1,276 @@
+/* 图纸视图：站点被画成一张目录式示意图。
+   画法（主轴线 / 分区 / 缩进子树）由 js/map.js 决定，这里只负责墨线与字重。 */
+
+.map {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-content);
+  touch-action: none;
+  cursor: grab;
+  opacity: 1;
+  transition: opacity 0.3s var(--ease);
+  overscroll-behavior: none;
+}
+
+.map:active {
+  cursor: grabbing;
+}
+
+.map.is-hidden {
+  opacity: 0;
+  pointer-events: none;
+  visibility: hidden;
+}
+
+.stage {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 0;
+  height: 0;
+  transform-origin: 0 0;
+  will-change: transform;
+}
+
+/* ---------- 主轴线与引线 ---------- */
+
+.map-spine,
+.map-rail {
+  position: absolute;
+  width: 0;
+  border-left: 1px solid var(--line);
+  pointer-events: none;
+}
+
+.map-rail {
+  border-left-color: var(--line-strong);
+}
+
+/* ---------- 分区标题 ---------- */
+
+.map-section {
+  position: absolute;
+  left: 0;
+  transform: translateY(-50%);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  pointer-events: none;
+}
+
+.map-dot {
+  width: 9px;
+  height: 9px;
+  flex: 0 0 auto;
+  background: var(--accent);
+}
+
+.map-section-label {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--fg-dim);
+  /* stage 是 0×0 的，绝对定位的子元素没有可用宽度，中文标签会竖着断行 */
+  white-space: nowrap;
+}
+
+/* ---------- 条目 ---------- */
+
+.node {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  transform: translateY(-50%);
+  color: var(--fg);
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* 从主轴线（或父节点）拉出来的那一截引线 */
+.node::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  right: calc(100% + var(--stub-gap, 12px));
+  width: var(--stub-w, 36px);
+  border-top: 1px solid var(--line);
+  pointer-events: none;
+}
+
+.node-box {
+  width: var(--box, 32px);
+  height: var(--box, 32px);
+  flex: 0 0 auto;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--line-strong);
+  background: var(--surface);
+  color: var(--fg);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  line-height: 1;
+  transition: border-color 0.2s var(--ease), background 0.2s var(--ease),
+    color 0.2s var(--ease);
+}
+
+.node.is-child .node-box {
+  width: 26px;
+  height: 26px;
+  font-size: 10px;
+  border-color: var(--line);
+}
+
+.node-text {
+  display: flex;
+  align-items: baseline;
+  gap: 14px;
+  min-width: 0;
+}
+
+.node-index {
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  letter-spacing: 0.14em;
+  color: var(--accent);
+}
+
+.node-title {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  color: var(--fg);
+  white-space: nowrap;
+  transition: color 0.2s var(--ease);
+}
+
+.node-tag {
+  max-width: 300px;
+  font-size: 12.5px;
+  color: var(--fg-dim);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.node:hover .node-box,
+.node.is-active .node-box {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+}
+
+.node:hover .node-title,
+.node.is-active .node-title {
+  color: var(--fg-strong);
+}
+
+.node.is-opening .node-box {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--on-accent);
+}
+
+.node:focus-visible .node-box {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 3px;
+}
+
+/* 聚焦某一条时，其余的退到后面去 */
+.stage.is-focusing .node:not(.is-active) {
+  opacity: 0.42;
+  transition: opacity 0.2s var(--ease);
+}
+
+.stage.is-intro .node {
+  animation: node-in 0.5s var(--ease) backwards;
+  animation-delay: var(--d, 0ms);
+}
+
+@keyframes node-in {
+  from {
+    opacity: 0;
+    transform: translateY(calc(-50% + 6px));
+  }
+}
+
+/* ---------- 提示 ---------- */
+
+.hint {
+  position: fixed;
+  left: 50%;
+  bottom: 44px;
+  z-index: var(--z-hint);
+  margin: 0;
+  transform: translateX(-50%);
+  padding: 6px 13px;
+  border: 1px solid var(--line);
+  background: var(--surface);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  color: var(--fg-faint);
+  white-space: nowrap;
+  pointer-events: none;
+  transition: opacity 0.3s var(--ease);
+}
+
+.hint.is-hidden {
+  opacity: 0;
+}
+
+/* ---------- 数据加载失败 ---------- */
+
+.state-error {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-error);
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  text-align: center;
+  background: var(--bg);
+}
+
+.state-error[hidden] {
+  display: none;
+}
+
+.state-error p {
+  margin: 0 0 6px;
+  font-family: var(--font-display);
+  font-size: 22px;
+}
+
+.state-error small {
+  display: block;
+  margin-bottom: 20px;
+  color: var(--fg-dim);
+  font-size: 13px;
+}
+
+@media (max-width: 700px) {
+  .node-tag {
+    display: none;
+  }
+
+  .node-title {
+    font-size: 12px;
+  }
+
+  .hint {
+    bottom: 40px;
+    font-size: 10px;
+    letter-spacing: 0.05em;
+    padding: 5px 10px;
+  }
+}
+
+@media (max-height: 560px) {
+  .hint {
+    display: none;
+  }
+}

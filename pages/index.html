@@ -2,7 +2,7 @@
 title: 钟闪闪 · 作品与文字
 description: 写工具，也写字。七个项目，四篇文章。
 bodyClass: page-home
-css: base.css, home.css, honeycomb.css
+css: base.css, home.css, map.css
 js: app.js
 headExtra: <meta property="og:title" content="钟闪闪 · 作品与文字">
 <meta property="og:description" content="写工具，也写字。七个项目，四篇文章。">
@@ -14,7 +14,7 @@ headExtra: <meta property="og:title" content="钟闪闪 · 作品与文字">
 <!--block viewSwitcher-->
 <div class="segmented" role="group" data-i18n-aria="a11y.view">
   <button class="seg is-active" type="button" data-view="grid" aria-pressed="true" data-i18n="nav.grid">项目</button>
-  <button class="seg" type="button" data-view="honeycomb" aria-pressed="false" data-i18n="nav.honeycomb">星图</button>
+  <button class="seg" type="button" data-view="map" aria-pressed="false" data-i18n="nav.map">图纸</button>
 </div>
 <!--endblock-->
 
@@ -27,14 +27,14 @@ headExtra: <meta property="og:title" content="钟闪闪 · 作品与文字">
     <header class="home-hero">
       <p class="kicker" data-i18n="home.kicker">作品与文字</p>
       <h1 data-i18n="home.title">写工具，也写字</h1>
-      <p class="home-lede" data-i18n="home.lede">下面是做过的东西，和还没写完的字。切到星图，可以把它们摊开在星场里看。</p>
+      <p class="home-lede" data-i18n="home.lede">下面是做过的东西，和还没写完的字。切到图纸，可以把它们摊开在一张图纸里看。</p>
       <hr class="hero-rule">
     </header>
     <div id="homeBody"></div>
   </div>
 </main>
 
-<main id="honeycomb" class="honeycomb is-hidden" data-i18n-aria="a11y.nodes" aria-hidden="true" inert>
+<main id="map" class="map is-hidden" data-i18n-aria="a11y.nodes" aria-hidden="true" inert>
   <div id="stage" class="stage"></div>
 </main>
 
@@ -58,10 +58,10 @@ headExtra: <meta property="og:title" content="钟闪闪 · 作品与文字">
 <p class="hint is-hidden" data-i18n="hint.gesture">拖动 · 滚轮缩放 · 双击复位</p>
 
 <noscript>
-  <div style="position:fixed;inset:0;z-index:70;display:grid;place-items:center;background:#f6f5f0;text-align:center;padding:24px">
+  <div style="position:fixed;inset:0;z-index:70;display:grid;place-items:center;background:#14120f;text-align:center;padding:24px">
     <div>
-      <p style="margin:0 0 12px;font-size:18px;color:#1a1a18">这个站需要 JavaScript。</p>
-      <p style="margin:0 0 18px;color:#57554e;font-size:14px">可以先去 <a href="https://github.com/LinuxLinking" style="color:#1a1a18">GitHub</a> 或 <a href="soul-for-u/" style="color:#1a1a18">Soul for U</a>。</p>
+      <p style="margin:0 0 12px;font-size:18px;color:#f2ece0">这个站需要 JavaScript。</p>
+      <p style="margin:0 0 18px;color:#b5ac9d;font-size:14px">可以先去 <a href="https://github.com/LinuxLinking" style="color:#f2ece0">GitHub</a> 或 <a href="soul-for-u/" style="color:#f2ece0">Soul for U</a>。</p>
     </div>
   </div>
 </noscript>

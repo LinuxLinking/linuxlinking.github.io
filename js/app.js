@@ -1,9 +1,9 @@
-import { createHoneycomb } from "./honeycomb.js?v=e9ff3f9e";
+import { createMap } from "./map.js?v=bb3b13ab";
 import { renderHome } from "./home.js?v=cab0bc6c";
 import { bootPage, escapeHtml } from "./shared.js?v=a89b5bc1";
 import { buildNodes } from "./nodes.js?v=b189be2a";
 
-const honeyEl = document.getElementById("honeycomb");
+const mapEl = document.getElementById("map");
 const stageEl = document.getElementById("stage");
 const gridEl = document.getElementById("homeView");
 const gridBodyEl = document.getElementById("homeBody");
@@ -16,7 +16,8 @@ const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
 
 const state = { lang: "zh", projects: [], posts: [], now: {} };
 let i18n = null;
-let honey = null;
+let mapView = null;
+const mapLabels = {};
 let lastFocus = null;
 let gridScroll = 0;
 
@@ -67,22 +68,30 @@ async function loadNow() {
   }
 }
 
-const VIEWS = ["grid", "honeycomb"];
+const VIEWS = ["grid", "map"];
 
 function readView() {
   try {
     const saved = localStorage.getItem("view");
-    // 旧版本把第二个视图存成 "list"，现在它由网格取代
+    // 旧版本把第二个视图存成 "list"，现在它由网格取代；"honeycomb" 是改成图纸前的旧名
     if (saved === "list") return "grid";
+    if (saved === "honeycomb") return "map";
     return VIEWS.includes(saved) ? saved : "grid";
   } catch (err) {
     return "grid";
   }
 }
 
+/* 图纸视图的分区标题跟着语言走。 */
+function syncMapLabels() {
+  mapLabels.projects = i18n.t("map.projects");
+  mapLabels.writing = i18n.t("map.writing");
+  mapLabels.other = i18n.t("map.other");
+}
+
 function refresh() {
   const nodes = localize(buildNodes({ projects: state.projects, posts: state.posts }), state.lang);
-  honey.setNodes(nodes);
+  mapView.setNodes(nodes);
   renderHome(gridBodyEl, { nodes, posts: state.posts, now: state.now, lang: state.lang, t: i18n.t });
   document.title = i18n.t("meta.title.home");
   const desc = document.querySelector('meta[name="description"]');
@@ -100,14 +109,14 @@ function setView(next, persist = true) {
     }
   }
 
-  document.body.classList.toggle("view-honeycomb", !isGrid);
+  document.body.classList.toggle("view-map", !isGrid);
   gridEl.classList.toggle("is-hidden", !isGrid);
   gridEl.setAttribute("aria-hidden", String(!isGrid));
   gridEl.inert = !isGrid;
 
-  honeyEl.classList.toggle("is-hidden", isGrid);
-  honeyEl.setAttribute("aria-hidden", String(isGrid));
-  honeyEl.inert = isGrid;
+  mapEl.classList.toggle("is-hidden", isGrid);
+  mapEl.setAttribute("aria-hidden", String(isGrid));
+  mapEl.inert = isGrid;
 
   viewButtons.forEach((btn) => {
     const active = btn.dataset.view === next;
@@ -124,7 +133,7 @@ function setView(next, persist = true) {
   } else {
     gridScroll = window.scrollY;
     window.scrollTo(0, 0);
-    if (honey) honey.fit(false);
+    if (mapView) mapView.fit(false);
   }
 }
 
@@ -156,7 +165,7 @@ function showError() {
     <a class="btn" href="https://github.com/LinuxLinking" target="_blank" rel="noopener">GitHub ↗</a>
   </div>`;
   stateErrorEl.hidden = false;
-  honeyEl.classList.add("is-hidden");
+  mapEl.classList.add("is-hidden");
   gridEl.classList.add("is-hidden");
   viewButtons.forEach((btn) => {
     btn.disabled = true;
@@ -186,6 +195,7 @@ function wireUi() {
 async function boot() {
   i18n = await bootPage({ stringsPath: "data/i18n.json" });
   state.lang = i18n.lang;
+  syncMapLabels();
 
   const projects = await loadProjects();
   if (!projects) {
@@ -197,9 +207,10 @@ async function boot() {
   state.posts = await loadPosts();
   state.now = await loadNow();
 
-  honey = createHoneycomb({
-    container: honeyEl,
+  mapView = createMap({
+    container: mapEl,
     stage: stageEl,
+    labels: mapLabels,
     reducedMotion: reduced,
     onOpen: (node) => {
       location.href = node.href;
@@ -211,6 +222,7 @@ async function boot() {
 
   i18n.onChange((lang) => {
     state.lang = lang;
+    syncMapLabels();
     refresh();
   });
 

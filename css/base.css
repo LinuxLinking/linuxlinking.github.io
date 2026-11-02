@@ -1,45 +1,53 @@
 /* 全站设计系统。
-   风格：Paper / Editorial —— 纸底、墨字、衬线大标题、发丝线分隔。
+   风格：Ink Poster —— 暖黑底、骨白字、朱红一个主色；标题重，正文轻。
    所有颜色/圆角/层级都在下面的 :root 里，改主题只改这一处。 */
 
-/* 中文字体单独用 unicode-range 挑出来：只走系统本地字体，不下载任何网络字体。
-   没有这一段时，衬线栈里的中文会被回退成黑体（无衬线），和整站的编辑体不一致。 */
+/* 中文按 unicode-range 单独挑出来：只走系统本地字体，不下载任何网络字体。
+   标题走黑体（重），长文正文走宋体（轻），两套各挑各的。 */
 @font-face {
   font-family: "Display CJK";
+  src: local("SimHei"), local("Heiti SC"), local("PingFang SC"),
+    local("Hiragino Sans GB"), local("Noto Sans SC"), local("Microsoft YaHei");
+  unicode-range: U+2E80-9FFF, U+F900-FAFF, U+FE30-FE4F, U+FF00-FFEF, U+3000-303F;
+}
+
+@font-face {
+  font-family: "Read CJK";
   src: local("Songti SC"), local("Noto Serif SC"), local("Source Han Serif SC"),
     local("STSong"), local("SimSun");
   unicode-range: U+2E80-9FFF, U+F900-FAFF, U+FE30-FE4F, U+FF00-FFEF, U+3000-303F;
 }
 
 :root {
-  /* 纸与墨 */
-  --bg: #f6f5f0;
-  --fg: #1a1a18;
-  --fg-dim: #57554e;
-  --fg-faint: #8b887f;
-  --fg-soft: rgba(26, 26, 24, 0.86);
-  --fg-strong: #111110;
-  --fg-code: #2a2a26;
-  --fg-code-dim: #55534c;
-  --fg-pre: #35342e;
+  /* 暗底与骨白 */
+  --bg: #14120f;
+  --fg: #f2ece0;
+  --fg-dim: #b5ac9d;
+  --fg-faint: #8d8577;
+  --fg-soft: rgba(242, 236, 224, 0.86);
+  --fg-strong: #fffaf0;
+  --fg-code: #e7dfd0;
+  --fg-code-dim: #a89f90;
+  --fg-pre: #d9d1c2;
 
-  /* 发丝线与面 */
-  --line: #e3e0d7;
-  --line-soft: #edebe4;
-  --line-strong: #cbc7ba;
-  --surface: #ffffff;
-  --surface-soft: #fbfaf7;
-  --surface-hover: #f0eee7;
-  --surface-active: #e9e6dc;
+  /* 墨线与面 */
+  --line: #2f2a23;
+  --line-soft: #241f1a;
+  --line-strong: #4a4237;
+  --surface: #1b1814;
+  --surface-soft: #201c17;
+  --surface-hover: #26211b;
+  --surface-active: #2e2820;
 
   /* 唯一强调色 */
-  --accent: #b4422a;
-  --accent-soft: rgba(180, 66, 42, 0.08);
-  --focus-ring: rgba(180, 66, 42, 0.6);
+  --accent: #e2452c;
+  --accent-soft: rgba(226, 69, 44, 0.14);
+  --on-accent: #14120f;
+  --focus-ring: rgba(226, 69, 44, 0.75);
 
-  /* 圆角与动效 */
-  --radius-lg: 6px;
-  --radius-md: 3px;
+  /* 圆角与动效：海报是硬边，不做圆角 */
+  --radius-lg: 0;
+  --radius-md: 0;
   --radius-pill: 999px;
   --ease: cubic-bezier(0.22, 0.61, 0.36, 1);
   --topbar-h: 60px;
@@ -52,11 +60,15 @@
   --z-topbar: 40;
   --z-modal: 60;
 
-  --font-display: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia,
-    "Times New Roman", "Display CJK", serif;
-  --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC",
-    "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans SC", sans-serif;
-  --font-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+  /* 标题重：拉丁走 Impact / Arial Black，中文走黑体 */
+  --font-display: Impact, "Arial Black", "Display CJK", sans-serif;
+  /* 正文轻：长文用衬线，中文走宋体 */
+  --font-read: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia,
+    "Times New Roman", "Read CJK", serif;
+  --font-sans: Arial, "Helvetica Neue", "Segoe UI", "PingFang SC",
+    "Microsoft YaHei", "Hiragino Sans GB", "Noto Sans SC", sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas,
+    "Microsoft YaHei", monospace;
 }
 
 *,
@@ -77,16 +89,15 @@ body {
   font-family: var(--font-sans);
   font-size: 16px;
   line-height: 1.6;
-  /* 纸上的点阵：静态、不动，只留一点印刷网格的暗示 */
+  /* 暖黑底 + 一点印刷噪点 */
   background-color: var(--bg);
-  background-image: radial-gradient(circle, rgba(26, 26, 24, 0.07) 1px, transparent 1px);
-  background-size: 32px 32px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.05'/%3E%3C/svg%3E");
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
 }
 
 /* 星图视图占满整屏、不滚动；网格视图是正常文档流，需要滚动。 */
-body.page-home.view-honeycomb {
+body.page-home.view-map {
   overflow: hidden;
 }
 
@@ -113,7 +124,7 @@ button {
 
 ::selection {
   background: var(--accent);
-  color: #fff;
+  color: var(--on-accent);
 }
 
 /* ---------- 共享原语 ---------- */
@@ -177,23 +188,23 @@ button {
 }
 
 .brand-mark {
-  width: 22px;
-  height: 22px;
+  width: 24px;
+  height: 24px;
   display: grid;
   place-items: center;
-  border: 1px solid var(--fg);
-  border-radius: 2px;
-  font-family: var(--font-display);
+  background: var(--accent);
+  border-radius: 0;
+  font-family: "Arial Black", "Display CJK", sans-serif;
   font-size: 13px;
-  font-weight: 600;
+  font-weight: 700;
   line-height: 1;
-  color: var(--fg);
+  color: var(--on-accent);
 }
 
 .brand-name {
-  font-family: var(--font-display);
-  font-size: 15px;
-  letter-spacing: 0.02em;
+  font-family: "Arial Black", "Display CJK", sans-serif;
+  font-size: 14px;
+  letter-spacing: 0.08em;
   color: var(--fg);
 }
 
@@ -232,7 +243,7 @@ button {
 
 .seg[aria-pressed="true"] {
   color: var(--fg);
-  box-shadow: 0 1px 0 var(--accent);
+  box-shadow: 0 2px 0 var(--accent);
 }
 
 /* 顶栏导航：纯文字链接，和视图切换同一套语汇。 */
@@ -278,7 +289,7 @@ button {
   flex: 0 0 auto;
   width: calc(var(--r) * 2);
   height: calc(var(--r) * 2);
-  border-radius: 50%;
+  border-radius: 0;
   color: var(--fg);
   font-family: var(--font-mono);
   font-size: calc(var(--r) * 0.4);
@@ -286,7 +297,7 @@ button {
   letter-spacing: 0.06em;
   line-height: 1;
   background: var(--surface);
-  border: 1px solid color-mix(in srgb, var(--c1, #7c5cff) 42%, var(--line-strong));
+  border: 1px solid color-mix(in srgb, var(--c1, #e2452c) 60%, var(--line-strong));
   transition: transform 0.28s var(--ease), border-color 0.28s var(--ease);
 }
 
@@ -344,7 +355,7 @@ button {
 .about-backdrop {
   position: absolute;
   inset: 0;
-  background: rgba(26, 26, 24, 0.34);
+  background: rgba(10, 9, 8, 0.78);
   opacity: 0;
   transition: opacity 0.3s var(--ease);
 }
@@ -433,11 +444,22 @@ button {
 
 .kicker {
   margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
   font-family: var(--font-mono);
   font-size: 11px;
   letter-spacing: 0.18em;
   text-transform: uppercase;
   color: var(--fg-faint);
+}
+
+.kicker::before {
+  content: "";
+  flex: 0 0 auto;
+  width: 24px;
+  height: 2px;
+  background: var(--accent);
 }
 
 .btn {
@@ -458,15 +480,15 @@ button {
 }
 
 .btn.primary {
-  border-color: var(--fg);
-  background: var(--fg);
-  color: var(--bg);
+  border-color: var(--accent);
+  background: var(--accent);
+  color: var(--on-accent);
 }
 
 .btn.primary:hover {
-  background: var(--accent);
-  border-color: var(--accent);
-  color: #fff;
+  background: var(--fg-strong);
+  border-color: var(--fg-strong);
+  color: var(--bg);
 }
 
 /* ---------- motion / a11y ---------- */

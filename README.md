@@ -11,12 +11,13 @@ artifact is plain HTML + CSS + ES modules.
 
 ## What's inside
 
-- **Editorial index** (default home view) — a serif hero, a "right now" panel, then projects
-  as a numbered index (`01 │ Intent OS │ 2026`), each with its own accent swatch and the posts
-  written about it
-- **Star map** (second view) — anchor-point zoom, drag, pinch, double-click to reset
-- **Paper / editorial design** — warm off-white ground, ink text, hairline rules, one vermillion
-  accent, serif display type. No glass, no blur, no glow.
+- **Poster index** (default home view) — an oversized heavy headline, a full-width vermillion
+  "right now" band, then projects as a numbered index (`01 │ Intent OS │ 2026`), each with its own
+  accent swatch and the posts written about it
+- **Schematic** (second view, 图纸) — the whole site drawn as a directory sheet: one spine per
+  column, section headings, posts nested under Writing. Drag, scroll to zoom, double-click to reset
+- **Ink poster design** — warm-black ground, bone-white text, one vermillion accent, heavy display
+  type, hard edges. No glass, no blur, no glow, no rounded corners.
 - **zh / en switching** across all pages (`?lang=en` → `localStorage` → `navigator.language`)
 - [Writing](https://linuxlinking.github.io/blog/) — a blog
 - [Soul for U](https://linuxlinking.github.io/soul-for-u/) — a page written for one person
@@ -34,32 +35,34 @@ node --test js/nodes.test.mjs
 
 ## Design system
 
-Paper / editorial: warm off-white ground, ink text, hairline rules, one vermillion accent, serif
-display type. Everything is a token in `:root` in `css/base.css` — retheming means editing that one
-block, not the stylesheets.
+Ink poster: warm-black ground, bone-white text, one vermillion accent, heavy display type, hard
+edges. Everything is a token in `:root` in `css/base.css` — retheming means editing that one block,
+not the stylesheets.
 
 | token | value | used for |
 |---|---|---|
-| `--bg` | `#f6f5f0` | paper ground |
-| `--fg` / `--fg-dim` / `--fg-faint` | `#1a1a18` / `#57554e` / `#8b887f` | ink, secondary, tertiary |
-| `--line` / `--line-strong` | `#e3e0d7` / `#cbc7ba` | hairlines, rules |
-| `--surface` / `--surface-soft` | `#ffffff` / `#fbfaf7` | cards, code chips |
-| `--accent` | `#b4422a` | the single accent: active state, links, selection |
-| `--radius-lg` / `--radius-md` | `6px` / `3px` | near-square corners |
-| `--font-display` / `--font-sans` / `--font-mono` | serif / sans / mono stacks | headings, UI, meta |
+| `--bg` | `#14120f` | warm-black ground |
+| `--fg` / `--fg-dim` / `--fg-faint` | `#f2ece0` / `#b5ac9d` / `#8d8577` | bone-white ink, secondary, tertiary |
+| `--line` / `--line-strong` | `#2f2a23` / `#4a4237` | hairlines, rules |
+| `--surface` / `--surface-soft` | `#1b1814` / `#201c17` | panels, code chips |
+| `--accent` | `#e2452c` | the single accent: active state, links, selection, the "right now" band |
+| `--on-accent` | `#14120f` | text on the accent |
+| `--radius-lg` / `--radius-md` | `0` / `0` | hard edges — the poster has no rounded corners |
+| `--font-display` / `--font-read` / `--font-sans` / `--font-mono` | heavy / serif / sans / mono stacks | headings, long-form body, UI, meta |
 
 Type is **system fonts only** — no web fonts, no CDN:
 
-- `--font-display` puts the Western serifs first (`Iowan Old Style`, `Palatino Linotype`, Georgia,
-  `Times New Roman`).
-- Chinese needs its own rule. `css/base.css` declares a `local()`-only `@font-face` named
-  `Display CJK` with a `unicode-range` covering CJK ranges, so CJK glyphs resolve to a Song/Serif
-  face (`Songti SC` on macOS, `Noto Serif SC` on Linux, `SimSun`/`STSong` elsewhere) instead of
-  falling back to a sans face. `local()` means nothing is downloaded.
+- `--font-display` is the poster voice: `Impact` / `Arial Black` for Latin, heavy CJK for Chinese.
+- `--font-read` is the long-form voice: `Iowan Old Style` / Georgia for Latin, a Song face for
+  Chinese — article bodies stay readable instead of shouting.
+- Chinese needs its own rules. `css/base.css` declares two `local()`-only `@font-face` families,
+  `Display CJK` (heavy, for headings) and `Read CJK` (serif, for body copy), each with a
+  `unicode-range` covering CJK ranges so those glyphs never fall back to a Latin face.
+  `local()` means nothing is downloaded.
 - `--font-mono` carries numbers, dates and labels; `.kicker` and `.section-label` are mono
   uppercase.
 
-Background is a static 32px CSS dot grid on `body` — no canvas, no JS starfield.
+Background is a static inline SVG print-noise texture on `body` — no canvas, no JS starfield.
 `prefers-reduced-motion` collapses every transition and animation to ~0.
 
 ## Directory map
@@ -70,7 +73,7 @@ Background is a static 32px CSS dot grid on `body` — no canvas, no JS starfiel
 │  ├─ base.html             shared chrome: topbar, footer, blocks
 │  └─ post.html             Markdown post shell (front matter + body)
 ├─ pages/                   page fragments — the parts you actually edit
-│  ├─ index.html            home (index + star map)
+│  ├─ index.html            home (index + schematic)
 │  ├─ project.html          project detail template
 │  ├─ blog.html             blog index
 │  └─ 404.html              not-found
@@ -82,10 +85,11 @@ Background is a static 32px CSS dot grid on `body` — no canvas, no JS starfiel
 │  └─ i18n.json             every UI string, zh + en
 ├─ tools/build.py           assembler: templates → pages, hash stamping, validation
 ├─ css/                     base.css (tokens + primitives) + per-page stylesheets
-│                           home.css (home index) · honeycomb.css · detail.css
+│                           home.css (home index) · map.css (schematic) · detail.css
 │                           blog.css · post.css
 ├─ js/                      ES modules; shared.js holds the common boot sequence
 │                           home.js renders the home index rows
+│                           map.js draws the schematic (directory layout + pan/zoom)
 │                           nodes.js merges projects + posts into the site node list
 ├─ blog/<slug>/             post.md (source) + generated index.html
 ├─ soul-for-u/              untouched sub-site
@@ -146,7 +150,7 @@ resolve, that every registered post has a `post.md`, and that no generated page 
      "url": "my-new-post/"
    }
 
-   `label` 与 `monogram` 是星图节点要用的，必填；`projectId` 可以留空（独立文章），
+   `label` 与 `monogram` 是图纸节点要用的，必填；`projectId` 可以留空（独立文章），
    填了就必须是一个存在的项目 id，否则 `build.py --check` 会报错。
    ```
 
@@ -171,7 +175,7 @@ browsing is ever added, add the field and the index page in the same change.
 - **Now** — edit `data/now.json`. `kind` is `building` or `writing`; `text` is a plain
   string (or a `zh`/`en` object); `href` is optional and must point at a page that exists.
 - **Posts** — edit `data/posts.json`, then rebuild. `projectId` links a post to a project (empty for
-  standalone posts); `label` and `monogram` are what the star map shows for it.
+  standalone posts); `label` and `monogram` are what the schematic shows for it.
 - **UI copy** — edit `data/i18n.json`, then rebuild. `js/i18n.js` keeps a generated fallback copy so
   the site still renders if the JSON fetch fails.
 - **Site entry** — the `site` project in `projects.json` describes this site itself and feeds the
@@ -185,7 +189,8 @@ browsing is ever added, add the field and the index page in the same change.
   mermaid) — the only exception to "hand-written", and they are vendored on purpose.
 - CSS design tokens live in `:root` in `css/base.css`; use them instead of hard-coded colors,
   radii, shadows and z-index values. Shared primitives: `.pill`, `.card`, `.orb`, `.page-wrap`.
-- No `backdrop-filter`, no blur, no glow, no glass — the visual language is flat paper.
+- No `backdrop-filter`, no blur, no glow, no glass — the visual language is flat ink on a dark
+  ground, with hard edges instead of rounded corners.
 - Keep `?v=` hashes out of hand-written files — `build.py` owns them.
 
 ## Run locally

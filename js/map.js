@@ -1,12 +1,44 @@
-const BASE_RADIUS = 90;
-const LABEL_THRESHOLD = 0.85;
-const INTRO_MS = 1000;
+/* 图纸视图：把站点画成一张目录式示意图。
+ *
+ * 结构：一条主轴线串起全部条目，分区用小标题标出，文章缩进挂在「文字」聚合节点下面。
+ * 宽屏排两栏（作品 | 文字 + 其他），像一张真正的图纸：文字不缩放，清晰可读。
+ * 交互（拖拽 / 滚轮缩放 / 双击复位）沿用原来星图那套实现，换掉的只是布局与画法。
+ */
+
+const ROW_H = 44;       // 条目行高
+const SECTION_H = 64;   // 分区标题占位
+const BOX = 32;         // 节点方块边长
+const SPINE_X = 0;      // 主轴线
+const STUB_GAP = 12;    // 引线到方块之间的留白
+const STUB_W = 36;      // 一级引线长度
+const CHILD_STUB_W = 6; // 二级引线长度
+const RAIL_X = SPINE_X + STUB_W + STUB_GAP + BOX + 18; // 子级竖线
+const COL_GAP = 560;    // 第二栏的 x
+const TWO_COL_MIN = 760; // 窄于此宽度就并成一栏
+
+const SECTION_OF = { project: "projects", blog: "writing", moon: "other" };
 
 const clamp = (v, min, max) => Math.min(max, Math.max(min, v));
 const easeOutCubic = (p) => 1 - Math.pow(1 - p, 3);
 
-export function createHoneycomb({ container, stage, reducedMotion = false, onOpen }) {
+function sectionOf(data) {
+  return SECTION_OF[data.kind] || "other";
+}
+
+/* 文章（kind=blog 且不是聚合节点本身）挂在「文字」下面。 */
+function isChild(data) {
+  return data.kind === "blog" && data.id !== "blog";
+}
+
+function ellipsis(text, limit) {
+  const clean = String(text || "").trim();
+  return clean.length > limit ? `${clean.slice(0, limit - 1)}…` : clean;
+}
+
+export function createMap({ container, stage, labels = {}, reducedMotion = false, onOpen }) {
   let nodes = [];
+  let lastList = [];
+  let twoColumns = true;
   let scale = 1;
   let tx = 0;
   let ty = 0;
@@ -27,72 +59,61 @@ export function createHoneycomb({ container, stage, reducedMotion = false, onOpe
   let drag = null;
   let pinch = null;
   let suppressClick = false;
-  let lastPointerAt = 0;
 
+  /* 目录布局：分区标题 + 条目行；宽屏分两栏，文章缩进一层。 */
   function layout(list) {
-    const laid = list.map((data) => ({
-      data,
-      x: 0,
-      y: 0,
-      r: BASE_RADIUS * (data.size || 0.8)
-    }));
+    const rows = [];
+    const yByCol = [0, 0];
+    let section = null;
+    let parentRow = null;
+    let col = 0;
 
-    // 蜂窝布局：axial 坐标六边形环逐层密铺。
-    // 核心 = 第一个节点；其余按环填充，第 k 环 6k 格；
-    // 格位间距 = 核心半径 + 环球最大半径 + 垫距，保证相邻不重叠且尽量紧密。
-    const rest = laid.slice(1);
-    if (rest.length) {
-      const coreR = laid[0].r;
-      const ringR = Math.max(...rest.map((n) => n.r));
-      const s = coreR + ringR + 4;
-      const SQ3H = Math.sqrt(3) / 2;
-      const DIRS = [[1, 0], [1, -1], [0, -1], [-1, 0], [-1, 1], [0, 1]];
-
-      const cells = [];
-      let k = 1;
-      while (cells.length < rest.length) {
-        let q = -k;
-        let r = k;
-        const ring = [];
-        for (let side = 0; side < 6; side++) {
-          for (let step = 0; step < k; step++) {
-            ring.push([q, r]);
-            q += DIRS[side][0];
-            r += DIRS[side][1];
-          }
-        }
-        // 环未填满时均匀取位，保持六边形对称；
-        // 半格偏移让部分填充落在边中点（谷位），外环内收、不留顶点空洞
-        const need = Math.min(rest.length - cells.length, ring.length);
-        for (let i = 0; i < need; i++) {
-          cells.push(ring[Math.floor(((i + 0.5) * ring.length) / need) % ring.length]);
-        }
-        k++;
+    for (const data of list) {
+      const key = sectionOf(data);
+      if (key !== section) {
+        section = key;
+        parentRow = null;
+        col = twoColumns && key !== "projects" ? 1 : 0;
+        rows.push({ type: "section", key, y: yByCol[col], col });
+        yByCol[col] += SECTION_H;
       }
-
-      cells.forEach(([q, r], i) => {
-        const node = rest[i];
-        node.x = s * (q + r / 2);
-        node.y = s * SQ3H * r;
+      const child = isChild(data);
+      if (!child) parentRow = { data, y: yByCol[col] };
+      const stubW = child ? CHILD_STUB_W : STUB_W;
+      const stubFrom = child ? RAIL_X : SPINE_X;
+      rows.push({
+        type: "node",
+        data,
+        y: yByCol[col],
+        col,
+        child,
+        parent: child ? parentRow : null,
+        stubW,
+        stubFrom,
+        left: stubFrom + stubW + STUB_GAP
       });
+      yByCol[col] += ROW_H;
     }
-
-    return laid;
+    return rows;
   }
 
   function measure() {
     const rect = container.getBoundingClientRect();
-    let minX = Infinity;
-    let maxX = -Infinity;
+    let minX = SPINE_X - 8;
+    let maxX = SPINE_X + 60;
     let minY = Infinity;
     let maxY = -Infinity;
 
-    nodes.forEach((node) => {
-      minX = Math.min(minX, node.x - node.r);
-      maxX = Math.max(maxX, node.x + node.r);
-      minY = Math.min(minY, node.y - node.r);
-      maxY = Math.max(maxY, node.y + node.r + 30);
-    });
+    for (const node of nodes) {
+      minX = Math.min(minX, node.left - 4);
+      maxX = Math.max(maxX, node.left + node.width);
+      minY = Math.min(minY, node.y - node.height / 2);
+      maxY = Math.max(maxY, node.y + node.height / 2);
+    }
+    if (!nodes.length) {
+      minY = 0;
+      maxY = 1;
+    }
 
     box = {
       x: (minX + maxX) / 2,
@@ -101,36 +122,16 @@ export function createHoneycomb({ container, stage, reducedMotion = false, onOpe
       h: Math.max(1, maxY - minY)
     };
 
-    const padX = Math.max(26, rect.width * 0.05);
-    const padTop = 84;
-    const padBottom = 88;
+    const padX = Math.max(24, rect.width * 0.05);
+    const padTop = 76;
+    const padBottom = 84;
     const availW = Math.max(80, rect.width - padX * 2);
     const availH = Math.max(80, rect.height - padTop - padBottom);
 
-    fitScale = clamp(Math.min(availW / box.w, availH / box.h), 0.3, 1.2);
+    fitScale = clamp(Math.min(availW / box.w, availH / box.h), 0.3, 1.15);
     fitOffsetY = padTop + availH / 2 - rect.height / 2;
     minScale = Math.min(0.5, fitScale * 0.72);
     maxScale = Math.max(2.2, fitScale * 2.2);
-  }
-
-  // watchOS-style: icons shrink & dim with distance from the viewport center.
-  function updateNodeFocus() {
-    const rect = container.getBoundingClientRect();
-    const cx = rect.width / 2;
-    const cy = rect.height / 2;
-    const maxDist = Math.max(160, Math.min(cx, cy) * 0.92);
-
-    for (const node of nodes) {
-      const sx = cx + tx + node.x * scale;
-      const sy = cy + ty + node.y * scale;
-      const t = clamp(Math.hypot(sx - cx, sy - cy) / maxDist, 0, 1);
-      const f = 1 - Math.pow(t, 1.6) * 0.66;
-      const o = 0.42 + 0.58 * f;
-      node.el.style.setProperty("--f", f.toFixed(3));
-      node.el.style.setProperty("--o", o.toFixed(3));
-    }
-
-    stage.classList.toggle("show-labels", scale >= LABEL_THRESHOLD);
   }
 
   function apply() {
@@ -139,7 +140,6 @@ export function createHoneycomb({ container, stage, reducedMotion = false, onOpe
     requestAnimationFrame(() => {
       frameQueued = false;
       stage.style.transform = `translate3d(${tx.toFixed(2)}px, ${ty.toFixed(2)}px, 0) scale(${scale.toFixed(3)})`;
-      if (!intro) updateNodeFocus();
     });
   }
 
@@ -232,7 +232,6 @@ export function createHoneycomb({ container, stage, reducedMotion = false, onOpe
 
   function onPointerDown(e) {
     if (e.pointerType === "mouse" && e.button !== 0) return;
-    lastPointerAt = performance.now();
     cancelTween();
     pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
 
@@ -311,15 +310,10 @@ export function createHoneycomb({ container, stage, reducedMotion = false, onOpe
   }
 
   function openNode(node) {
-    const targetScale = Math.max(scale, 1.3);
     node.el.classList.add("is-opening");
-    tweenTo(
-      { s: targetScale, tx: -node.x * targetScale, ty: -node.y * targetScale },
-      480,
-      () => {
-        if (typeof onOpen === "function") onOpen(node.data);
-      }
-    );
+    tweenTo({ s: scale, tx: -node.x * scale, ty: -node.y * scale }, 360, () => {
+      if (typeof onOpen === "function") onOpen(node.data);
+    });
   }
 
   function bindNode(node, el) {
@@ -340,7 +334,7 @@ export function createHoneycomb({ container, stage, reducedMotion = false, onOpe
 
     el.addEventListener("focus", () => {
       setActive(node);
-      if (performance.now() - lastPointerAt > 500) centerNode(node, 320);
+      centerNode(node, 320);
     });
 
     el.addEventListener("blur", clearActive);
@@ -349,44 +343,131 @@ export function createHoneycomb({ container, stage, reducedMotion = false, onOpe
   function endIntro() {
     intro = false;
     stage.classList.remove("is-intro");
-    updateNodeFocus();
+  }
+
+  /* 把一行条目画成：方块 + 编号 + 标题 + 一行摘要。 */
+  function buildNode(data, row, index) {
+    const el = document.createElement("a");
+    el.className = `node${row.child ? " is-child" : ""}`;
+    el.href = data.href;
+
+    el.style.left = `${row.left}px`;
+    el.style.top = `${row.y}px`;
+    el.style.setProperty("--stub-w", `${row.stubW}px`);
+    el.setAttribute("aria-label", `${data.titleText} — ${data.taglineText}`.trim());
+
+    const boxEl = document.createElement("span");
+    boxEl.className = "node-box";
+    boxEl.textContent = data.monogram || data.titleText.slice(0, 2);
+
+    const textEl = document.createElement("span");
+    textEl.className = "node-text";
+
+    const numEl = document.createElement("span");
+    numEl.className = "node-index";
+    numEl.textContent = String(index).padStart(2, "0");
+
+    const titleEl = document.createElement("span");
+    titleEl.className = "node-title";
+    titleEl.textContent = data.labelText || data.titleText;
+
+    const tagEl = document.createElement("span");
+    tagEl.className = "node-tag";
+    tagEl.textContent = ellipsis(data.taglineText, 42);
+
+    textEl.append(numEl, titleEl, tagEl);
+    el.append(boxEl, textEl);
+    return el;
   }
 
   function setNodes(list) {
-    nodes = layout(list);
+    lastList = list;
+    twoColumns = container.getBoundingClientRect().width >= TWO_COL_MIN;
+
+    const rows = layout(list);
     stage.innerHTML = "";
+    stage.style.setProperty("--box", `${BOX}px`);
+    stage.style.setProperty("--stub-gap", `${STUB_GAP}px`);
 
-    nodes.forEach((node, i) => {
-      const data = node.data;
-      const el = document.createElement("a");
-      el.className = `node${data.kind === "moon" ? " is-moon" : ""}${i === 0 ? " is-core" : ""}`;
-      el.href = data.href;
-      el.style.left = `${node.x.toFixed(2)}px`;
-      el.style.top = `${node.y.toFixed(2)}px`;
-      el.style.setProperty("--r", `${node.r.toFixed(2)}px`);
-      el.style.setProperty("--c1", (data.accent && data.accent[0]) || "#7c5cff");
-      el.style.setProperty("--c2", (data.accent && data.accent[1]) || "#3ad0ff");
-      el.setAttribute("aria-label", `${data.titleText} — ${data.taglineText}`.trim());
+    const colX = (col) => (twoColumns && col === 1 ? COL_GAP : 0);
 
-      const zoom = document.createElement("span");
-      zoom.className = "node-zoom";
+    // 每栏一条主轴线
+    for (const col of twoColumns ? [0, 1] : [0]) {
+      const inCol = rows.filter((row) => row.col === col);
+      if (!inCol.length) continue;
+      const top = Math.min(...inCol.map((row) => row.y));
+      const bottom = Math.max(...inCol.map((row) => row.y));
+      const spine = document.createElement("div");
+      spine.className = "map-spine";
+      spine.style.left = `${colX(col)}px`;
+      spine.style.top = `${top}px`;
+      spine.style.height = `${bottom - top}px`;
+      stage.appendChild(spine);
+    }
 
-      const orb = document.createElement("span");
-      orb.className = "orb";
-      const glyph = document.createElement("span");
-      glyph.textContent = data.monogram || data.titleText.slice(0, 2);
-      orb.appendChild(glyph);
+    // 子级竖线：从父节点那一行拉到最后一个子节点
+    const rails = [];
+    for (const row of rows) {
+      if (row.type !== "node" || !row.child) continue;
+      const prev = rails[rails.length - 1];
+      if (prev && prev.parentId === row.parent.data.id) {
+        prev.bottom = row.y;
+      } else {
+        rails.push({ parentId: row.parent.data.id, top: row.parent.y, bottom: row.y, col: row.col });
+      }
+    }
 
-      const label = document.createElement("span");
-      label.className = "node-label";
-      label.textContent = data.labelText || data.titleText;
-
-      zoom.append(orb, label);
-      el.appendChild(zoom);
-      node.el = el;
-      bindNode(node, el);
+    for (const rail of rails) {
+      const el = document.createElement("div");
+      el.className = "map-rail";
+      el.style.left = `${colX(rail.col) + RAIL_X}px`;
+      el.style.top = `${rail.top}px`;
+      el.style.height = `${rail.bottom - rail.top}px`;
       stage.appendChild(el);
-    });
+    }
+
+    nodes = [];
+    let index = 0;
+
+    for (const row of rows) {
+      if (row.type === "section") {
+        const head = document.createElement("div");
+        head.className = "map-section";
+        head.style.left = `${colX(row.col)}px`;
+        head.style.top = `${row.y}px`;
+        const dot = document.createElement("span");
+        dot.className = "map-dot";
+        dot.setAttribute("aria-hidden", "true");
+        const label = document.createElement("span");
+        label.className = "map-section-label";
+        label.textContent = labels[row.key] || row.key;
+        head.append(dot, label);
+        stage.appendChild(head);
+        continue;
+      }
+
+      const el = buildNode(row.data, row, ++index);
+      el.style.left = `${colX(row.col) + row.left}px`;
+      stage.appendChild(el);
+      const node = {
+        data: row.data,
+        el,
+        x: 0,
+        y: row.y,
+        left: parseFloat(el.style.left),
+        width: 0,
+        height: 0
+      };
+      nodes.push(node);
+      bindNode(node, el);
+    }
+
+    // 量出实际宽度，fit 才知道整张图纸有多宽
+    for (const node of nodes) {
+      node.width = node.el.offsetWidth;
+      node.height = node.el.offsetHeight;
+      node.x = node.left + BOX / 2;
+    }
 
     if (!built) {
       built = true;
@@ -396,13 +477,12 @@ export function createHoneycomb({ container, stage, reducedMotion = false, onOpe
     }
 
     if (intro) {
-      updateNodeFocus();
       nodes.forEach((node, i) => {
-        node.el.style.setProperty("--d", `${i === 0 ? 0 : 120 + i * 55}ms`);
+        node.el.style.setProperty("--d", `${i * 34}ms`);
       });
       stage.classList.add("is-intro");
       clearTimeout(introTimer);
-      introTimer = setTimeout(endIntro, INTRO_MS + nodes.length * 55);
+      introTimer = setTimeout(endIntro, 900);
     }
   }
 
@@ -420,7 +500,14 @@ export function createHoneycomb({ container, stage, reducedMotion = false, onOpe
   window.addEventListener("resize", () => {
     clearTimeout(resizeTimer);
     resizeTimer = setTimeout(() => {
-      if (built) fit(false);
+      if (!built) return;
+      // 窄屏改成一栏时重新排一次
+      const wantTwo = container.getBoundingClientRect().width >= TWO_COL_MIN;
+      if (wantTwo !== twoColumns) {
+        setNodes(lastList);
+        return;
+      }
+      fit(false);
     }, 160);
   });
 
