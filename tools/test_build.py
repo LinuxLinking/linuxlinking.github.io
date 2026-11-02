@@ -330,6 +330,11 @@ class IeChromeTests(unittest.TestCase):
         source = (ROOT / "js" / "xp.js").read_text(encoding="utf-8")
         self.assertNotIn("frame.src = home", source)
 
+    def test_a_page_that_scrolls_itself_keeps_the_single_scrollbar(self):
+        # soul-for-u 用 100vh，窗口再撑高就会多出一条滚动条
+        source = (ROOT / "js" / "xp.js").read_text(encoding="utf-8")
+        self.assertIn('frame.style.height = "100%"', source)
+
 
 class BilingualPostTests(unittest.TestCase):
     """post.en.md 存在时，英文正文要一起进 HTML。"""

@@ -19,7 +19,9 @@ social card.
   button, quick-launch icons, a task list, a language toggle and a clock.
 - **IE windows** — clicking a shortcut opens a real window: gradient title bar with
   minimize / maximize / close, menu bar, toolbar with back / forward / reload / home, an address
-  bar showing the page's own URL, and a status bar. The window scrolls on its own XP scrollbar.
+  bar showing the page's own URL, and a status bar. The window scrolls on its own XP scrollbar,
+  except for a page that manages its own scroll (Soul for U), which keeps that instead — a window
+  never shows two scrollbars.
   Windows drag, stack, minimize, maximize, close, and each one gets a taskbar button. The whole
   chrome follows the language — switch to English and the menus, tooltips and status bar switch
   with it.

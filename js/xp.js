@@ -60,12 +60,23 @@ function label(el) {
 /* ---------------------------------------------------------------- 窗口 */
 
 /* 窗口里的页面是 iframe，而 iframe 自己不会滚动：内容会被裁掉，也看不见滚动条。
-   把 iframe 撑到内容高度，滚动交给外层的 .xp-view —— 两种窗口共用一套滚动条。 */
+   把 iframe 撑到内容高度，滚动交给外层的 .xp-view。
+
+   但有些页面用的是视口单位（soul-for-u 的 100vh）：撑高它，内容又跟着变高，
+   于是里面外面各滚一条。那种页面自己管滚动，窗口就让位给它们。 */
 function fitFrame(frame) {
   try {
     const doc = frame.contentDocument;
     if (!doc || !doc.body) return;
-    frame.style.height = Math.max(doc.documentElement.scrollHeight, doc.body.scrollHeight) + "px";
+    const view = doc.documentElement;
+    const want = Math.max(view.scrollHeight, doc.body.scrollHeight);
+    frame.style.height = want + "px";
+    if (view.scrollHeight > want + 1) {
+      frame.style.height = "100%";
+      frame.dataset.xpFit = "fill";
+    } else {
+      frame.dataset.xpFit = "grow";
+    }
   } catch (err) {
     /* 跨域读不到内容高度，保持原样 */
   }
@@ -95,7 +106,11 @@ function openWindow({ url, title, titleEn, iconSvg }) {
       // mermaid 图是异步画上去的，画完高度变了要再量一次
       if (doc && doc.body && !frame.dataset.xpWatch) {
         frame.dataset.xpWatch = "1";
-        new MutationObserver(() => fitFrame(frame)).observe(doc.body, {
+        new MutationObserver(() => {
+          // 自己管滚动的页面撑了也没用，别反复撑
+          if (frame.dataset.xpFit === "fill") return;
+          fitFrame(frame);
+        }).observe(doc.body, {
           childList: true,
           subtree: true,
         });
