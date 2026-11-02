@@ -1,0 +1,10 @@
+# 本地工具产物，不入库
+.zcode/
+.trae-html-share-packages/
+.screenshots/
+
+# 临时文件
+*.log
+*.tmp
+.DS_Store
+Thumbs.db

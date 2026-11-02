@@ -1,4 +1,4 @@
-﻿const LANGS = ["zh", "en"];
+const LANGS = ["zh", "en"];
 const STORE_KEY = "lang";
 
 const FALLBACK = {
