@@ -1,4 +1,4 @@
-import { bootPage, escapeHtml } from "./shared.js?v=a89b5bc1";
+import { bootPage, escapeHtml } from "./shared.js?v=33539a65";
 
 const wrap = document.getElementById("detail");
 const requestedId = new URLSearchParams(location.search).get("id");

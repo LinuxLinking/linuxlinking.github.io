@@ -42,7 +42,6 @@ META_RE = re.compile(r"^<!--meta\s*\n(.*?)^-->\s*$", re.S | re.M)
 BLOCK_RE = re.compile(r"<!--block\s+(\w+)-->\s*(.*?)\s*<!--endblock(?:\s+\1)?-->", re.S)
 COMMENT_RE = re.compile(r"<!--.*?-->", re.S)
 KEY_RE = re.compile(r"^([A-Za-z][\w-]*)\s*:\s*(.*)$")
-VERSION_QUERY_RE = re.compile(r"(\?v=)[0-9a-f]{8,}")
 LOCAL_IMPORT_RE = re.compile(r"""(from\s+["']|import\s+["'])(\.\.?/[^"']+?)(["'])""")
 
 CSS_DIR = ROOT / "css"
@@ -108,11 +107,46 @@ def prefixes_for(out_path: str) -> tuple[str, str]:
 # ---------------------------------------------------------------- 缓存指纹
 
 
-def content_hash(path: Path) -> str:
-    """文件内容指纹。计算前先抹掉已有的 ?v= 指纹，保证脚本可重复执行。"""
+def content_hash(path: Path, _memo: dict | None = None, _stack: set | None = None) -> str:
+    """文件内容指纹。
+
+    本地 import 的指纹按「被依赖文件的真实哈希」算进去，所以改了一个模块，
+    引用它的模块、引用它的页面，指纹都会跟着变。
+
+    以前这里是把 ?v= 抹掉再算，于是引用方的指纹跟依赖方无关：依赖改了，
+    页面上的 URL 不变，老访客的浏览器就一直用着旧模块的缓存，新版本送不到他们手里。
+    文件里已经写着的旧指纹会被这一步替换掉，所以脚本依然可重复执行。
+    """
+    memo = {} if _memo is None else _memo
+    stack = set() if _stack is None else _stack
+    path = path.resolve()
+
+    if path in memo:
+        return memo[path]
+
     text = path.read_bytes().decode("utf-8", errors="replace")
-    stripped = VERSION_QUERY_RE.sub(r"\1", text)
-    return hashlib.sha256(stripped.encode("utf-8")).hexdigest()[:8]
+    if path in stack:
+        # 循环依赖兜底：按裸内容算，不展开
+        return hashlib.sha256(text.encode("utf-8")).hexdigest()[:8]
+    stack.add(path)
+
+    def repl(match: re.Match[str]) -> str:
+        head, spec, tail = match.groups()
+        clean = spec.split("?")[0]
+        target = (path.parent / clean).resolve()
+        try:
+            target.relative_to(ROOT)
+        except ValueError:
+            return match.group(0)
+        if not target.exists():
+            return match.group(0)
+        return f"{head}{clean}?v={content_hash(target, memo, stack)}{tail}"
+
+    updated = LOCAL_IMPORT_RE.sub(repl, text)
+    stack.discard(path)
+    digest = hashlib.sha256(updated.encode("utf-8")).hexdigest()[:8]
+    memo[path] = digest
+    return digest
 
 
 def asset_hashes() -> dict[str, str]:

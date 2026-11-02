@@ -1,6 +1,6 @@
-import { createMap } from "./map.js?v=bb3b13ab";
-import { renderHome } from "./home.js?v=cab0bc6c";
-import { bootPage, escapeHtml } from "./shared.js?v=a89b5bc1";
+import { createMap } from "./map.js?v=2f8a4b40";
+import { renderHome } from "./home.js?v=20d49e3c";
+import { bootPage, escapeHtml } from "./shared.js?v=33539a65";
 import { buildNodes } from "./nodes.js?v=b189be2a";
 
 const mapEl = document.getElementById("map");

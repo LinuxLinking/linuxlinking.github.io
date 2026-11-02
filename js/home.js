@@ -1,4 +1,4 @@
-import { escapeHtml } from "./shared.js?v=a89b5bc1";
+import { escapeHtml } from "./shared.js?v=33539a65";
 import { postHref } from "./nodes.js?v=b189be2a";
 
 /* 首页默认视图：编辑式排版 —— 大标题 + 编号索引行 + 文字条目。

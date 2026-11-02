@@ -112,7 +112,10 @@ python tools/build.py --check  # validate only, fail if anything is stale
 1. Renders `layouts/base.html` + each `pages/*.html` fragment into the root pages.
 2. Renders `layouts/post.html` for every entry in `data/posts.json` into `blog/<slug>/index.html`.
 3. Rewrites `?v=<hash>` on every CSS/JS reference and on every ES module import, using the
-   file's content hash. Hashing ignores an existing `?v=`, so the script is idempotent.
+   file's content hash. A module's hash folds in the hashes of the modules it imports, so
+   changing one file re-stamps every page that depends on it — returning visitors get the new
+   file instead of a stale cached copy. An existing `?v=` in the file is normalised away, so
+   the script stays idempotent.
 4. Regenerates the offline fallback strings in `js/i18n.js` from `data/i18n.json`, so the two
    never drift.
 

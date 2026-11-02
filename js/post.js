@@ -1,5 +1,5 @@
 import { marked } from "./vendor/marked.esm.js";
-import { bootPage } from "./shared.js?v=a89b5bc1";
+import { bootPage } from "./shared.js?v=33539a65";
 
 const el = {
   kicker: document.getElementById("post-kicker"),

@@ -1,4 +1,4 @@
-import { bootPage, escapeHtml } from "./shared.js?v=a89b5bc1";
+import { bootPage, escapeHtml } from "./shared.js?v=33539a65";
 
 const listEl = document.getElementById("posts");
 let i18n = null;

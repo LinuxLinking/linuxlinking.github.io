@@ -143,6 +143,13 @@ export function createMap({ container, stage, labels = {}, reducedMotion = false
     });
   }
 
+  /* 同步落位。首屏不能等动画帧：标签页在后台时 requestAnimationFrame 会被暂停，
+     那一帧不来，图纸就会以未缩放的位置先露出来，点击也会落在错的地方。 */
+  function applyNow() {
+    frameQueued = false;
+    stage.style.transform = `translate3d(${tx.toFixed(2)}px, ${ty.toFixed(2)}px, 0) scale(${scale.toFixed(3)})`;
+  }
+
   function clampPan() {
     const rect = container.getBoundingClientRect();
     const limitX = (box.w * scale) / 2 + rect.width * 0.22;
@@ -193,14 +200,20 @@ export function createMap({ container, stage, labels = {}, reducedMotion = false
 
   function fit(animate = false) {
     measure();
-    tweenTo(
-      {
-        s: fitScale,
-        tx: -box.x * fitScale,
-        ty: -box.y * fitScale + fitOffsetY
-      },
-      animate ? 560 : 0
-    );
+    const target = {
+      s: fitScale,
+      tx: -box.x * fitScale,
+      ty: -box.y * fitScale + fitOffsetY
+    };
+    if (!animate) {
+      cancelTween();
+      scale = target.s;
+      tx = target.tx;
+      ty = target.ty;
+      applyNow();
+      return;
+    }
+    tweenTo(target, 560);
   }
 
   function zoomAt(factor, clientX, clientY) {
@@ -311,14 +324,14 @@ export function createMap({ container, stage, labels = {}, reducedMotion = false
 
   function openNode(node) {
     node.el.classList.add("is-opening");
-    tweenTo({ s: scale, tx: -node.x * scale, ty: -node.y * scale }, 360, () => {
-      if (typeof onOpen === "function") onOpen(node.data);
-    });
+    // 跳转不挂在动画回调上：标签页切到后台时 requestAnimationFrame 会暂停，
+    // 挂在它上面的跳转就永远不会发生。
+    if (typeof onOpen === "function") onOpen(node.data);
   }
 
   function bindNode(node, el) {
     el.addEventListener("click", (e) => {
-      if (suppressClick) {
+        if (suppressClick) {
         e.preventDefault();
         return;
       }
@@ -334,7 +347,9 @@ export function createMap({ container, stage, labels = {}, reducedMotion = false
 
     el.addEventListener("focus", () => {
       setActive(node);
-      centerNode(node, 320);
+      // 只有键盘 Tab 过来时才把节点移到画面中央。鼠标点击时立刻平移，节点会
+      // 从光标下挪走，mouseup 落在别处，浏览器就不发 click，节点也就点不开。
+      if (el.matches(":focus-visible")) centerNode(node, 320);
     });
 
     el.addEventListener("blur", clearActive);
