@@ -1,4 +1,4 @@
-import { createI18n, resolveLang } from "./i18n.js?v=2b5308e7";
+import { createI18n, resolveLang } from "./i18n.js?v=e0d0f44c";
 
 /* 页面共用的两件事：HTML 转义，以及启动序列。
 

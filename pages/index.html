@@ -1,62 +1,31 @@
 <!--meta
 title: 钟闪闪 · 作品与文字
 description: 写工具，也写字。七个项目，四篇文章。
-bodyClass: page-home
-css: base.css, home.css, map.css
-js: app.js
+bodyClass: desktop-page
+css: base.css, map.css
 -->
 
-<!--block viewSwitcher-->
-<div class="segmented" role="group" data-i18n-aria="a11y.view">
-  <button class="seg is-active" type="button" data-view="grid" aria-pressed="true" data-i18n="nav.grid">项目</button>
-  <button class="seg" type="button" data-view="map" aria-pressed="false" data-i18n="nav.map">图纸</button>
-</div>
-<!--endblock-->
+<!-- 桌面上的快捷方式：7 个项目、文字、4 篇文章、Soul for U、站点图纸。 -->
+<div class="xp-icons" id="xpIcons">{{iconGrid}}</div>
 
-<!--block topbarAction-->
-<button class="chip" type="button" id="aboutBtn" data-i18n="nav.about">关于</button>
-<!--endblock-->
+<!-- 给读屏软件与搜索引擎看的完整清单：桌面上的图标只有名字，这里是全部内容。 -->
+<section class="sr-only">{{srIndex}}</section>
 
-<main id="homeView" class="home-view">
-  <div class="home-inner">
-    <header class="home-hero">
-      <p class="kicker" data-i18n="home.kicker">作品与文字</p>
-      <h1 data-i18n="home.title">写工具，也写字</h1>
-      <p class="home-lede" data-i18n="home.lede">下面是做过的东西，和还没写完的字。切到图纸，可以把它们摊开在一张图纸里看。</p>
-      <hr class="hero-rule">
-    </header>
-    <div id="homeBody">{{homeBody}}</div>
+<!--block overlay-->
+<!-- 图纸视图：铺满桌面区的一张图纸。它是桌面之上的一层，不在桌面里面。 -->
+<div id="map" class="map is-hidden" aria-hidden="true" aria-label="站点图纸" data-i18n-aria="a11y.nodes" inert>
+  <div class="map-bar">
+    <span class="map-bar-title">{{mapTitle}}</span>
+    <span class="hint">{{mapHint}}</span>
+    <button class="xp-tbtn is-close" type="button" data-map-exit title="关闭">✕</button>
   </div>
-</main>
-
-<main id="map" class="map is-hidden" data-i18n-aria="a11y.nodes" aria-hidden="true" inert>
-  <div id="stage" class="stage"></div>
-</main>
-
-<div id="stateError" class="state-error" hidden></div>
-
-<div class="about" id="about" hidden>
-  <div class="about-backdrop" data-close-about></div>
-  <div class="card about-card" role="dialog" aria-modal="true" aria-labelledby="aboutTitle">
-    <button class="about-close" type="button" data-close-about data-i18n-aria="about.close" aria-label="关闭">✕</button>
-    <p class="kicker" data-i18n="about.kicker">关于</p>
-    <h2 id="aboutTitle" data-i18n="about.title">关于这个站</h2>
-    <p class="about-body" data-i18n="about.body">在本地跑模型、把意图编译成可回滚的执行链、用一行批处理切换 JDK。白天写代码，夜里写字，偶尔给某个人做一个只会发光的页面。</p>
-    <ul class="about-links">
-      <li><a href="https://github.com/LinuxLinking" target="_blank" rel="noopener" data-i18n="about.github">GitHub ↗</a></li>
-      <li><a href="blog/" data-i18n="about.blog">文字 ↗</a></li>
-      <li><a href="soul-for-u/" data-i18n="about.soul">Soul for U ↗</a></li>
-    </ul>
-  </div>
+  <div class="stage" id="stage"></div>
+  <button class="btn map-exit" type="button" data-map-exit>{{mapExit}}</button>
 </div>
 
-<p class="hint is-hidden" data-i18n="hint.gesture">拖动 · 滚轮缩放 · 双击复位</p>
-
-<noscript>
-  <div style="position:fixed;inset:0;z-index:70;display:grid;place-items:center;background:#14120f;text-align:center;padding:24px">
-    <div>
-      <p style="margin:0 0 12px;font-size:18px;color:#f2ece0">下面的内容不需要 JavaScript。</p>
-      <p style="margin:0 0 18px;font-size:14px;color:#b5ac9d">只是「图纸」那个视图需要它。可以先去 <a href="https://github.com/LinuxLinking" style="color:#f2ece0">GitHub</a> 或 <a href="soul-for-u/" style="color:#f2ece0">Soul for U</a>。</p>
-    </div>
-  </div>
-</noscript>
+<!-- 图纸的数据没加载出来时的兜底提示。 -->
+<div class="state-error" id="stateError" hidden>
+  <p data-i18n="error.data">数据没能加载出来。</p>
+  <small data-i18n="error.dataHint">刷新试试，或者直接去 GitHub。</small>
+</div>
+<!--endblock-->

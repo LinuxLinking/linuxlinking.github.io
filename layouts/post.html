@@ -13,6 +13,9 @@
 
        正文……
 
+     要出英文版就在同一个目录再放一个 post.en.md（同样的 front matter，正文用英文）。
+     两种语言会并排写进 HTML，靠 html[lang] 切换。
+
      图表直接写 ```mermaid 代码块，页面会惰性加载本地 mermaid 渲染（约 2.6MB，首次较慢）。
   2. 在 data/posts.json 的 posts 数组里加一条记录（slug / date / title 双语 / summary 双语 / url）。
   3. 跑 `python tools/build.py` 生成 blog/<slug>/index.html。
@@ -27,10 +30,6 @@ bodyClass: page-post
 css: base.css, post.css
 js: post.js
 -->
-
-<!--block topbarAction-->
-<a class="chip" href="{{link}}blog/" data-i18n="blog.back">回到首页</a>
-<!--endblock-->
 
 <main class="page-wrap post-wrap">
   <p class="post-kicker" id="post-kicker">{{postKicker}}</p>

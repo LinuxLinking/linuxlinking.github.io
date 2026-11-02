@@ -1,76 +1,56 @@
-/* 全站设计系统。
-   风格：Ink Poster —— 暖黑底、骨白字、朱红一个主色；标题重，正文轻。
-   所有颜色/圆角/层级都在下面的 :root 里，改主题只改这一处。 */
+/* 全站设计系统 —— Windows XP 时代的网页。
 
-/* 中文按 unicode-range 单独挑出来：只走系统本地字体，不下载任何网络字体。
-   标题走黑体（重），长文正文走宋体（轻），两套各挑各的。 */
-@font-face {
-  font-family: "Display CJK";
-  src: local("SimHei"), local("Heiti SC"), local("PingFang SC"),
-    local("Hiragino Sans GB"), local("Noto Sans SC"), local("Microsoft YaHei");
-  unicode-range: U+2E80-9FFF, U+F900-FAFF, U+FE30-FE4F, U+FF00-FFEF, U+3000-303F;
-}
-
-@font-face {
-  font-family: "Read CJK";
-  src: local("Songti SC"), local("Noto Serif SC"), local("Source Han Serif SC"),
-    local("STSong"), local("SimSun");
-  unicode-range: U+2E80-9FFF, U+F900-FAFF, U+FE30-FE4F, U+FF00-FFEF, U+3000-303F;
-}
+   白纸底、IE 蓝链接、Times New Roman 正文、Tahoma 标题、灰色立体按钮。
+   内容页整体放进一个 IE 窗口里（外壳在 css/xp.css），
+   这里只管窗口里那张纸的样子。所有颜色与字体都在下面的 :root 里。 */
 
 :root {
-  /* 暗底与骨白 */
-  --bg: #14120f;
-  --fg: #f2ece0;
-  --fg-dim: #b5ac9d;
-  --fg-faint: #8d8577;
-  --fg-soft: rgba(242, 236, 224, 0.86);
-  --fg-strong: #fffaf0;
-  --fg-code: #e7dfd0;
-  --fg-code-dim: #a89f90;
-  --fg-pre: #d9d1c2;
+  /* 纸与字 */
+  --bg: #ffffff;
+  --fg: #000000;
+  --fg-dim: #333333;
+  --fg-faint: #6b6b6b;
+  --fg-soft: #1a1a1a;
+  --fg-strong: #000000;
+  --fg-code: #003366;
+  --fg-code-dim: #555555;
+  --fg-pre: #1a1a1a;
 
-  /* 墨线与面 */
-  --line: #2f2a23;
-  --line-soft: #241f1a;
-  --line-strong: #4a4237;
-  --surface: #1b1814;
-  --surface-soft: #201c17;
-  --surface-hover: #26211b;
-  --surface-active: #2e2820;
+  /* 灰线与面：Win 控件的边 */
+  --line: #c0c0c0;
+  --line-soft: #dcdcdc;
+  --line-strong: #808080;
+  --surface: #ffffff;
+  --surface-soft: #f3f3f3;
+  --surface-hover: #ece9d8;
+  --surface-active: #dcd8c8;
 
-  /* 唯一强调色 */
-  --accent: #f2603f;
-  --accent-soft: rgba(242, 96, 63, 0.14);
-  --on-accent: #14120f;
-  --focus-ring: rgba(242, 96, 63, 0.75);
+  /* XP 深蓝 + IE 链接蓝 */
+  --accent: #0a246a;
+  --accent-soft: rgba(10, 36, 106, 0.12);
+  --on-accent: #ffffff;
+  --focus-ring: #0a246a;
+  --link: #0000ee;
+  --link-visited: #551a8b;
 
-  /* 圆角与动效：海报是硬边，不做圆角 */
+  /* 立体控件 */
   --radius-lg: 0;
-  --radius-md: 0;
+  --radius-md: 3px;
   --radius-pill: 999px;
-  --ease: cubic-bezier(0.22, 0.61, 0.36, 1);
-  --topbar-h: 60px;
+  --ease: cubic-bezier(0.2, 0.6, 0.35, 1);
 
-  /* 层级 */
   --z-content: 1;
   --z-hint: 12;
   --z-foot: 22;
   --z-error: 25;
-  --z-topbar: 40;
   --z-modal: 60;
 
-  /* 标题重：拉丁走高对比衬线（Didone 一路），中文走黑体。
-     混排时中文自然落到 "Display CJK"，这是中文杂志里常见的搭配。 */
-  --font-display: "Bodoni MT", "Didot", "Playfair Display", "Hoefler Text",
-    "Iowan Old Style", Georgia, "Times New Roman", "Display CJK", serif;
-  /* 正文轻：长文用衬线，中文走宋体 */
-  --font-read: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia,
-    "Times New Roman", "Read CJK", serif;
-  --font-sans: Arial, "Helvetica Neue", "Segoe UI", "PingFang SC",
-    "Microsoft YaHei", "Hiragino Sans GB", "Noto Sans SC", sans-serif;
-  --font-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas,
-    "Microsoft YaHei", monospace;
+  /* 界面字体走 Tahoma，正文走衬线，中文各自回退到系统字体 */
+  --font-display: Tahoma, "MS Sans Serif", Verdana, "Microsoft YaHei",
+    "PingFang SC", sans-serif;
+  --font-read: "Times New Roman", Times, SimSun, "宋体", serif;
+  --font-sans: Tahoma, Verdana, "Microsoft YaHei", "PingFang SC", sans-serif;
+  --font-mono: "Courier New", Courier, SimSun, monospace;
 }
 
 *,
@@ -89,18 +69,9 @@ body {
   min-height: 100%;
   color: var(--fg);
   font-family: var(--font-sans);
-  font-size: 16px;
-  line-height: 1.6;
-  /* 暖黑底 + 一点印刷噪点 */
+  font-size: 15px;
+  line-height: 1.7;
   background-color: var(--bg);
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.05'/%3E%3C/svg%3E");
-  -webkit-font-smoothing: antialiased;
-  text-rendering: optimizeLegibility;
-}
-
-/* 图纸视图占满整屏、不滚动；网格视图是正常文档流，需要滚动。 */
-body.page-home.view-map {
-  overflow: hidden;
 }
 
 img,
@@ -110,8 +81,12 @@ svg {
 }
 
 a {
-  color: var(--fg);
-  text-decoration: none;
+  color: var(--link);
+  text-decoration: underline;
+}
+
+a:visited {
+  color: var(--link-visited);
 }
 
 button {
@@ -120,8 +95,8 @@ button {
 }
 
 :focus-visible {
-  outline: 2px solid var(--focus-ring);
-  outline-offset: 3px;
+  outline: 1px dotted var(--focus-ring);
+  outline-offset: 2px;
 }
 
 ::selection {
@@ -144,20 +119,45 @@ html[lang="en"] .i18n-zh {
 
 /* ---------- 共享原语 ---------- */
 
-/* 描边控件：语言切换、视图切换、返回链接共用这一份配方。 */
-.pill,
-.segmented,
-.chip,
-.btn {
-  border: 1px solid var(--line-strong);
-  background: transparent;
+/* XP 按钮：白到米色的渐变面 + 深蓝描边 + 内侧高光。 */
+.btn,
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 12px;
+  font-family: var(--font-sans);
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--fg);
+  text-decoration: none;
+  background: linear-gradient(180deg, #ffffff 0%, #ece9d8 100%);
+  border: 1px solid #003c74;
   border-radius: var(--radius-md);
+  box-shadow: inset 1px 1px 0 #ffffff, inset -1px -1px 0 #9a968a;
+  cursor: pointer;
 }
 
-/* 纸面板：详情页、About 面板共用。 */
+.btn:hover,
+.chip:hover {
+  box-shadow: inset 0 0 0 1px rgba(242, 96, 63, 0.55),
+    inset 1px 1px 0 #ffffff, inset -1px -1px 0 #9a968a;
+}
+
+.btn.primary {
+  background: linear-gradient(180deg, #1d4ea8 0%, #0a246a 100%);
+  border-color: #08369a;
+  color: #ffffff;
+}
+
+.btn.primary:hover {
+  background: linear-gradient(180deg, #2a6fd0 0%, #123c8c 100%);
+}
+
+/* 面板：属性对话框那种灰底白面 */
 .card {
-  border: 1px solid var(--line);
-  border-radius: var(--radius-lg);
+  border: 1px solid var(--line-strong);
+  border-radius: 0;
   background: var(--surface);
 }
 
@@ -167,304 +167,25 @@ html[lang="en"] .i18n-zh {
   z-index: var(--z-content);
   width: min(760px, 100%);
   margin: 0 auto;
-  padding: calc(var(--topbar-h) + 64px) clamp(20px, 5vw, 40px) 72px;
+  padding: 26px clamp(20px, 5vw, 40px) 56px;
 }
 
 @keyframes page-in {
   from {
     opacity: 0;
-    transform: translateY(12px);
   }
 }
 
-/* ---------- top bar ---------- */
-
-.topbar {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: var(--topbar-h);
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 16px;
-  padding: 0 clamp(16px, 3vw, 40px);
-  z-index: var(--z-topbar);
-  background: var(--bg);
-  border-bottom: 1px solid var(--line);
-}
-
-.brand {
-  display: inline-flex;
-  align-items: center;
-  gap: 10px;
-  border-radius: var(--radius-md);
-}
-
-.brand-mark {
-  width: 24px;
-  height: 24px;
-  display: grid;
-  place-items: center;
-  background: var(--accent);
-  border-radius: 0;
-  font-family: "Arial Black", "Display CJK", sans-serif;
-  font-size: 13px;
-  font-weight: 700;
-  line-height: 1;
-  color: var(--on-accent);
-}
-
-.brand-name {
-  font-family: "Arial Black", "Display CJK", sans-serif;
-  font-size: 14px;
-  letter-spacing: 0.08em;
-  color: var(--fg);
-}
-
-.topbar-actions {
-  display: flex;
-  align-items: center;
-  gap: 18px;
-}
-
-/* 视图切换与语言切换：纯文字链接，不用胶囊。 */
-.segmented {
-  display: inline-flex;
-  align-items: center;
-  gap: 14px;
-  border: 0;
-  background: none;
-  border-radius: 0;
-}
-
-.seg {
-  border: 0;
-  background: none;
-  color: var(--fg-faint);
-  font-size: 12.5px;
-  letter-spacing: 0.06em;
-  padding: 3px 0;
-  border-radius: 0;
-  cursor: pointer;
-  white-space: nowrap;
-  transition: color 0.18s var(--ease);
-}
-
-.seg:hover {
-  color: var(--fg);
-}
-
-.seg[aria-pressed="true"] {
-  color: var(--fg);
-  box-shadow: 0 2px 0 var(--accent);
-}
-
-/* 顶栏导航：纯文字链接，和视图切换同一套语汇。 */
-.nav-link {
-  color: var(--fg-dim);
-  font-size: 13.5px;
-  letter-spacing: 0.04em;
-  text-decoration: none;
-  white-space: nowrap;
-  transition: color 0.18s var(--ease);
-}
-
-.nav-link:hover {
-  color: var(--fg);
-  text-decoration: underline;
-  text-underline-offset: 4px;
-  text-decoration-color: var(--line-strong);
-}
-
-.chip {
-  color: var(--fg-dim);
-  font-size: 12.5px;
-  letter-spacing: 0.04em;
-  padding: 6px 12px;
-  cursor: pointer;
-  transition: color 0.18s var(--ease), border-color 0.18s var(--ease),
-    background 0.18s var(--ease);
-}
-
-.chip:hover {
-  color: var(--fg);
-  border-color: var(--fg);
-  background: var(--surface);
-}
-
-/* ---------- orb ---------- */
-
-/* 扁平圆牌：白底 + 一圈项目色描边 + 墨色字母。 */
-.orb {
-  position: relative;
-  display: grid;
-  place-items: center;
-  flex: 0 0 auto;
-  width: calc(var(--r) * 2);
-  height: calc(var(--r) * 2);
-  border-radius: 0;
-  color: var(--fg);
-  font-family: var(--font-mono);
-  font-size: calc(var(--r) * 0.4);
-  font-weight: 600;
-  letter-spacing: 0.06em;
-  line-height: 1;
-  background: var(--surface);
-  border: 1px solid color-mix(in srgb, var(--c1, #f2603f) 60%, var(--line-strong));
-  transition: transform 0.28s var(--ease), border-color 0.28s var(--ease);
-}
-
-.orb > span {
-  position: relative;
-  z-index: 1;
-}
-
-/* ---------- footer ---------- */
-
-.foot {
-  position: relative;
-  z-index: var(--z-content);
-  border-top: 1px solid var(--line);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-wrap: wrap;
-  gap: 10px;
-  padding: 26px 18px 34px;
-  font-family: var(--font-mono);
-  font-size: 11px;
-  letter-spacing: 0.08em;
-  color: var(--fg-faint);
-}
-
-.foot a {
-  color: var(--fg-faint);
-  transition: color 0.18s var(--ease);
-}
-
-.foot a:hover {
-  color: var(--accent);
-}
-
-.foot .sep {
-  opacity: 0.5;
-}
-
-/* ---------- about panel ---------- */
-
-.about {
-  position: fixed;
-  inset: 0;
-  z-index: var(--z-modal);
-  display: grid;
-  place-items: center;
-  padding: 24px;
-}
-
-.about[hidden] {
-  display: none;
-}
-
-.about-backdrop {
-  position: absolute;
-  inset: 0;
-  background: rgba(10, 9, 8, 0.78);
-  opacity: 0;
-  transition: opacity 0.3s var(--ease);
-}
-
-.about-card {
-  position: relative;
-  width: min(520px, 100%);
-  padding: clamp(26px, 4vw, 40px);
-  background: var(--surface);
-  opacity: 0;
-  transform: translateY(10px);
-  transition: opacity 0.3s var(--ease), transform 0.3s var(--ease);
-}
-
-.about.is-open .about-backdrop {
-  opacity: 1;
-}
-
-.about.is-open .about-card {
-  opacity: 1;
-  transform: none;
-}
-
-.about-close {
-  position: absolute;
-  top: 12px;
-  right: 12px;
-  width: 30px;
-  height: 30px;
-  border: 1px solid var(--line);
-  border-radius: var(--radius-md);
-  background: transparent;
-  color: var(--fg-faint);
-  cursor: pointer;
-  transition: color 0.18s var(--ease), border-color 0.18s var(--ease);
-}
-
-.about-close:hover {
-  color: var(--fg);
-  border-color: var(--fg);
-}
-
-.about-card h2 {
-  margin: 10px 0 14px;
-  font-family: var(--font-display);
-  font-size: clamp(24px, 4vw, 30px);
-  font-weight: 600;
-  letter-spacing: -0.01em;
-  line-height: 1.2;
-}
-
-.about-body {
-  margin: 0 0 22px;
-  color: var(--fg-dim);
-  font-size: 14.5px;
-  line-height: 1.85;
-}
-
-.about-links {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-
-.about-links a {
-  display: inline-block;
-  padding: 6px 12px;
-  border: 1px solid var(--line-strong);
-  border-radius: var(--radius-md);
-  font-size: 12.5px;
-  color: var(--fg-dim);
-  transition: color 0.18s var(--ease), border-color 0.18s var(--ease),
-    background 0.18s var(--ease);
-}
-
-.about-links a:hover {
-  color: var(--fg);
-  border-color: var(--fg);
-  background: var(--surface-soft);
-}
-
-/* ---------- shared type ---------- */
+/* ---------- 小标题 ---------- */
 
 .kicker {
   margin: 0;
   display: flex;
   align-items: center;
-  gap: 10px;
-  font-family: var(--font-mono);
+  gap: 8px;
+  font-family: var(--font-sans);
   font-size: 11px;
-  letter-spacing: 0.18em;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
   color: var(--fg-faint);
 }
@@ -472,50 +193,50 @@ html[lang="en"] .i18n-zh {
 .kicker::before {
   content: "";
   flex: 0 0 auto;
-  width: 24px;
-  height: 2px;
+  width: 6px;
+  height: 6px;
   background: var(--accent);
 }
 
-.btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 9px 16px;
-  font-size: 13px;
+.section-label {
+  margin: 0 0 12px;
+  font-family: var(--font-sans);
+  font-size: 11px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--fg-faint);
+}
+
+/* ---------- 项目图标 ---------- */
+
+/* 一个圆角方块，里面是项目的两个字母，像 XP 里的程序图标。 */
+.orb {
+  position: relative;
+  display: grid;
+  place-items: center;
+  flex: 0 0 auto;
+  width: calc(var(--r) * 2);
+  height: calc(var(--r) * 2);
+  border-radius: 6px;
+  color: #ffffff;
+  font-family: var(--font-display);
+  font-size: calc(var(--r) * 0.42);
+  font-weight: 700;
   letter-spacing: 0.02em;
-  color: var(--fg);
-  transition: background 0.18s var(--ease), border-color 0.18s var(--ease),
-    color 0.18s var(--ease);
+  line-height: 1;
+  background: linear-gradient(135deg, var(--c1, #245edb), var(--c2, #3a6ea5));
+  border: 1px solid rgba(0, 0, 0, 0.35);
+  box-shadow: inset 1px 1px 0 rgba(255, 255, 255, 0.45),
+    1px 1px 2px rgba(0, 0, 0, 0.3);
 }
 
-.btn:hover {
-  border-color: var(--fg);
-  background: var(--surface);
+.orb > span {
+  position: relative;
+  z-index: 1;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.45);
 }
 
-.btn.primary {
-  border-color: var(--accent);
-  background: var(--accent);
-  color: var(--on-accent);
-}
-
-.btn.primary:hover {
-  background: var(--fg-strong);
-  border-color: var(--fg-strong);
-  color: var(--bg);
-}
-
-/* 编号与日期用等宽数字，换语言或换行时不会左右跳。 */
-.index-num,
-.post-date,
-.post-line-date,
-.detail-meta,
-.now-kind {
-  font-variant-numeric: tabular-nums;
-}
-
-/* ---------- motion / a11y ---------- */
+/* ---------- 运动 / 可访问性 ---------- */
 
 @media (prefers-reduced-motion: reduce) {
   *,
@@ -525,24 +246,5 @@ html[lang="en"] .i18n-zh {
     animation-iteration-count: 1 !important;
     transition-duration: 0.001ms !important;
     scroll-behavior: auto !important;
-  }
-}
-
-@media (max-width: 520px) {
-  .brand-name {
-    display: none;
-  }
-
-  .topbar-actions {
-    gap: 12px;
-  }
-
-  .seg {
-    font-size: 11.5px;
-  }
-
-  .chip {
-    padding: 5px 9px;
-    font-size: 11.5px;
   }
 }

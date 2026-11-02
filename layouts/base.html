@@ -1,49 +1,74 @@
 <!DOCTYPE html>
 <!--
-  共享外壳模板。改导航、页脚、meta 等只需动这一个文件，
-  然后跑 `python tools/build.py` 重新生成所有页面。
+  共享外壳：Windows XP 桌面 + 任务栏 + 开始菜单。
+
+  首页就是桌面本身：图标是快捷方式，点开在 IE 窗口里显示。
+  内容页由 tools/build.py 套进同一个 IE 窗口，也落在这张桌面上。
 -->
 <html lang="{{lang}}" data-title-zh="{{titleZh}}" data-title-en="{{titleEn}}" data-desc-zh="{{descZh}}" data-desc-en="{{descEn}}">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<meta name="theme-color" content="#14120f">
+<meta name="theme-color" content="#245edb">
 <meta name="description" content="{{description}}">
 <title>{{title}}</title>
 {{seoHead}}
 <link rel="icon" href="{{asset}}assets/favicon.svg" type="image/svg+xml">
+<!-- 装在别人的 IE 窗口里时（桌面上的图标打开的页面），只显示正文，不显示外壳。 -->
+<script>if (window.self !== window.top) document.documentElement.classList.add("in-frame");</script>
 {{styles}}
 </head>
 <body class="{{bodyClass}}">
 
-{{pageDecor}}
+<div class="xp-wallpaper" aria-hidden="true"></div>
 
-<header class="topbar">
-  <a class="brand" href="{{link}}" aria-label="Home">
-    <span class="brand-mark" aria-hidden="true">Z</span>
-    <span class="brand-name" data-i18n="brand">钟闪闪</span>
-  </a>
-  <div class="topbar-actions">
-    <a class="nav-link" href="{{link}}blog/" data-i18n="nav.writing">文字</a>
-    {{viewSwitcher}}
-    <div class="segmented" role="group" data-i18n-aria="a11y.lang">
-      <button class="seg" type="button" data-lang-btn="zh" lang="zh">中</button>
-      <button class="seg" type="button" data-lang-btn="en" lang="en">EN</button>
-    </div>
-    {{topbarAction}}
-  </div>
-</header>
-
+<div class="xp-desktop" id="xpDesktop">
 {{content}}
+</div>
 
-<footer class="foot">
-  <span>© 2026 <span data-i18n="brand">钟闪闪</span></span>
-  <span class="sep">·</span>
-  <a href="{{link}}soul-for-u/">Soul for U ↗</a>
-  <span class="sep">·</span>
-  <a href="https://github.com/LinuxLinking" target="_blank" rel="noopener">GitHub ↗</a>
-</footer>
+{{overlay}}
 
+<div class="xp-taskbar">
+  <button class="xp-start" id="xpStart" type="button" aria-expanded="false" aria-haspopup="true" aria-controls="xpStartMenu">
+    <span class="xp-flag" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
+    <span>start</span>
+  </button>
+  <div class="xp-quick">
+    <button type="button" title="Internet Explorer" data-quick="ie">{{ieIcon}}</button>
+    <button type="button" title="站点图纸" data-quick="map">{{mapIcon}}</button>
+  </div>
+  <div class="xp-tasks" id="xpTasks"></div>
+  <div class="xp-lang" role="group" aria-label="语言 / Language" data-i18n-aria="a11y.lang">
+    <button type="button" data-lang-btn="zh" lang="zh">中</button>
+    <button type="button" data-lang-btn="en" lang="en">EN</button>
+  </div>
+  <div class="xp-tray">
+    <span class="xp-tray-icon" aria-hidden="true">{{speakerIcon}}</span>
+    <span id="xpClock">--:--</span>
+  </div>
+</div>
+
+<div class="xp-startmenu" id="xpStartMenu">
+  <div class="xp-sm-head">
+    <span class="xp-avatar" aria-hidden="true">Z</span>
+    <div>
+      <b>{{userName}}</b>
+      <small>{{userRole}}</small>
+    </div>
+  </div>
+  <div class="xp-sm-body">
+    <div class="xp-sm-col">{{smLeft}}</div>
+    <div class="xp-sm-col">{{smRight}}</div>
+  </div>
+  <div class="xp-sm-foot">
+    <button type="button" data-close-sm data-toast="已注销 —— 下次见 / Logged off. See you.">{{smLogout}}</button>
+    <button type="button" data-close-sm data-toast="关机前记得先把模型停掉 / Shut down: stop the model first.">{{smShutdown}}</button>
+  </div>
+</div>
+
+<div class="xp-toast" id="xpToast" role="status" aria-live="polite"></div>
+
+{{windowTemplate}}
 {{scripts}}
 </body>
 </html>

@@ -9,6 +9,7 @@
 
 import copy
 import json
+import re
 import sys
 import tempfile
 import unittest
@@ -181,6 +182,12 @@ class StaticContentTests(unittest.TestCase):
         for post in load("data/posts.json")["posts"]:
             self.assertIn(f'href="{post["url"]}"', html)
 
+    def test_no_placeholder_survives_the_build(self):
+        # 外壳（任务栏、开始菜单、窗口模板）每页都要有，少给一个就留下 {{...}} 在页面上
+        for path, html in self.written.items():
+            leftovers = re.findall(r"\{\{[A-Za-z]+\}\}", html)
+            self.assertEqual([], leftovers, f"{path} 还有没替换的占位符")
+
     def test_every_page_has_a_canonical_url(self):
         for path, html in self.written.items():
             rel = path.relative_to(ROOT).as_posix()
@@ -229,6 +236,92 @@ class StaticContentTests(unittest.TestCase):
         width = int.from_bytes(data[16:20], "big")
         height = int.from_bytes(data[20:24], "big")
         self.assertEqual((width, height), (1200, 630))
+
+
+class XpDesktopTests(unittest.TestCase):
+    """XP 桌面：图标是真链接，内容页装在 IE 窗口里。"""
+
+    def setUp(self):
+        self.written = dict(build.build_all(build.asset_hashes()))
+        self.projects = load("data/projects.json")["projects"]
+        self.posts = load("data/posts.json")["posts"]
+
+    def test_every_project_has_a_desktop_shortcut(self):
+        html = self.written[ROOT / "index.html"]
+        for project in self.projects:
+            if project.get("kind") != "project":
+                continue
+            self.assertIn(f'data-url="projects/{project["id"]}/"', html)
+
+    def test_every_post_has_a_desktop_shortcut(self):
+        html = self.written[ROOT / "index.html"]
+        for post in self.posts:
+            self.assertIn(f'data-url="blog/{post["url"]}"', html)
+
+    def test_shortcuts_are_real_links_so_the_desktop_works_without_js(self):
+        html = self.written[ROOT / "index.html"]
+        self.assertIn('<a class="xp-icon" href="projects/mdeditor/"', html)
+        self.assertIn('<a class="xp-icon" href="blog/cage-for-a-model/"', html)
+
+    def test_home_ships_the_window_template_the_script_clones(self):
+        html = self.written[ROOT / "index.html"]
+        self.assertIn('<template id="xpWinTpl">', html)
+        self.assertIn('data-slot="frame"', html)
+
+    def test_content_pages_sit_inside_an_ie_window(self):
+        for rel in ["projects/mdeditor/index.html", "blog/index.html", "404.html"]:
+            html = self.written[ROOT / rel]
+            self.assertIn('<div class="xp-window is-page"', html)
+            self.assertIn('class="xp-menubar"', html)
+            self.assertIn('data-slot="url"', html)
+
+    def test_every_page_carries_the_xp_shell(self):
+        for path, html in self.written.items():
+            self.assertIn('class="xp-taskbar"', html, str(path))
+            self.assertIn('id="xpStartMenu"', html, str(path))
+
+    def test_start_menu_lists_every_project(self):
+        html = self.written[ROOT / "index.html"]
+        for project in self.projects:
+            if project.get("kind") != "project":
+                continue
+            self.assertIn(f'data-url="projects/{project["id"]}/"', html)
+
+    def test_hidden_index_still_carries_the_text_for_crawlers(self):
+        html = self.written[ROOT / "index.html"]
+        self.assertIn('<section class="sr-only">', html)
+        for project in self.projects:
+            if project.get("kind") != "project":
+                continue
+            self.assertIn(project["tagline"]["zh"], html)
+            self.assertIn(project["summary"]["en"], html)
+
+
+class BilingualPostTests(unittest.TestCase):
+    """post.en.md 存在时，英文正文要一起进 HTML。"""
+
+    def setUp(self):
+        tmp = tempfile.TemporaryDirectory(dir=ROOT / "blog")
+        self.addCleanup(tmp.cleanup)
+        self.dir = Path(tmp.name)
+        self.slug = self.dir.name
+        (self.dir / "post.md").write_text("---\ntitle: 中\n---\n\n中文段落。\n", encoding="utf-8")
+        (self.dir / "post.en.md").write_text(
+            "---\ntitle: EN\n---\n\nEnglish paragraph.\n", encoding="utf-8"
+        )
+
+    def test_english_body_is_rendered_next_to_the_chinese_one(self):
+        body, _, _ = build.post_body_html({"slug": self.slug})
+        self.assertIn('<div class="i18n-zh" lang="zh-CN">', body)
+        self.assertIn("中文段落。", body)
+        self.assertIn('<div class="i18n-en" lang="en">', body)
+        self.assertIn("English paragraph.", body)
+
+    def test_without_an_english_file_only_the_chinese_body_is_rendered(self):
+        (self.dir / "post.en.md").unlink()
+        body, _, _ = build.post_body_html({"slug": self.slug})
+        self.assertNotIn('class="i18n-en"', body)
+        self.assertIn("中文段落。", body)
 
 
 class BilingualTests(unittest.TestCase):

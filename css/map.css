@@ -1,15 +1,62 @@
 /* 图纸视图：站点被画成一张目录式示意图。
    画法（主轴线 / 分区 / 缩进子树）由 js/map.js 决定，这里只负责墨线与字重。 */
 
+/* 图纸是铺满桌面区的一个全屏应用：任务栏留在外面，还能切回去。 */
 .map {
   position: fixed;
-  inset: 0;
-  z-index: var(--z-content);
+  inset: 0 0 30px 0;
+  z-index: var(--z-modal);
+  background: var(--surface);
   touch-action: none;
   cursor: grab;
   opacity: 1;
   transition: opacity 0.3s var(--ease);
   overscroll-behavior: none;
+}
+
+/* 图纸的标题栏：像 XP 的一个全屏窗口。 */
+.map-bar {
+  position: absolute;
+  inset: 0 0 auto 0;
+  z-index: 2;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 0 6px 0 10px;
+  color: #fff;
+  font-family: Tahoma, Verdana, "Microsoft YaHei", sans-serif;
+  font-size: 12px;
+  font-weight: bold;
+  text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.4);
+  background: linear-gradient(180deg, #0f5fd6 0%, #3b8df0 12%, #1e63cf 70%, #10499f 100%);
+  border-bottom: 1px solid #08369a;
+  pointer-events: none;
+}
+
+.map-bar > * {
+  pointer-events: auto;
+}
+
+.map-bar-title {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.map-bar .hint {
+  position: static;
+  transform: none;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: #dce9ff;
+  font-family: Tahoma, Verdana, "Microsoft YaHei", sans-serif;
+  font-size: 11px;
+  letter-spacing: 0;
+  white-space: nowrap;
+  pointer-events: none;
 }
 
 .map:active {
@@ -200,30 +247,13 @@
 /* ---------- 提示 ---------- */
 
 .hint {
-  position: fixed;
-  left: 50%;
-  bottom: 44px;
-  z-index: var(--z-hint);
   margin: 0;
-  transform: translateX(-50%);
-  padding: 6px 13px;
-  border: 1px solid var(--line);
-  background: var(--surface);
-  font-family: var(--font-mono);
-  font-size: 11px;
-  letter-spacing: 0.08em;
-  color: var(--fg-faint);
   white-space: nowrap;
-  pointer-events: none;
-  transition: opacity 0.3s var(--ease);
-}
-
-.hint.is-hidden {
-  opacity: 0;
 }
 
 /* ---------- 数据加载失败 ---------- */
 
+/* XP 的错误对话框：白底、红色感叹号图标、OK 按钮。 */
 .state-error {
   position: fixed;
   inset: 0;
@@ -232,7 +262,7 @@
   place-items: center;
   padding: 24px;
   text-align: center;
-  background: var(--bg);
+  background: var(--surface);
 }
 
 .state-error[hidden] {
@@ -241,8 +271,9 @@
 
 .state-error p {
   margin: 0 0 6px;
-  font-family: var(--font-display);
-  font-size: 22px;
+  font-family: Tahoma, Verdana, "Microsoft YaHei", sans-serif;
+  font-size: 15px;
+  font-weight: bold;
 }
 
 .state-error small {
@@ -261,16 +292,7 @@
     font-size: 12px;
   }
 
-  .hint {
-    bottom: 40px;
-    font-size: 10px;
-    letter-spacing: 0.05em;
-    padding: 5px 10px;
-  }
-}
-
-@media (max-height: 560px) {
-  .hint {
+  .map-bar .hint {
     display: none;
   }
 }

@@ -1,34 +1,36 @@
-/* 文章页：衬线长文版式。
-   外壳几何由 base.css 的 .page-wrap 提供，这里只保留文章自己的入场动效与正文排版。 */
+/* 文章页：一篇能安心读完的长文。
+   正文走 Times New Roman（XP 时代的默认阅读字体），标题走 Tahoma。
+   外壳几何由 base.css 的 .page-wrap 提供。 */
 
 .post-wrap {
   width: min(720px, 100%);
-  animation: page-in 0.5s var(--ease) both;
+  animation: page-in 0.4s var(--ease) both;
 }
 
 .post-kicker {
-  margin: 0 0 14px;
-  font-family: var(--font-mono);
+  margin: 0 0 10px;
+  font-family: var(--font-sans);
   font-size: 11px;
-  letter-spacing: 0.16em;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
   color: var(--fg-faint);
 }
 
 .post-wrap h1 {
-  margin: 0 0 20px;
+  margin: 0 0 16px;
   font-family: var(--font-display);
-  font-size: clamp(30px, 5.6vw, 46px);
+  font-size: clamp(26px, 4.6vw, 38px);
   font-weight: 700;
-  letter-spacing: -0.025em;
-  line-height: 1.1;
+  line-height: 1.15;
 }
 
 .post-lede {
-  margin: 0 0 44px;
+  margin: 0 0 30px;
   color: var(--fg-dim);
+  font-family: var(--font-read);
   font-size: 16px;
-  line-height: 1.8;
-  padding-bottom: 30px;
+  line-height: 1.75;
+  padding-bottom: 20px;
   border-bottom: 1px solid var(--line);
 }
 
@@ -36,34 +38,30 @@
 
 .post-body {
   font-family: var(--font-read);
-  font-size: 17px;
-  line-height: 1.78;
+  font-size: 16.5px;
+  line-height: 1.85;
   color: var(--fg);
 }
 
 .post-body h2 {
-  margin: 52px 0 18px;
-  padding-bottom: 10px;
-  border-bottom: 1px solid var(--line);
+  margin: 40px 0 14px;
   font-family: var(--font-display);
-  font-size: 25px;
+  font-size: 21px;
   font-weight: 700;
-  letter-spacing: -0.015em;
-  line-height: 1.25;
+  line-height: 1.3;
   color: var(--fg-strong);
 }
 
 .post-body h3 {
-  margin: 36px 0 12px;
+  margin: 28px 0 10px;
   font-family: var(--font-display);
-  font-size: 19px;
+  font-size: 17px;
   font-weight: 700;
-  letter-spacing: -0.01em;
   color: var(--fg-strong);
 }
 
 .post-body p {
-  margin: 0 0 18px;
+  margin: 0 0 16px;
 }
 
 .post-body strong {
@@ -72,42 +70,35 @@
 }
 
 .post-body a {
-  color: var(--accent);
+  color: var(--link);
   text-decoration: underline;
-  text-decoration-color: color-mix(in srgb, var(--accent) 35%, transparent);
-  text-underline-offset: 3px;
-  transition: text-decoration-color 0.2s var(--ease);
-}
-
-.post-body a:hover {
-  text-decoration-color: var(--accent);
 }
 
 .post-body ul,
 .post-body ol {
-  margin: 0 0 18px;
-  padding-left: 24px;
+  margin: 0 0 16px;
+  padding-left: 22px;
 }
 
 .post-body li {
-  margin-bottom: 9px;
+  margin-bottom: 7px;
 }
 
-.post-body li::marker {
-  color: var(--fg-faint);
-  font-family: var(--font-mono);
-  font-size: 12px;
+.post-body blockquote {
+  margin: 20px 0;
+  padding: 2px 0 2px 16px;
+  border-left: 3px solid var(--accent-soft);
+  color: var(--fg-dim);
 }
 
 /* 行内代码 */
 
 .post-body code {
   font-family: var(--font-mono);
-  font-size: 0.82em;
-  padding: 2px 6px;
-  border-radius: var(--radius-md);
-  border: 1px solid var(--line);
+  font-size: 0.85em;
+  padding: 1px 5px;
   background: var(--surface-soft);
+  border: 1px solid var(--line);
   color: var(--fg-code);
   /* 长标识符在窄屏必须能断行，否则整行会被撑出视口 */
   white-space: pre-wrap;
@@ -117,13 +108,12 @@
 /* 代码块 */
 
 .post-body pre {
-  margin: 24px 0 26px;
-  padding: 20px 22px;
-  border-radius: var(--radius-md);
-  border: 1px solid var(--line);
-  background: var(--surface);
+  margin: 20px 0 22px;
+  padding: 16px 18px;
+  border: 1px solid var(--line-strong);
+  background: #f6f6f2;
   overflow-x: auto;
-  line-height: 1.7;
+  line-height: 1.65;
 }
 
 .post-body pre code {
@@ -139,12 +129,11 @@
 /* 图 / ASCII 示意 */
 
 .post-body .fig {
-  margin: 26px 0 28px;
-  padding: 20px 18px;
-  border: 1px dashed var(--line-strong);
-  border-radius: var(--radius-md);
+  margin: 22px 0 24px;
+  padding: 16px 14px;
+  border: 1px solid var(--line);
+  background: var(--surface-soft);
   overflow-x: auto;
-  text-align: center;
 }
 
 .post-body .fig pre {
@@ -155,86 +144,62 @@
 }
 
 .post-body .fig code {
-  font-size: 11.5px;
-  letter-spacing: 0.04em;
-  color: var(--fg-dim);
-  white-space: pre;
+  border: 0;
+  background: none;
+  padding: 0;
 }
 
 .post-body .fig figcaption {
   margin-top: 10px;
-  font-family: var(--font-mono);
-  font-size: 11px;
-  letter-spacing: 0.12em;
+  font-family: var(--font-sans);
+  font-size: 12px;
   color: var(--fg-faint);
 }
 
-/* 引言 */
-
-.post-body blockquote {
-  margin: 26px 0;
-  padding: 2px 0 2px 20px;
-  border-left: 2px solid var(--accent);
-  color: var(--fg-dim);
-  font-style: italic;
-  font-size: 16px;
-  line-height: 1.8;
-}
-
-/* 继续读：相关项目 + 其它文章 */
+/* ---- 尾部 ---- */
 
 .post-related {
-  margin-top: 52px;
-  padding-top: 24px;
+  margin-top: 44px;
+  padding-top: 22px;
   border-top: 1px solid var(--line);
-}
-
-.post-related .section-label {
-  margin-bottom: 4px;
 }
 
 .post-related-list {
   margin: 0;
   padding: 0;
   list-style: none;
+  border-top: 1px solid var(--line);
+}
+
+.post-related-list li {
+  border-bottom: 1px solid var(--line);
 }
 
 .post-related-link {
-  display: flex;
-  flex-direction: column;
-  gap: 3px;
-  padding: 14px 0;
-  border-bottom: 1px solid var(--line);
-  transition: color 0.18s var(--ease);
-}
-
-.post-related-link:hover {
-  color: var(--accent);
+  display: block;
+  padding: 12px 2px;
+  font-family: var(--font-display);
+  font-size: 16px;
 }
 
 .post-related-note {
+  display: block;
+  margin-top: 2px;
+  font-family: var(--font-sans);
+  font-size: 12.5px;
   color: var(--fg-faint);
-  font-family: var(--font-mono);
-  font-size: 11.5px;
-  letter-spacing: 0.04em;
 }
 
-/* 结尾 */
-
 .post-foot {
-  margin-top: 60px;
-  padding-top: 26px;
-  border-top: 1px solid var(--line);
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 10px;
+  gap: 8px;
   flex-wrap: wrap;
+  margin-top: 28px;
 }
 
 .post-foot .btn {
-  font-size: 12.5px;
-  padding: 8px 14px;
+  font-size: 12px;
+  padding: 5px 12px;
 }
 
 /* ---- Markdown 渲染补充 ---- */
@@ -244,7 +209,7 @@
 }
 
 .post-body hr {
-  margin: 40px 0;
+  margin: 32px 0;
   border: 0;
   border-top: 1px solid var(--line);
 }
@@ -252,7 +217,7 @@
 /* 表格 */
 
 .post-body table {
-  margin: 24px 0 28px;
+  margin: 20px 0 24px;
   width: 100%;
   border-collapse: collapse;
   font-size: 13.5px;
@@ -262,29 +227,28 @@
 
 .post-body th,
 .post-body td {
-  padding: 10px 12px;
-  border: 1px solid var(--line);
+  padding: 8px 10px;
+  border: 1px solid var(--line-strong);
   text-align: left;
   vertical-align: top;
 }
 
 .post-body th {
-  font-weight: 600;
+  font-weight: 700;
   background: var(--surface-soft);
   color: var(--fg-strong);
 }
 
 .post-body td {
-  color: var(--fg-code-dim);
+  color: var(--fg-dim);
 }
 
 /* Mermaid 图表容器 */
 
 .post-body .md-mermaid {
-  margin: 28px 0 30px;
-  padding: 22px 16px;
+  margin: 24px 0 26px;
+  padding: 18px 14px;
   border: 1px solid var(--line);
-  border-radius: var(--radius-md);
   background: var(--surface);
   overflow-x: auto;
   text-align: center;
@@ -300,9 +264,9 @@
 }
 
 .post-body .md-mermaid-note {
-  margin: -16px 0 26px;
+  margin: -14px 0 22px;
   font-family: var(--font-mono);
   font-size: 11.5px;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.06em;
   color: var(--fg-faint);
 }

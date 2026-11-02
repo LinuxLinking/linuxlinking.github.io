@@ -1,0 +1,684 @@
+/* Windows XP "Luna" 外壳：壁纸、桌面图标、任务栏、开始菜单、IE 窗口。
+
+   还原要点：
+   - Bliss 壁纸用纯 CSS 渐变画（天光渐变 + 两层绿丘 + 柔云），不引任何图片。
+   - 窗口 chrome 用 XP 的米色 #ece9d8 与蓝色标题条渐变，按钮是灰色渐变 + 深蓝描边。
+   - 图标是 16x16 像素画（SVG，shape-rendering:crispEdges），放大到 48px 保持硬边。
+   - 滚动条、提示条、开始菜单的蓝白两栏都按原样还原。
+
+   内容页装在同一个 IE 窗口里（.xp-window.is-page）；被桌面用 iframe 打开时，
+   head 里的同步脚本会加 .in-frame，于是外壳让位，只留正文。 */
+
+:root {
+  --xp-blue-0: #0a3fa0;
+  --xp-blue-1: #245edb;
+  --xp-blue-2: #3f8cf3;
+  --xp-blue-3: #4a94ff;
+  --xp-chrome: #ece9d8;
+  --xp-chrome-dark: #d6d2c2;
+  --xp-chrome-line: #003c74;
+  --xp-green-0: #2c7a1f;
+  --xp-green-1: #4a9e3f;
+  --xp-green-2: #6fbc3f;
+  --xp-text: #000;
+  --xp-sel: #0a246a;
+  --xp-shadow: rgba(0, 0, 0, 0.45);
+  --xp-taskbar-h: 30px;
+}
+
+html,
+body.xp {
+  height: 100%;
+  margin: 0;
+  overflow: hidden;
+  background: #3a6ea5;
+  font-family: Tahoma, Verdana, "Segoe UI", "Microsoft YaHei", "PingFang SC", sans-serif;
+  font-size: 12px;
+  color: #000;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ---------------------------------------------------------------- 壁纸 */
+
+.xp-wallpaper {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  background:
+    /* 云：宽而淡的一层一层，边要化开 */
+    radial-gradient(ellipse 22% 3% at 30% 25%, rgba(255, 255, 255, 0.5) 0 26%, rgba(255, 255, 255, 0) 100%),
+    radial-gradient(ellipse 16% 2.2% at 48% 18%, rgba(255, 255, 255, 0.42) 0 26%, rgba(255, 255, 255, 0) 100%),
+    radial-gradient(ellipse 26% 3.4% at 72% 26%, rgba(255, 255, 255, 0.46) 0 24%, rgba(255, 255, 255, 0) 100%),
+    radial-gradient(ellipse 18% 2.4% at 18% 33%, rgba(255, 255, 255, 0.34) 0 26%, rgba(255, 255, 255, 0) 100%),
+    radial-gradient(ellipse 14% 2% at 58% 37%, rgba(255, 255, 255, 0.28) 0 26%, rgba(255, 255, 255, 0) 100%),
+    radial-gradient(ellipse 55% 1.8% at 46% 47%, rgba(255, 255, 255, 0.38) 0 28%, rgba(255, 255, 255, 0) 100%),
+    /* 远丘 */
+    radial-gradient(ellipse 78% 26% at 50% 108%, #4e8f34 0 66%, rgba(78, 143, 52, 0) 67%),
+    /* 近丘 */
+    radial-gradient(ellipse 96% 34% at 46% 122%, #6fb52f 0 62%, rgba(111, 181, 47, 0) 63%),
+    radial-gradient(ellipse 70% 24% at 82% 118%, #56962c 0 62%, rgba(86, 150, 44, 0) 63%),
+    /* 天空 */
+    linear-gradient(180deg, #17418f 0%, #2f66b8 26%, #6aa5dd 48%, #a8cfee 63%, #dbeaf7 74%, #eaf4fb 80%);
+}
+
+/* ---------------------------------------------------------------- 桌面 */
+
+.xp-desktop {
+  position: absolute;
+  inset: 0 0 var(--xp-taskbar-h) 0;
+  z-index: 1;
+}
+
+.xp-icons {
+  position: absolute;
+  inset: 6px 6px 6px 2px;
+  display: grid;
+  grid-auto-flow: column;
+  grid-template-rows: repeat(auto-fill, 92px);
+  grid-auto-columns: 80px;
+  gap: 2px;
+  align-content: start;
+  justify-content: start;
+}
+
+.xp-icon {
+  width: 80px;
+  padding: 4px 2px 2px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  border: 1px dotted transparent;
+  cursor: default;
+  user-select: none;
+  text-align: center;
+  text-decoration: none;
+  color: #fff;
+}
+
+.xp-icon .ic svg {
+  width: 48px;
+  height: 48px;
+  image-rendering: pixelated;
+  filter: drop-shadow(1px 2px 1px rgba(0, 0, 0, 0.35));
+}
+
+.xp-icon .lb {
+  font-size: 11px;
+  line-height: 1.25;
+  color: #fff;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.85);
+  word-break: break-all;
+  /* 名字再长也只占两行，跟真 XP 一样，不去压下面的图标 */
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.xp-icon.is-selected {
+  border-color: rgba(255, 255, 255, 0.55);
+  background: rgba(10, 36, 106, 0.28);
+}
+
+.xp-icon.is-selected .lb {
+  background: var(--xp-sel);
+  text-shadow: none;
+}
+
+/* ---------------------------------------------------------------- 任务栏 */
+
+.xp-taskbar {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: var(--xp-taskbar-h);
+  z-index: 50;
+  display: flex;
+  align-items: stretch;
+  background: linear-gradient(180deg, var(--xp-blue-3) 0%, var(--xp-blue-2) 8%, var(--xp-blue-1) 92%, var(--xp-blue-0) 100%);
+  border-top: 1px solid #08369a;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.35);
+}
+
+.xp-start {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 0 12px 0 8px;
+  font-weight: bold;
+  font-size: 13px;
+  font-style: italic;
+  color: #fff;
+  text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.5);
+  background: linear-gradient(180deg, var(--xp-green-2) 0%, var(--xp-green-1) 12%, var(--xp-green-0) 88%, #1c5c13 100%);
+  border: 0;
+  border-right: 1px solid rgba(0, 0, 0, 0.35);
+  box-shadow: inset -2px 0 3px rgba(0, 0, 0, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.45);
+  cursor: pointer;
+  user-select: none;
+}
+
+.xp-start:hover {
+  filter: brightness(1.12);
+}
+
+.xp-flag {
+  width: 18px;
+  height: 18px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1px;
+  transform: skewY(-8deg);
+}
+
+.xp-flag i:nth-child(1) { background: #f35325; }
+.xp-flag i:nth-child(2) { background: #81bc06; }
+.xp-flag i:nth-child(3) { background: #05a6f0; }
+.xp-flag i:nth-child(4) { background: #ffba08; }
+
+/* 快速启动 */
+
+.xp-quick {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  padding: 0 6px;
+  border-right: 1px solid rgba(255, 255, 255, 0.22);
+}
+
+.xp-quick button {
+  width: 22px;
+  height: 22px;
+  border: 0;
+  background: none;
+  cursor: pointer;
+  opacity: 0.85;
+  display: grid;
+  place-items: center;
+}
+
+.xp-quick button:hover { opacity: 1; }
+.xp-quick svg { width: 16px; height: 16px; image-rendering: pixelated; }
+
+/* 打开的窗口 */
+
+.xp-tasks {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  padding: 3px 4px;
+  overflow: hidden;
+}
+
+.xp-task {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  min-width: 0;
+  max-width: 160px;
+  padding: 3px 8px;
+  font-size: 11.5px;
+  color: #fff;
+  background: linear-gradient(180deg, #3d7fd8 0%, #1f5bb8 100%);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 2px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.xp-task svg { width: 14px; height: 14px; image-rendering: pixelated; flex: 0 0 auto; }
+.xp-task span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.xp-task.is-active {
+  background: linear-gradient(180deg, #1a4fa8 0%, #2a6fd0 100%);
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.45);
+}
+
+/* 语言切换 */
+
+.xp-lang {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  padding: 0 6px;
+  border-left: 1px solid rgba(255, 255, 255, 0.25);
+}
+
+.xp-lang button {
+  padding: 2px 7px;
+  font: 11px Tahoma, Verdana, sans-serif;
+  color: #fff;
+  background: linear-gradient(180deg, #3d7fd8 0%, #1f5bb8 100%);
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  border-radius: 2px;
+  cursor: pointer;
+}
+
+.xp-lang button[aria-pressed="true"] {
+  background: linear-gradient(180deg, #1a4fa8 0%, #2a6fd0 100%);
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.45);
+}
+
+/* 系统托盘 */
+
+.xp-tray {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0 8px 0 10px;
+  background: linear-gradient(180deg, #1f5bc0 0%, #123f92 100%);
+  border-left: 1px solid rgba(255, 255, 255, 0.28);
+  box-shadow: inset 1px 0 2px rgba(0, 0, 0, 0.3);
+  color: #fff;
+  font-size: 11.5px;
+}
+
+.xp-tray svg { width: 14px; height: 14px; image-rendering: pixelated; opacity: 0.9; }
+
+/* ---------------------------------------------------------------- 开始菜单 */
+
+.xp-startmenu {
+  position: fixed;
+  left: 2px;
+  bottom: calc(var(--xp-taskbar-h) + 2px);
+  z-index: 60;
+  width: 372px;
+  display: none;
+  padding: 0;
+  background: var(--xp-chrome);
+  border: 1px solid #08369a;
+  box-shadow: 3px 3px 8px rgba(0, 0, 0, 0.45);
+}
+
+.xp-startmenu.is-open { display: block; }
+
+.xp-sm-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px;
+  background: linear-gradient(180deg, #1a62d6 0%, #0d47a8 100%);
+  border-bottom: 1px solid #0a3fa0;
+  color: #fff;
+}
+
+.xp-avatar {
+  width: 42px;
+  height: 42px;
+  border-radius: 3px;
+  background: linear-gradient(180deg, #dfe9ff 0%, #9fb8e8 100%);
+  border: 2px solid #fff;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+  display: grid;
+  place-items: center;
+  font-size: 22px;
+  font-weight: bold;
+  color: #2a4f8f;
+}
+
+.xp-sm-head b { display: block; font-size: 13px; }
+.xp-sm-head small { display: block; opacity: 0.85; font-size: 11px; line-height: 1.4; }
+
+.xp-sm-body {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  min-height: 290px;
+}
+
+.xp-sm-col {
+  padding: 6px 0;
+  background: #fff;
+}
+
+.xp-sm-col + .xp-sm-col {
+  background: #d3e5fa;
+  border-left: 1px solid #b6cbe4;
+}
+
+.xp-sm-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 5px 8px;
+  font-size: 12px;
+  color: #000;
+  background: none;
+  border: 0;
+  text-align: left;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.xp-sm-item:hover { background: #2b71b8; color: #fff; }
+.xp-sm-item .ic svg { width: 20px; height: 20px; image-rendering: pixelated; flex: 0 0 auto; }
+.xp-sm-item .arrow { margin-left: auto; font-size: 10px; }
+.xp-sm-item .lb { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+/* 开始菜单里的分隔条 */
+.xp-sm-sep {
+  height: 1px;
+  margin: 5px 8px;
+  background: #b6cbe4;
+}
+
+.xp-sm-foot {
+  display: flex;
+  justify-content: flex-end;
+  gap: 6px;
+  padding: 6px 8px;
+  background: var(--xp-chrome);
+  border-top: 1px solid #b9b5a4;
+}
+
+.xp-sm-foot button {
+  padding: 3px 12px;
+  font-size: 11.5px;
+  color: #000;
+  background: linear-gradient(180deg, #fff 0%, var(--xp-chrome) 45%, #dcd8c8 100%);
+  border: 1px solid #003c74;
+  border-radius: 2px;
+  cursor: pointer;
+}
+
+.xp-sm-foot button:hover { box-shadow: inset 0 0 0 1px rgba(242, 96, 63, 0.5); }
+
+/* ---------------------------------------------------------------- IE 窗口 */
+
+.xp-window {
+  position: absolute;
+  z-index: 10;
+  min-width: 420px;
+  min-height: 260px;
+  background: var(--xp-chrome);
+  border: 1px solid #08369a;
+  border-radius: 6px 6px 0 0;
+  box-shadow: 2px 4px 16px rgba(0, 0, 0, 0.5);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* 内容页：桌面上一张纸加一个居中的 IE 窗口 */
+.xp-window.is-page {
+  inset: 10px;
+  margin: auto;
+  width: min(1060px, calc(100% - 20px));
+  height: min(730px, calc(100% - 20px));
+  min-width: 0;
+  min-height: 0;
+}
+
+@media (max-width: 760px), (max-height: 540px) {
+  .xp-window.is-page {
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    border-radius: 0;
+  }
+}
+
+.xp-window.is-max {
+  inset: 0 !important;
+  width: auto !important;
+  height: auto !important;
+  border-radius: 0;
+}
+
+.xp-title {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  height: 26px;
+  padding: 0 4px 0 6px;
+  background: linear-gradient(180deg, #0f5fd6 0%, #3b8df0 12%, #1e63cf 70%, #10499f 100%);
+  color: #fff;
+  font-weight: bold;
+  font-size: 12px;
+  text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.4);
+  cursor: default;
+  user-select: none;
+}
+
+.xp-title .ic svg { width: 16px; height: 16px; image-rendering: pixelated; flex: 0 0 auto; }
+.xp-title .t { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+.xp-tbtn {
+  width: 21px;
+  height: 21px;
+  display: grid;
+  place-items: center;
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  border-radius: 3px;
+  background: linear-gradient(180deg, #4a94ff 0%, #1c5fc4 100%);
+  color: #fff;
+  font: bold 11px/1 Tahoma, sans-serif;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.xp-tbtn:hover { filter: brightness(1.2); }
+.xp-tbtn.is-close { background: linear-gradient(180deg, #e88b6a 0%, #c23a1f 100%); }
+
+.xp-menubar {
+  display: flex;
+  gap: 2px;
+  padding: 2px 4px;
+  background: var(--xp-chrome);
+  border-bottom: 1px solid #c6c2b0;
+  font-size: 11.5px;
+}
+
+.xp-menubar span { padding: 2px 6px; cursor: default; }
+.xp-menubar span:hover { background: var(--xp-sel); color: #fff; }
+
+.xp-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  padding: 4px 5px;
+  background: linear-gradient(180deg, #f6f4ea 0%, #e3dfcc 100%);
+  border-bottom: 1px solid #b5b1a0;
+}
+
+.xp-tool {
+  width: 24px;
+  height: 24px;
+  display: grid;
+  place-items: center;
+  border: 1px solid transparent;
+  border-radius: 3px;
+  background: none;
+  cursor: pointer;
+}
+
+.xp-tool:hover { border-color: #7b93c8; background: #eaf1ff; }
+.xp-tool svg { width: 16px; height: 16px; image-rendering: pixelated; }
+.xp-tool[disabled] { opacity: 0.35; pointer-events: none; }
+
+.xp-address {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  height: 22px;
+  padding: 0 3px 0 5px;
+  background: #fff;
+  border: 1px solid #7f9db9;
+  box-shadow: inset 1px 1px 2px rgba(0, 0, 0, 0.12);
+}
+
+.xp-address .ico { color: #4a7a3a; font-size: 11px; }
+.xp-address input {
+  flex: 1;
+  min-width: 0;
+  border: 0;
+  outline: none;
+  font: 11.5px Tahoma, Verdana, sans-serif;
+  color: #000;
+  background: none;
+}
+
+.xp-go {
+  padding: 1px 8px;
+  font: 11px Tahoma, sans-serif;
+  color: #000;
+  background: linear-gradient(180deg, #fff 0%, #e2ddc9 100%);
+  border: 1px solid #003c74;
+  border-radius: 2px;
+  cursor: pointer;
+}
+
+.xp-go:hover { box-shadow: inset 0 0 0 1px rgba(242, 96, 63, 0.55); }
+
+.xp-view {
+  flex: 1;
+  min-height: 0;
+  background: #fff;
+  border: 1px solid #7f9db9;
+  border-top: 0;
+  overflow: auto;
+}
+
+.xp-view iframe {
+  width: 100%;
+  height: 100%;
+  border: 0;
+  display: block;
+  background: #fff;
+}
+
+.xp-status {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 20px;
+  padding: 0 6px;
+  font-size: 11px;
+  color: #333;
+  background: var(--xp-chrome);
+  border-top: 1px solid #c6c2b0;
+}
+
+.xp-status .zone {
+  flex: 1;
+  padding: 1px 5px;
+  background: #fff;
+  border: 1px solid #c6c2b0;
+}
+
+.xp-grip {
+  width: 14px;
+  height: 14px;
+  align-self: flex-end;
+  background:
+    linear-gradient(135deg, transparent 45%, #8a8675 46% 54%, transparent 55%),
+    linear-gradient(135deg, transparent 65%, #8a8675 66% 74%, transparent 75%);
+}
+
+/* ---------------------------------------------------------------- 滚动条 */
+
+.xp-view ::-webkit-scrollbar { width: 16px; height: 16px; }
+.xp-view ::-webkit-scrollbar-track {
+  background: repeating-conic-gradient(#f1efe2 0 25%, #e6e3d4 0 50%) 0 0 / 2px 2px;
+}
+.xp-view ::-webkit-scrollbar-thumb {
+  background: linear-gradient(90deg, #fdfdfb 0%, #dcd8c6 55%, #c8c4b0 100%);
+  border: 1px solid #8a8675;
+}
+.xp-view ::-webkit-scrollbar-button:single-button {
+  background: linear-gradient(90deg, #fdfdfb 0%, #dcd8c6 55%, #c8c4b0 100%);
+  border: 1px solid #8a8675;
+  height: 16px;
+  width: 16px;
+}
+
+/* ---------------------------------------------------------------- 提示条 */
+
+.xp-toast {
+  position: fixed;
+  right: 14px;
+  bottom: 40px;
+  z-index: 70;
+  max-width: 320px;
+  padding: 9px 12px;
+  font-size: 11.5px;
+  color: #000;
+  background: var(--xp-chrome);
+  border: 1px solid #08369a;
+  border-radius: 3px;
+  box-shadow: 2px 3px 8px rgba(0, 0, 0, 0.4);
+  display: none;
+}
+
+.xp-toast.is-open { display: block; }
+
+/* ---------------------------------------------------------------- 杂项 */
+
+/* 图纸浮层上的「返回桌面」 */
+.map-exit {
+  position: absolute;
+  right: 12px;
+  bottom: 12px;
+  z-index: 3;
+}
+
+/* 给读屏软件与搜索引擎看的清单：视觉上收起来，但内容一字不少 */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* 被装进桌面的 iframe 里时：外壳全部让位，只留正文。 */
+html.in-frame .xp-wallpaper,
+html.in-frame .xp-taskbar,
+html.in-frame .xp-startmenu,
+html.in-frame .xp-title,
+html.in-frame .xp-menubar,
+html.in-frame .xp-toolbar,
+html.in-frame .xp-status {
+  display: none;
+}
+
+html.in-frame .xp-desktop {
+  position: static;
+  inset: auto;
+}
+
+html.in-frame body.xp {
+  height: auto;
+  overflow: auto;
+}
+
+html.in-frame .xp-window.is-page {
+  position: static;
+  inset: auto;
+  width: auto;
+  height: auto;
+  margin: 0;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+}
+
+html.in-frame .xp-view {
+  border: 0;
+  overflow: visible;
+  flex: none;
+}
+
+/* 触屏没有双击：图标给一个明显的按钮形态 */
+@media (hover: none) {
+  .xp-icon { border-color: rgba(255, 255, 255, 0.3); }
+}
