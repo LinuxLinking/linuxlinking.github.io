@@ -2,19 +2,135 @@
 
 Personal site of [LinuxLinking](https://github.com/LinuxLinking) — live at **[linuxlinking.github.io](https://linuxlinking.github.io)**.
 
-A hand-written static site with **zero build step, zero framework, zero external libraries**.
+A hand-written static site with **zero dependencies**: no framework, no CDN, no npm. The published
+artifact is plain HTML + CSS + ES modules.
+
+> There *is* a build step now — a single stdlib-only Python script that assembles pages from
+> templates, generates post pages from Markdown, and stamps content hashes for cache busting.
+> It runs locally and its output is committed; the site itself still needs no build to be served.
 
 ## What's inside
 
-- **Honeycomb project map** — anchor-point zoom, drag, pinch, double-click to reset
+- **Project grid** (default home view) — cards with a monogram badge, year, tagline and stack chips
+- **Honeycomb star map** (second view) — anchor-point zoom, drag, pinch, double-click to reset
 - **Canvas starfield** background, with a static fallback under `prefers-reduced-motion`
-- **zh / en switching** across all pages
+- **zh / en switching** across all pages (`?lang=en` → `localStorage` → `navigator.language`)
 - [Writing](https://linuxlinking.github.io/blog/) — a blog
 - [Soul for U](https://linuxlinking.github.io/soul-for-u/) — a page written for one person
 
 ## Stack
 
-Native HTML, CSS and ES modules. No framework, no CDN, no build tooling.
+Native HTML, CSS and ES modules. The only tooling is `tools/build.py` (Python 3.9+, standard library
+only).
+
+## Directory map
+
+```
+/
+├─ layouts/                 page shells
+│  ├─ base.html             shared chrome: topbar, starfield, footer, blocks
+│  └─ post.html             Markdown post shell (front matter + body)
+├─ pages/                   page fragments — the parts you actually edit
+│  ├─ index.html            home (grid + honeycomb)
+│  ├─ project.html          project detail template
+│  ├─ blog.html             blog index
+│  └─ 404.html              not-found
+├─ data/                    the single source of truth for content
+│  ├─ projects.json         13 entries: 7 projects + blog hub + 4 posts + Soul for U
+│  ├─ posts.json            blog index (slug / date / bilingual title+summary / url)
+│  └─ i18n.json             every UI string, zh + en
+├─ tools/build.py           assembler: templates → pages, hash stamping, validation
+├─ css/                     base.css (tokens + primitives) + per-page stylesheets
+├─ js/                      ES modules; shared.js holds the common boot sequence
+├─ blog/<slug>/             post.md (source) + generated index.html
+├─ soul-for-u/              untouched sub-site
+└─ docs/superpowers/specs/  design specs
+```
+
+Generated files (root `index.html`, `project.html`, `404.html`, `blog/*/index.html`) are committed
+to the repo so GitHub Pages can serve them directly. **Edit `layouts/` and `pages/`, not the
+generated HTML.**
+
+## Build
+
+```bash
+python tools/build.py          # assemble + stamp hashes
+python tools/build.py --check  # validate only, fail if anything is stale
+```
+
+`build.py` does four things:
+
+1. Renders `layouts/base.html` + each `pages/*.html` fragment into the root pages.
+2. Renders `layouts/post.html` for every entry in `data/posts.json` into `blog/<slug>/index.html`.
+3. Rewrites `?v=<hash>` on every CSS/JS reference and on every ES module import, using the
+   file's content hash. Hashing ignores an existing `?v=`, so the script is idempotent.
+4. Regenerates the offline fallback strings in `js/i18n.js` from `data/i18n.json`, so the two
+   never drift.
+
+`--check` verifies JSON validity, that project ids and post slugs are unique, that project links
+resolve, that every registered post has a `post.md`, and that no generated page is stale.
+
+## Writing a new post
+
+1. Create `blog/<slug>/post.md` with YAML-ish front matter:
+
+   ```markdown
+   ---
+   title: 文章标题
+   date: 2026-11-02
+   tag: PROJECT TAG
+   lede: 一两句话的导读（可选）
+   ---
+
+   正文……
+   ```
+
+   Mermaid diagrams work: write a ```` ```mermaid ```` block and it is lazily rendered on the page.
+
+2. Register it in `data/posts.json`:
+
+   ```json
+   {
+     "slug": "my-new-post",
+     "date": "2026-11-02",
+     "title": { "zh": "文章标题", "en": "Post title" },
+     "summary": { "zh": "摘要。", "en": "Summary." },
+     "url": "my-new-post/"
+   }
+   ```
+
+3. Run `python tools/build.py`. The article page appears in the blog index and on the home grid
+   automatically.
+
+Posts are listed on the home page and the blog index straight from `posts.json` — no page needs to
+be touched by hand.
+
+### Why no `tags` field?
+
+`posts.json` deliberately has no `tags` array. The site has four posts and no tag index, tag
+filtering, or tag pages; a tag field with no consumer is a field that will drift out of sync with
+the Markdown front matter (which does carry a single `tag:` label used as a kicker). If tag
+browsing is ever added, add the field and the index page in the same change.
+
+## Editing content
+
+- **Projects** — edit `data/projects.json`, then rebuild. `id`, `kind` (`project` / `blog` / `moon`),
+  `order`, `monogram`, `accent`, `year`, `stack`, `title`/`label`/`tagline`/`summary` (bilingual),
+  `links`, `repo` are all read from there.
+- **UI copy** — edit `data/i18n.json`, then rebuild. `js/i18n.js` keeps a generated fallback copy so
+  the site still renders if the JSON fetch fails.
+- **Site entry** — the `site` project in `projects.json` describes this site itself and feeds the
+  detail page.
+
+## Conventions
+
+- UTF-8, **no BOM**; LF line endings (enforced by `.gitattributes` and `.editorconfig`).
+- 2-space indentation in `js` / `css` / `html` / `json`.
+- No npm, no bundler, no CDN. `js/vendor/` holds checked-in third-party ES modules (marked,
+  mermaid) — the only exception to "hand-written", and they are vendored on purpose.
+- CSS design tokens live in `:root` in `css/base.css`; use them instead of hard-coded colors,
+  radii, shadows and z-index values. Shared primitives: `.pill`, `.card`, `.orb`, `.page-wrap`.
+- Keep `?v=` hashes out of hand-written files — `build.py` owns them.
 
 ## Run locally
 
