@@ -1,0 +1,55 @@
+import test from "node:test";
+import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
+import { fileURLToPath } from "node:url";
+import { dirname, join } from "node:path";
+
+import { buildNodes } from "./nodes.js";
+
+const here = dirname(fileURLToPath(import.meta.url));
+const root = join(here, "..");
+const read = (p) => JSON.parse(readFileSync(join(root, p), "utf8"));
+
+const projects = read("data/projects.json").projects;
+const posts = read("data/posts.json").posts;
+
+test("合并后共 13 个节点", () => {
+  assert.equal(buildNodes({ projects, posts }).length, 13);
+});
+
+test("顺序为 项目 → blog 聚合 → 文章 → moon", () => {
+  const ids = buildNodes({ projects, posts }).map((n) => n.id);
+  assert.equal(ids[0], "intent-os");
+  assert.equal(ids[7], "blog");
+  assert.equal(ids[12], "soul-for-u");
+});
+
+test("文章节点继承关联项目的 accent", () => {
+  const nodes = buildNodes({ projects, posts });
+  const post = nodes.find((n) => n.id === "harness-guard-design");
+  const project = nodes.find((n) => n.id === "ollama-harness");
+  assert.deepEqual(post.accent, project.accent);
+});
+
+test("文章节点用 posts.json 的 label 与 monogram", () => {
+  const nodes = buildNodes({ projects, posts });
+  const post = nodes.find((n) => n.id === "harness-guard-design");
+  assert.equal(post.monogram, "守");
+  assert.equal(post.label.zh, "守卫设计");
+});
+
+test("没有 projectId 的文章用中性色", () => {
+  const nodes = buildNodes({ projects, posts: [{ ...posts[0], projectId: "" }] });
+  const post = nodes.find((n) => n.id === posts[0].slug);
+  assert.deepEqual(post.accent, ["#7c5cff", "#3ad0ff"]);
+});
+
+test("项目节点 href 指向详情页", () => {
+  const nodes = buildNodes({ projects, posts });
+  assert.equal(nodes.find((n) => n.id === "intent-os").href, "project.html?id=intent-os");
+});
+
+test("文章节点 href 指向博客下的文章页", () => {
+  const nodes = buildNodes({ projects, posts });
+  assert.equal(nodes.find((n) => n.id === "harness-guard-design").href, "blog/harness-guard-design/");
+});
