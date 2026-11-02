@@ -45,7 +45,7 @@ not the stylesheets.
 | `--fg` / `--fg-dim` / `--fg-faint` | `#f2ece0` / `#b5ac9d` / `#8d8577` | bone-white ink, secondary, tertiary |
 | `--line` / `--line-strong` | `#2f2a23` / `#4a4237` | hairlines, rules |
 | `--surface` / `--surface-soft` | `#1b1814` / `#201c17` | panels, code chips |
-| `--accent` | `#e2452c` | the single accent: active state, links, selection, the "right now" band |
+| `--accent` | `#f2603f` | the single accent: active state, links, selection, the "right now" band |
 | `--on-accent` | `#14120f` | text on the accent |
 | `--radius-lg` / `--radius-md` | `0` / `0` | hard edges — the poster has no rounded corners |
 | `--font-display` / `--font-read` / `--font-sans` / `--font-mono` | heavy / serif / sans / mono stacks | headings, long-form body, UI, meta |

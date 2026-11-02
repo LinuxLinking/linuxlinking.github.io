@@ -40,10 +40,10 @@
   --surface-active: #2e2820;
 
   /* 唯一强调色 */
-  --accent: #e2452c;
-  --accent-soft: rgba(226, 69, 44, 0.14);
+  --accent: #f2603f;
+  --accent-soft: rgba(242, 96, 63, 0.14);
   --on-accent: #14120f;
-  --focus-ring: rgba(226, 69, 44, 0.75);
+  --focus-ring: rgba(242, 96, 63, 0.75);
 
   /* 圆角与动效：海报是硬边，不做圆角 */
   --radius-lg: 0;
@@ -297,7 +297,7 @@ button {
   letter-spacing: 0.06em;
   line-height: 1;
   background: var(--surface);
-  border: 1px solid color-mix(in srgb, var(--c1, #e2452c) 60%, var(--line-strong));
+  border: 1px solid color-mix(in srgb, var(--c1, #f2603f) 60%, var(--line-strong));
   transition: transform 0.28s var(--ease), border-color 0.28s var(--ease);
 }
 
