@@ -11,8 +11,9 @@ artifact is plain HTML + CSS + ES modules.
 
 ## What's inside
 
-- **Editorial index** (default home view) — a serif hero, then projects as a numbered index
-  (`01 │ Intent OS │ 2026`), each with its own accent swatch
+- **Editorial index** (default home view) — a serif hero, a "right now" panel, then projects
+  as a numbered index (`01 │ Intent OS │ 2026`), each with its own accent swatch and the posts
+  written about it
 - **Star map** (second view) — anchor-point zoom, drag, pinch, double-click to reset
 - **Paper / editorial design** — warm off-white ground, ink text, hairline rules, one vermillion
   accent, serif display type. No glass, no blur, no glow.
@@ -22,8 +23,14 @@ artifact is plain HTML + CSS + ES modules.
 
 ## Stack
 
-Native HTML, CSS and ES modules. The only tooling is `tools/build.py` (Python 3.9+, standard library
-only).
+Native HTML, CSS and ES modules. The only build tooling is `tools/build.py` (Python 3.9+, standard
+library only). Unit tests use standard runners — `python -m unittest` for the build rules and
+`node --test` for the JS module — with no packages to install:
+
+```bash
+python -m unittest discover -s tools -p "test_*.py"
+node --test js/nodes.test.mjs
+```
 
 ## Design system
 
@@ -68,8 +75,10 @@ Background is a static 32px CSS dot grid on `body` — no canvas, no JS starfiel
 │  ├─ blog.html             blog index
 │  └─ 404.html              not-found
 ├─ data/                    the single source of truth for content
-│  ├─ projects.json         13 entries: 7 projects + blog hub + 4 posts + Soul for U
-│  ├─ posts.json            blog index (slug / date / bilingual title+summary / url)
+│  ├─ projects.json         9 entries: 7 projects + the Writing node + Soul for U
+│  ├─ posts.json            blog index (slug / date / bilingual title+summary /
+│  │                         projectId / label / monogram / url)
+│  ├─ now.json              what I'm working on right now (author-maintained)
 │  └─ i18n.json             every UI string, zh + en
 ├─ tools/build.py           assembler: templates → pages, hash stamping, validation
 ├─ css/                     base.css (tokens + primitives) + per-page stylesheets
@@ -77,6 +86,7 @@ Background is a static 32px CSS dot grid on `body` — no canvas, no JS starfiel
 │                           blog.css · post.css
 ├─ js/                      ES modules; shared.js holds the common boot sequence
 │                           home.js renders the home index rows
+│                           nodes.js merges projects + posts into the site node list
 ├─ blog/<slug>/             post.md (source) + generated index.html
 ├─ soul-for-u/              untouched sub-site
 └─ docs/superpowers/specs/  design specs
@@ -128,10 +138,16 @@ resolve, that every registered post has a `post.md`, and that no generated page 
    {
      "slug": "my-new-post",
      "date": "2026-11-02",
+     "projectId": "intent-os",
+     "label": { "zh": "短标签", "en": "Short label" },
+     "monogram": "文",
      "title": { "zh": "文章标题", "en": "Post title" },
      "summary": { "zh": "摘要。", "en": "Summary." },
      "url": "my-new-post/"
    }
+
+   `label` 与 `monogram` 是星图节点要用的，必填；`projectId` 可以留空（独立文章），
+   填了就必须是一个存在的项目 id，否则 `build.py --check` 会报错。
    ```
 
 3. Run `python tools/build.py`. The article page appears in the blog index and on the home index
@@ -152,6 +168,10 @@ browsing is ever added, add the field and the index page in the same change.
 - **Projects** — edit `data/projects.json`, then rebuild. `id`, `kind` (`project` / `blog` / `moon`),
   `order`, `monogram`, `accent`, `year`, `stack`, `title`/`label`/`tagline`/`summary` (bilingual),
   `links`, `repo` are all read from there.
+- **Now** — edit `data/now.json`. `kind` is `building` or `writing`; `text` is a plain
+  string (or a `zh`/`en` object); `href` is optional and must point at a page that exists.
+- **Posts** — edit `data/posts.json`, then rebuild. `projectId` links a post to a project (empty for
+  standalone posts); `label` and `monogram` are what the star map shows for it.
 - **UI copy** — edit `data/i18n.json`, then rebuild. `js/i18n.js` keeps a generated fallback copy so
   the site still renders if the JSON fetch fails.
 - **Site entry** — the `site` project in `projects.json` describes this site itself and feeds the
