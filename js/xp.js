@@ -30,6 +30,13 @@ let mapNodes = [];
 
 const isEn = () => document.documentElement.lang === "en";
 
+/* 窗口里的页面是另一个文档，它读 localStorage 才知道现在是什么语言。
+   干脆把语言写在地址上：桌面切了语言，重开的窗口一定跟着走。 */
+function withLang(url) {
+  const sep = url.includes("?") ? "&" : "?";
+  return url + sep + "lang=" + i18n.lang;
+}
+
 /* ---------------------------------------------------------------- 小工具 */
 
 function toast(message) {
@@ -63,12 +70,12 @@ function openWindow({ url, title, titleEn, iconSvg }) {
   win.dataset.titleEn = titleEn || title || "";
   win.querySelector('[data-slot="icon"]').innerHTML = iconSvg || "";
   win.querySelector('[data-slot="title"]').textContent = win.dataset.titleZh;
-  win.querySelector('[data-slot="url"]').value = new URL(url, location.href).href;
+  win.querySelector('[data-slot="url"]').value = new URL(withLang(url), location.href).href;
 
   const view = win.querySelector('[data-slot="view"]');
   view.innerHTML = '<iframe title="内容" loading="lazy"></iframe>';
   const frame = view.querySelector("iframe");
-  frame.src = url;
+  frame.src = withLang(url);
   frame.addEventListener("load", () => {
     win.querySelector('[data-slot="zone"]').textContent = "完成";
   });
@@ -85,7 +92,7 @@ function openWindow({ url, title, titleEn, iconSvg }) {
 
   desktopEl.appendChild(win);
   win.dataset.key = key;
-  windows.set(key, { win, frame, taskBtn: null, title: win.dataset.titleZh });
+  windows.set(key, { win, frame, taskBtn: null, title: win.dataset.titleZh, url });
   focusWindow(key);
   addTaskButton(key, win.dataset.titleZh, iconSvg);
   wireWindow(key);
@@ -434,6 +441,10 @@ function boot() {
 
   i18n.onChange(() => {
     syncTitles();
+    // 窗口里的页面各有各的语言实例，只能重载一次让它们跟上
+    windows.forEach((entry) => {
+      if (entry.frame && entry.url) entry.frame.src = withLang(entry.url);
+    });
     if (mapView) mapView.setNodes(localize(mapNodes, i18n.lang));
   });
 }
