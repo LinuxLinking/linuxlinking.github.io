@@ -10,7 +10,10 @@ js: project-redirect.js
 <a class="chip" href="{{link}}" data-i18n="detail.back">回到首页</a>
 <!--endblock-->
 
-<!-- 旧的项目详情地址。现在每个项目有自己的页面，这里只负责把人带过去。 -->
+<!-- 旧的项目详情地址。现在每个项目有自己的页面，这里只负责把人带过去。
+
+     ?id= 在静态站点里读不到，所以跳转靠脚本；脚本没跑起来时（某些爬虫、纯文本浏览器），
+     下面这份静态清单就是兜底：每个项目的新地址都直接列出来。 -->
 <main id="detail">
   <div class="page-wrap detail-wrap">
     <article class="card detail-card">
@@ -18,9 +21,12 @@ js: project-redirect.js
         <div>
           <p class="kicker">redirect</p>
           <h1 class="detail-title">这个地址换了</h1>
-          <p class="detail-summary">项目详情现在有自己的地址了。如果这里停住，点「回到首页」。</p>
+          <p class="detail-summary">项目详情现在有自己的地址了。如果这里停住，从下面选一个。</p>
         </div>
       </header>
+      <ul class="detail-related-list">
+{{projectList}}
+      </ul>
     </article>
   </div>
 </main>

@@ -210,6 +210,19 @@ class StaticContentTests(unittest.TestCase):
         robots = self.extra[ROOT / "robots.txt"]
         self.assertIn("Sitemap: https://linuxlinking.github.io/sitemap.xml", robots)
 
+    def test_robots_does_not_block_the_legacy_project_url(self):
+        # 旧地址是线上真实存在的 URL，爬虫得能进去才会跟着跳
+        robots = self.extra[ROOT / "robots.txt"]
+        self.assertNotIn("Disallow: /project.html", robots)
+
+    def test_legacy_project_page_lists_every_project_without_js(self):
+        html = self.written[ROOT / "project.html"]
+        for project in load("data/projects.json")["projects"]:
+            if project.get("kind") != "project":
+                continue
+            self.assertIn(f'href="projects/{project["id"]}/"', html)
+        self.assertIn('name="robots" content="noindex,follow"', html)
+
     def test_og_image_is_a_real_png(self):
         data = (ROOT / "assets" / "og.png").read_bytes()
         self.assertTrue(data.startswith(b"\x89PNG\r\n\x1a\n"))

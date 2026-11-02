@@ -4,7 +4,7 @@
       "items": [
         {
           "kind": "building",
-          "text": "这个站本身——正在重写它的骨架",
+          "text": "这个站刚整完骨架：首页、博客、项目页全部预渲染",
           "href": "projects/site/"
         }
       ]
@@ -13,7 +13,7 @@
       "items": [
         {
           "kind": "building",
-          "text": "This site itself — rewriting its skeleton",
+          "text": "The site just finished its rebuild — home, blog and project pages are all pre-rendered",
           "href": "projects/site/"
         }
       ]

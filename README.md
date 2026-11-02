@@ -111,6 +111,8 @@ Background is a static inline SVG print-noise texture on `body` — no canvas, n
 ├─ blog/<slug>/             post.md (source) + generated index.html
 ├─ projects/<id>/           generated project page — one directory per project
 ├─ assets/                  favicon.svg + og.png (social card)
+├─ .github/workflows/       build-check.yml — fails the push if the committed
+│                           static output drifts from the sources
 ├─ soul-for-u/              untouched sub-site
 └─ docs/superpowers/specs/  design specs
 ```
@@ -150,7 +152,18 @@ python tools/og_image.py       # redraw assets/og.png
 `--check` verifies JSON validity, that project ids and post slugs are unique, that a project id
 can be used as a directory name, that project links resolve, that every registered post has a
 `post.md`, that `now.json` links point at real pages, that `assets/og.png` exists, and that no
-generated file is stale.
+generated file is stale. `.github/workflows/build-check.yml` runs it on every push and pull
+request — the published site is the committed output, so it must not drift away from the sources
+that produce it.
+
+### The legacy `project.html?id=…` URL
+
+The previous version of this site had one `project.html` page that read the project out of
+`?id=`. Each project now has its own address, and `project.html` redirects there with
+JavaScript. A static server cannot read a query string, so the page also carries a plain list of
+every project's new address — crawlers and text-only browsers that do not run scripts still get
+somewhere useful. The page is `noindex,follow`, and `robots.txt` deliberately does not block it,
+so a crawler can reach it and follow the redirect.
 
 ## Bilingual
 

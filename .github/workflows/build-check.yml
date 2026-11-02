@@ -1,0 +1,25 @@
+name: build check
+
+# The published site is the committed static output, so it has to stay in sync
+# with the sources that produce it. This fails the push if someone edits
+# data/ or layouts/ without rebuilding.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: static output is up to date
+        run: python tools/build.py --check
+      - name: unit tests
+        run: python -m unittest discover -s tools -p "test_*.py"
+      - name: module tests
+        run: node --test js/nodes.test.mjs

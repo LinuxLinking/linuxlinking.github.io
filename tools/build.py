@@ -607,6 +607,18 @@ def home_html(projects: list[dict], posts: list[dict], now: dict, strings: dict)
     return "".join(parts)
 
 
+def project_link_list_html(projects: list[dict]) -> str:
+    """旧地址页里的静态清单：没有脚本时，爬虫和纯文本浏览器也能顺着链接走到新页面。"""
+    return "".join(
+        f'<li><a href="projects/{esc(project["id"])}/">'
+        f"{pair(pick(project.get('title'), 'zh'), pick(project.get('title'), 'en'))}"
+        f'<span class="detail-related-note">'
+        f"{pair(pick(project.get('tagline'), 'zh'), pick(project.get('tagline'), 'en'))}"
+        "</span></a></li>"
+        for project in projects
+    )
+
+
 def blog_list_html(posts: list[dict], strings: dict) -> str:
     """博客列表页的条目行。"""
     if not posts:
@@ -986,6 +998,7 @@ def build_all(hashes: dict[str, str]) -> list[tuple[Path, str]]:
                     "description": "项目详情已迁移到独立地址",
                     "descZh": "项目详情已迁移到独立地址",
                     "descEn": "Project pages moved to their own addresses.",
+                    "projectList": project_link_list_html(ordered),
                     "seoHead": seo_head(
                         url,
                         f"Redirecting · {BRAND_EN}",
@@ -1103,12 +1116,15 @@ def sitemap_xml(projects: list[dict], posts: list[dict]) -> str:
 
 
 def robots_txt() -> str:
-    """robots.txt：放行一切，但别让搜索引擎去啃旧地址的跳转页。"""
+    """robots.txt。
+
+    旧地址 /project.html 不挡：爬虫得能进去，才会跟着跳到项目的新地址。
+    那一页自带 noindex,follow，不会自己被索引，权重却能顺着链接流过去。
+    """
     return (
         f"{GENERATED_NOTE_XML}\n"
         "User-agent: *\n"
         "Allow: /\n"
-        "Disallow: /project.html\n"
         "\n"
         f"Sitemap: {SITE_ORIGIN}/sitemap.xml\n"
     )
