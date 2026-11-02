@@ -5,24 +5,29 @@ Personal site of [LinuxLinking](https://github.com/LinuxLinking) — live at **[
 A hand-written static site with **zero dependencies**: no framework, no CDN, no npm. The published
 artifact is plain HTML + CSS + ES modules.
 
-> There *is* a build step now — a single stdlib-only Python script that assembles pages from
-> templates, generates post pages from Markdown, and stamps content hashes for cache busting.
-> It runs locally and its output is committed; the site itself still needs no build to be served.
+> There *is* a build step — a single stdlib-only Python script that assembles pages from
+> templates, renders Markdown into post pages, stamps content hashes for cache busting, and emits
+> `sitemap.xml` / `robots.txt`. It runs locally and its output is committed; the site itself
+> still needs no build to be served, which is what GitHub Pages requires.
 
 ## What's inside
 
-- **Poster index** (default home view) — an oversized heavy headline, a full-width vermillion
-  "right now" band, then projects as a numbered index (`01 │ Intent OS │ 2026`), each with its own
+- **Poster index** (default home view) — an oversized display headline, a full-width vermillion
+  "right now" band, then projects as a numbered index (`01 │ Mdeditor │ 2026`), each with its own
   accent swatch and the posts written about it
 - **Schematic** (second view, 图纸) — the whole site drawn as a directory sheet: one spine per
   column, section headings, posts nested under Writing. Drag, scroll to zoom, double-click to reset
-- **Ink poster design** — warm-black ground, bone-white text, one vermillion accent, heavy display
-  type, hard edges. No glass, no blur, no glow, no rounded corners.
-- **zh / en switching** across all pages (`?lang=en` → `localStorage` → `navigator.language`)
+- **Ink poster design** — warm-black ground, bone-white text, one vermillion accent, high-contrast
+  serif display type, hard edges. No glass, no blur, no glow, no rounded corners.
+- **zh / en switching** across all pages (`?lang=en` → `localStorage` → `navigator.language`).
+  Both languages are written into the HTML at build time; the toggle only flips `html[lang]`, so
+  the page works without JavaScript and search engines read both.
 - [Writing](https://linuxlinking.github.io/blog/) — a blog
 - [Soul for U](https://linuxlinking.github.io/soul-for-u/) — a page written for one person
 - **One address per project** — `/projects/<slug>/` is a real static page, shareable and indexable;
   the old `project.html?id=<slug>` links redirect there
+- **SEO ready** — canonical URLs, Open Graph / Twitter cards, JSON-LD, `sitemap.xml`, `robots.txt`,
+  and internal links between projects, posts and the home index
 
 ## Stack
 
@@ -37,7 +42,7 @@ node --test js/nodes.test.mjs
 
 ## Design system
 
-Ink poster: warm-black ground, bone-white text, one vermillion accent, heavy display type, hard
+Ink poster: warm-black ground, bone-white text, one vermillion accent, serif display type, hard
 edges. Everything is a token in `:root` in `css/base.css` — retheming means editing that one block,
 not the stylesheets.
 
@@ -50,11 +55,12 @@ not the stylesheets.
 | `--accent` | `#f2603f` | the single accent: active state, links, selection, the "right now" band |
 | `--on-accent` | `#14120f` | text on the accent |
 | `--radius-lg` / `--radius-md` | `0` / `0` | hard edges — the poster has no rounded corners |
-| `--font-display` / `--font-read` / `--font-sans` / `--font-mono` | heavy / serif / sans / mono stacks | headings, long-form body, UI, meta |
+| `--font-display` / `--font-read` / `--font-sans` / `--font-mono` | serif / serif / sans / mono stacks | headings, long-form body, UI, meta |
 
 Type is **system fonts only** — no web fonts, no CDN:
 
-- `--font-display` is the poster voice: `Impact` / `Arial Black` for Latin, heavy CJK for Chinese.
+- `--font-display` is the editorial voice: a high-contrast serif stack (`Bodoni MT` / `Didot` /
+  `Playfair Display` → Georgia) for Latin, heavy CJK for Chinese.
 - `--font-read` is the long-form voice: `Iowan Old Style` / Georgia for Latin, a Song face for
   Chinese — article bodies stay readable instead of shouting.
 - Chinese needs its own rules. `css/base.css` declares two `local()`-only `@font-face` families,
@@ -62,7 +68,7 @@ Type is **system fonts only** — no web fonts, no CDN:
   `unicode-range` covering CJK ranges so those glyphs never fall back to a Latin face.
   `local()` means nothing is downloaded.
 - `--font-mono` carries numbers, dates and labels; `.kicker` and `.section-label` are mono
-  uppercase.
+  uppercase with tabular numerals.
 
 Background is a static inline SVG print-noise texture on `body` — no canvas, no JS starfield.
 `prefers-reduced-motion` collapses every transition and animation to ~0.
@@ -72,7 +78,7 @@ Background is a static inline SVG print-noise texture on `body` — no canvas, n
 ```
 /
 ├─ layouts/                 page shells
-│  ├─ base.html             shared chrome: topbar, footer, blocks
+│  ├─ base.html             shared chrome: topbar, footer, blocks, SEO head slot
 │  └─ post.html             Markdown post shell (front matter + body)
 ├─ pages/                   page fragments — the parts you actually edit
 │  ├─ index.html            home (index + schematic)
@@ -86,51 +92,83 @@ Background is a static inline SVG print-noise texture on `body` — no canvas, n
 │  │                         projectId / label / monogram / url)
 │  ├─ now.json              what I'm working on right now (author-maintained)
 │  └─ i18n.json             every UI string, zh + en
-├─ tools/build.py           assembler: templates → pages, hash stamping, validation
+├─ tools/
+│  ├─ build.py              assembler: templates → pages, SEO head, sitemap, hashes, validation
+│  ├─ markdown.py           the Markdown subset used by the posts
+│  ├─ og_image.py           draws assets/og.png (1200×630 social card) with stdlib only
+│  └─ test_*.py             unit tests
 ├─ css/                     base.css (tokens + primitives) + per-page stylesheets
 │                           home.css (home index) · map.css (schematic) · detail.css
 │                           blog.css · post.css
-├─ js/                      ES modules; shared.js holds the common boot sequence
-│                           home.js renders the home index rows
+├─ js/                      ES modules
+│                           site.js boots the shared i18n (language toggle) on every page
+│                           shared.js holds escapeHtml + the common boot sequence
+│                           app.js wires the home page: schematic view + about panel
 │                           map.js draws the schematic (directory layout + pan/zoom)
 │                           nodes.js merges projects + posts into the site node list
-│                           detail.js renders a project page from its inlined data
+│                           post.js lazily renders mermaid diagrams inside a post
 │                           project-redirect.js sends the old ?id= links to the new pages
 ├─ blog/<slug>/             post.md (source) + generated index.html
 ├─ projects/<id>/           generated project page — one directory per project
+├─ assets/                  favicon.svg + og.png (social card)
 ├─ soul-for-u/              untouched sub-site
 └─ docs/superpowers/specs/  design specs
 ```
 
-Generated files (root `index.html`, `project.html`, `404.html`, `blog/*/index.html`,
-`projects/*/index.html`) are committed to the repo so GitHub Pages can serve them directly.
-**Edit `layouts/` and `pages/`, not the generated HTML.**
+Generated files (root `index.html`, `project.html`, `404.html`, `blog/index.html`,
+`blog/*/index.html`, `projects/*/index.html`, `sitemap.xml`, `robots.txt`) are committed to the
+repo so GitHub Pages can serve them directly. **Edit `layouts/`, `pages/` and `data/`, not the
+generated HTML.**
 
 ## Build
 
 ```bash
 python tools/build.py          # assemble + stamp hashes
 python tools/build.py --check  # validate only, fail if anything is stale
+python tools/og_image.py       # redraw assets/og.png
 ```
 
-`build.py` does five things:
+`build.py` does seven things:
 
 1. Renders `layouts/base.html` + each `pages/*.html` fragment into the root pages.
-2. Renders `layouts/post.html` for every entry in `data/posts.json` into `blog/<slug>/index.html`.
-3. Renders `pages/detail.html` once per project into `projects/<id>/index.html`, with the project
-   data inlined as JSON. Title, tagline and summary are written into the HTML itself, so the page
-   still reads without JavaScript and can be indexed.
-4. Rewrites `?v=<hash>` on every CSS/JS reference and on every ES module import, using the
+2. Renders `layouts/post.html` for every entry in `data/posts.json` into `blog/<slug>/index.html`,
+   with the Markdown rendered to HTML at build time by `tools/markdown.py`.
+3. Renders `pages/detail.html` once per project into `projects/<id>/index.html`.
+4. Renders the home index, the blog index and every project page **into static HTML**. Nothing on
+   those pages depends on a runtime `fetch`, so a crawler, a reader with JavaScript disabled and a
+   social-preview bot all see the same content.
+5. Writes the SEO head for every page: `canonical`, Open Graph, Twitter card and JSON-LD
+   (`WebSite` + `Person` + `ItemList` on the home page, `SoftwareApplication` per project,
+   `BlogPosting` per post), plus `sitemap.xml` and `robots.txt`.
+6. Rewrites `?v=<hash>` on every CSS/JS reference and on every ES module import, using the
    file's content hash. A module's hash folds in the hashes of the modules it imports, so
    changing one file re-stamps every page that depends on it — returning visitors get the new
    file instead of a stale cached copy. An existing `?v=` in the file is normalised away, so
    the script stays idempotent.
-5. Regenerates the offline fallback strings in `js/i18n.js` from `data/i18n.json`, so the two
-   never drift.
+7. Regenerates the copy block in `js/i18n.js` from `data/i18n.json`, so the two never drift.
 
 `--check` verifies JSON validity, that project ids and post slugs are unique, that a project id
 can be used as a directory name, that project links resolve, that every registered post has a
-`post.md`, that `now.json` links point at real pages, and that no generated page is stale.
+`post.md`, that `now.json` links point at real pages, that `assets/og.png` exists, and that no
+generated file is stale.
+
+## Bilingual
+
+Every translatable string is written **twice** into the HTML:
+
+```html
+<span class="i18n-zh" lang="zh-CN">作品与文字</span>
+<span class="i18n-en" lang="en">Projects &amp; Writing</span>
+```
+
+`css/base.css` hides one of them based on `html[lang]`, and `js/site.js` is the only thing that
+flips that attribute. Consequences worth knowing:
+
+- no runtime string bundle to fetch, and no relative-path juggling per page depth
+- search engines read both languages from the same URL (no fake `hreflang`)
+- the page still reads with JavaScript disabled
+
+The `lang` attribute on each English span tells screen readers which language to pronounce.
 
 ## Writing a new post
 
@@ -183,14 +221,15 @@ browsing is ever added, add the field and the index page in the same change.
 ## Editing content
 
 - **Projects** — edit `data/projects.json`, then rebuild. `id`, `kind` (`project` / `blog` / `moon`),
-  `order`, `monogram`, `accent`, `year`, `stack`, `title`/`label`/`tagline`/`summary` (bilingual),
-  `links`, `repo` are all read from there.
+  `order`, `monogram`, `accent`, `year`, `stack`, `keywords`, `title`/`label`/`tagline`/`summary`
+  (bilingual), `links`, `repo` are all read from there. `order` decides the index order and the
+  schematic layout — the first three are the featured ones.
 - **Now** — edit `data/now.json`. `kind` is `building` or `writing`; `text` is a plain
   string (or a `zh`/`en` object); `href` is optional and must point at a page that exists.
 - **Posts** — edit `data/posts.json`, then rebuild. `projectId` links a post to a project (empty for
   standalone posts); `label` and `monogram` are what the schematic shows for it.
-- **UI copy** — edit `data/i18n.json`, then rebuild. `js/i18n.js` keeps a generated fallback copy so
-  the site still renders if the JSON fetch fails.
+- **UI copy** — edit `data/i18n.json`, then rebuild. `js/i18n.js` keeps a generated copy of the
+  same strings, which is what the browser actually reads.
 - **Site entry** — the `site` project in `projects.json` describes this site itself and feeds the
   detail page.
 
@@ -198,13 +237,15 @@ browsing is ever added, add the field and the index page in the same change.
 
 - UTF-8, **no BOM**; LF line endings (enforced by `.gitattributes` and `.editorconfig`).
 - 2-space indentation in `js` / `css` / `html` / `json`.
-- No npm, no bundler, no CDN. `js/vendor/` holds checked-in third-party ES modules (marked,
-  mermaid) — the only exception to "hand-written", and they are vendored on purpose.
+- No npm, no bundler, no CDN. `js/vendor/` holds the checked-in mermaid ES module — the only
+  exception to "hand-written", and it is vendored on purpose.
 - CSS design tokens live in `:root` in `css/base.css`; use them instead of hard-coded colors,
   radii, shadows and z-index values. Shared primitives: `.pill`, `.card`, `.orb`, `.page-wrap`.
 - No `backdrop-filter`, no blur, no glow, no glass — the visual language is flat ink on a dark
   ground, with hard edges instead of rounded corners.
 - Keep `?v=` hashes out of hand-written files — `build.py` owns them.
+- GitHub Pages: the published tree is plain static files, `.nojekyll` is committed, the whole
+  repo is a few megabytes, and nothing on the site needs a server-side runtime.
 
 ## Run locally
 

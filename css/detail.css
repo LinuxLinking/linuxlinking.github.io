@@ -44,7 +44,7 @@
   margin: 0 0 10px;
   font-family: var(--font-display);
   font-size: clamp(30px, 5.4vw, 48px);
-  font-weight: 400;
+  font-weight: 700;
   letter-spacing: -0.025em;
   line-height: 1.08;
 }
@@ -102,6 +102,32 @@
   color: var(--fg-faint);
 }
 
+/* 相关文字：指向本站文章的链接行 */
+
+.detail-related-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border-top: 1px solid var(--line);
+}
+
+.detail-related-list li {
+  border-bottom: 1px solid var(--line);
+}
+
+.detail-related-list a {
+  display: block;
+  padding: 14px 0;
+  font-family: var(--font-display);
+  font-size: 18px;
+  line-height: 1.3;
+  transition: color 0.18s var(--ease);
+}
+
+.detail-related-list a:hover {
+  color: var(--accent);
+}
+
 /* 要点：带编号的行列表，不再是卡片格 */
 .highlights {
   margin: 0;
@@ -133,7 +159,7 @@
   margin: 0 0 7px;
   font-family: var(--font-display);
   font-size: 19px;
-  font-weight: 400;
+  font-weight: 700;
   letter-spacing: -0.01em;
   color: var(--fg);
 }
@@ -195,7 +221,7 @@
   margin: 0 0 14px;
   font-family: var(--font-display);
   font-size: clamp(28px, 6vw, 44px);
-  font-weight: 400;
+  font-weight: 700;
   letter-spacing: -0.02em;
   line-height: 1.15;
 }

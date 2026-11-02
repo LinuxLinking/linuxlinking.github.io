@@ -32,7 +32,7 @@
   margin: 20px 0 0;
   font-family: var(--font-display);
   font-size: clamp(44px, 8.5vw, 96px);
-  font-weight: 400;
+  font-weight: 700;
   line-height: 0.94;
   letter-spacing: -0.02em;
 }
@@ -135,7 +135,7 @@
   gap: 12px;
   font-family: var(--font-display);
   font-size: clamp(26px, 3.6vw, 40px);
-  font-weight: 400;
+  font-weight: 700;
   line-height: 1.05;
   letter-spacing: 0;
 }
@@ -233,7 +233,7 @@
 .post-line-title {
   font-family: var(--font-display);
   font-size: clamp(20px, 2.6vw, 28px);
-  font-weight: 400;
+  font-weight: 700;
   line-height: 1.15;
 }
 
@@ -277,7 +277,7 @@
 .moon-title {
   font-family: var(--font-display);
   font-size: 22px;
-  font-weight: 400;
+  font-weight: 700;
 }
 
 .moon-sub {

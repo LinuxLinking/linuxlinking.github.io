@@ -1,4 +1,4 @@
-import { createI18n, loadStrings, resolveLang } from "./i18n.js?v=428affa6";
+import { createI18n, resolveLang } from "./i18n.js?v=2b5308e7";
 
 /* 页面共用的两件事：HTML 转义，以及启动序列。
 
@@ -17,16 +17,17 @@ export function escapeHtml(value) {
 }
 
 /**
- * 启动一个页面：载入文案、建立 i18n、接上语言按钮。
+ * 启动一个页面：建立 i18n、接上语言按钮。
+ *
+ * 文案不在运行时拉取：data/i18n.json 的内容在构建期写进了 js/i18n.js 的兜底块。
+ * 少一次请求，也不用管相对路径在不同层级的页面里怎么拼。
  *
  * @param {object} [options]
- * @param {string} [options.stringsPath] 文案 JSON 的路径（相对当前页面）
  * @param {string} [options.lang] 强制语言，省略则按 URL/localStorage/浏览器判断
- * @returns {Promise<object>} 建好的 i18n 实例
+ * @returns {object} 建好的 i18n 实例
  */
-export async function bootPage({ stringsPath = "data/i18n.json", lang } = {}) {
-  const bundle = await loadStrings(stringsPath);
-  const i18n = createI18n({ strings: bundle, lang: lang ?? resolveLang() });
+export function bootPage({ lang } = {}) {
+  const i18n = createI18n({ lang: lang ?? resolveLang() });
 
   document.querySelectorAll("[data-lang-btn]").forEach((btn) => {
     btn.addEventListener("click", () => {

@@ -18,7 +18,7 @@
   margin: 0 0 20px;
   font-family: var(--font-display);
   font-size: clamp(30px, 5.6vw, 46px);
-  font-weight: 400;
+  font-weight: 700;
   letter-spacing: -0.025em;
   line-height: 1.1;
 }
@@ -47,7 +47,7 @@
   border-bottom: 1px solid var(--line);
   font-family: var(--font-display);
   font-size: 25px;
-  font-weight: 400;
+  font-weight: 700;
   letter-spacing: -0.015em;
   line-height: 1.25;
   color: var(--fg-strong);
@@ -57,7 +57,7 @@
   margin: 36px 0 12px;
   font-family: var(--font-display);
   font-size: 19px;
-  font-weight: 400;
+  font-weight: 700;
   letter-spacing: -0.01em;
   color: var(--fg-strong);
 }
@@ -179,6 +179,44 @@
   font-style: italic;
   font-size: 16px;
   line-height: 1.8;
+}
+
+/* 继续读：相关项目 + 其它文章 */
+
+.post-related {
+  margin-top: 52px;
+  padding-top: 24px;
+  border-top: 1px solid var(--line);
+}
+
+.post-related .section-label {
+  margin-bottom: 4px;
+}
+
+.post-related-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.post-related-link {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding: 14px 0;
+  border-bottom: 1px solid var(--line);
+  transition: color 0.18s var(--ease);
+}
+
+.post-related-link:hover {
+  color: var(--accent);
+}
+
+.post-related-note {
+  color: var(--fg-faint);
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  letter-spacing: 0.04em;
 }
 
 /* 结尾 */

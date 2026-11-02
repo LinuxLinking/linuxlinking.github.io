@@ -3,30 +3,14 @@ title: {{projectTitle}} · {{projectBrand}}
 description: {{projectSummary}}
 bodyClass: page-detail
 css: base.css, detail.css
-js: detail.js
-headExtra: <meta property="og:type" content="article">
 -->
 
 <!--block topbarAction-->
 <a class="chip" href="{{link}}" data-i18n="detail.back">回到首页</a>
 <!--endblock-->
 
-<!-- 标题、tagline、摘要由构建期写死，禁 JS 也能看到，也便于搜索引擎读取。
-     完整项目数据在下面的 JSON 里，detail.js 拿它渲染技术栈、要点与上下篇。 -->
+<!-- 项目详情整页在构建期渲染：标题、tagline、摘要、技术栈、要点、按钮全在 HTML 里，
+     禁 JS 也能读到，搜索引擎也能索引。 -->
 <main id="detail">
-  <div class="page-wrap detail-wrap">
-    <article class="card detail-card">
-      <header class="detail-head">
-        <span class="orb" style="--c1:{{projectC1}};--c2:{{projectC2}}"><span>{{projectMonogram}}</span></span>
-        <div>
-          <p class="detail-meta">{{projectMeta}}</p>
-          <h1 class="detail-title">{{projectTitle}}</h1>
-          <p class="detail-tagline">{{projectTagline}}</p>
-        </div>
-      </header>
-      <p class="detail-summary">{{projectSummary}}</p>
-    </article>
-  </div>
+{{detailBody}}
 </main>
-
-<script type="application/json" id="project-data">{{projectJson}}</script>

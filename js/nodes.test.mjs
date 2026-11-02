@@ -17,9 +17,11 @@ test("合并后共 13 个节点", () => {
   assert.equal(buildNodes({ projects, posts }).length, 13);
 });
 
-test("顺序为 项目 → blog 聚合 → 文章 → moon", () => {
+test("顺序为 项目 → blog 聚合 → 文章 → moon，前三是精选的三个项目", () => {
   const ids = buildNodes({ projects, posts }).map((n) => n.id);
-  assert.equal(ids[0], "intent-os");
+  assert.equal(ids[0], "mdeditor");
+  assert.equal(ids[1], "intent-os");
+  assert.equal(ids[2], "ollama-harness");
   assert.equal(ids[7], "blog");
   assert.equal(ids[12], "soul-for-u");
 });

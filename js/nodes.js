@@ -2,7 +2,7 @@
 
    纯函数：不碰 DOM、不 import 任何模块 —— node --test 才能直接加载它。
    顺序固定：项目(按 order) → blog 聚合 → 文章 → moon。
-   图纸核心节点是列表第一个，所以项目必须按 order 升序且 intent-os 在最前。 */
+   图纸核心节点是列表第一个，所以项目必须按 order 升序且 mdeditor 在最前。 */
 
 const NEUTRAL_ACCENT = ["#7c5cff", "#3ad0ff"];
 const POST_SIZE = 0.85;

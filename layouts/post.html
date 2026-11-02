@@ -17,6 +17,7 @@
   2. 在 data/posts.json 的 posts 数组里加一条记录（slug / date / title 双语 / summary 双语 / url）。
   3. 跑 `python tools/build.py` 生成 blog/<slug>/index.html。
 
+  正文在构建期就渲染成静态 HTML（tools/markdown.py），禁 JS 和搜索引擎都能读到。
   本文件由 tools/build.py 套进 layouts/base.html 渲染，不要直接编辑生成出来的文章页。
 -->
 <!--meta
@@ -32,11 +33,13 @@ js: post.js
 <!--endblock-->
 
 <main class="page-wrap post-wrap">
-  <p class="post-kicker" id="post-kicker"></p>
-  <h1 id="post-title"></h1>
-  <p class="post-lede" id="post-lede" hidden></p>
+  <p class="post-kicker" id="post-kicker">{{postKicker}}</p>
+  <h1 id="post-title">{{postTitle}}</h1>
+  <p class="post-lede" id="post-lede">{{postLede}}</p>
 
-  <article class="post-body md" id="post-body"></article>
+  <article class="post-body md" id="post-body">{{postBody}}</article>
+
+  {{postRelated}}
 
   <div class="post-foot">
     <a class="btn" href="{{link}}blog/">← 更多文字</a>

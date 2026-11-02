@@ -1,8 +1,9 @@
 const LANGS = ["zh", "en"];
 const STORE_KEY = "lang";
 
-/* 离线兜底文案。由 tools/build.py 从 data/i18n.json 生成 —— 别手改这里，
-   改文案请改 data/i18n.json，然后跑 `python tools/build.py`。 */
+/* 全站文案。由 tools/build.py 从 data/i18n.json 生成 —— 别手改这里，
+   改文案请改 data/i18n.json，然后跑 `python tools/build.py`。
+   页面不再运行时拉 JSON：这份兜底块就是唯一来源，省一次请求，也不用管路径。 */
 /* FALLBACK:BEGIN */
 const FALLBACK = {
   en: {
@@ -10,7 +11,7 @@ const FALLBACK = {
     "a11y.nodes": "Site map",
     "a11y.view": "View",
     "about.blog": "Writing ↗",
-    "about.body": "Running models locally, compiling intent into rollback-safe chains, switching JDKs with a batch file. Code by day, writing at night, and once in a while a page that only glows for one person.",
+    "about.body": "Running models locally, compiling intent into rollback-safe execution chains, switching JDKs with a batch file. Code by day, writing at night, and once in a while a page that only glows for one person.",
     "about.close": "Close",
     "about.github": "GitHub ↗",
     "about.kicker": "About",
@@ -27,6 +28,7 @@ const FALLBACK = {
     "detail.highlights": "Highlights",
     "detail.next": "Next",
     "detail.open": "Open",
+    "detail.posts": "Related writing",
     "detail.prev": "Previous",
     "detail.stack": "Stack",
     "detail.viewRepo": "View on GitHub",
@@ -35,13 +37,13 @@ const FALLBACK = {
     "hint.gesture": "Drag · Scroll to zoom · Double-click to reset",
     "home.index": "Selected work",
     "home.kicker": "Projects & Writing",
-    "home.lede": "First, what I'm on right now — then what I've built and the words I haven't finished.",
+    "home.lede": "Seven open-source tools and four essays — a Flutter Markdown editor, an agent runtime, a local Ollama coding harness, an OCR MCP server, a Windows JDK switcher, and this site.",
     "home.title": "I build tools, and I write",
     "home.writing": "Writing",
     "map.other": "OTHER",
     "map.projects": "PROJECTS",
     "map.writing": "WRITING",
-    "meta.desc.home": "I build tools, and I write. What I'm on now, seven projects, four pieces of writing.",
+    "meta.desc.home": "Zhong Shanshan's projects and writing: seven open-source tools — Mdeditor (a Flutter Markdown editor), Intent OS (a runtime above the LLM), a local Ollama coding harness, an OCR MCP server and JEnv for Windows — plus four essays on agents, runtimes and guards.",
     "meta.title.home": "Zhong Shanshan — Projects & Writing",
     "nav.about": "About",
     "nav.grid": "Projects",
@@ -53,6 +55,7 @@ const FALLBACK = {
     "now.kicker": "Right now",
     "now.label.building": "Building",
     "now.label.writing": "Writing",
+    "post.related": "Keep reading",
   },
   zh: {
     "a11y.lang": "语言",
@@ -76,6 +79,7 @@ const FALLBACK = {
     "detail.highlights": "亮点",
     "detail.next": "下一个",
     "detail.open": "打开",
+    "detail.posts": "相关文字",
     "detail.prev": "上一个",
     "detail.stack": "技术栈",
     "detail.viewRepo": "在 GitHub 查看",
@@ -84,13 +88,13 @@ const FALLBACK = {
     "hint.gesture": "拖动 · 滚轮缩放 · 双击复位",
     "home.index": "选集",
     "home.kicker": "作品与文字",
-    "home.lede": "先看此刻在做什么，再看做过的东西和还没写完的字。",
+    "home.lede": "七个开源工具，外加四篇文章：一个 Flutter 的 Markdown 编辑器、一层 Agent 运行时、本地 Ollama 编码助手、OCR 的 MCP 服务、Windows 上的 JDK 切换器，还有这个站本身。",
     "home.title": "写工具，也写字",
     "home.writing": "文字",
     "map.other": "其他",
     "map.projects": "作品",
     "map.writing": "文字",
-    "meta.desc.home": "写工具，也写字。此刻在做的事，做过的七个项目，四篇文章。",
+    "meta.desc.home": "钟闪闪的作品与文字：七个开源项目——Flutter 的 Markdown 编辑器 Mdeditor、LLM 之上的运行时 Intent OS、本地 Ollama 编码助手、OCR 的 MCP 服务、Windows 上的 JDK 切换器 JEnv——外加四篇文章。",
     "meta.title.home": "钟闪闪 · 作品与文字",
     "nav.about": "关于",
     "nav.grid": "项目",
@@ -102,6 +106,7 @@ const FALLBACK = {
     "now.kicker": "此刻",
     "now.label.building": "在做",
     "now.label.writing": "在写",
+    "post.related": "继续读",
   },
 };
 /* FALLBACK:END */
@@ -121,21 +126,8 @@ export function resolveLang() {
   return nav.startsWith("zh") ? "zh" : "en";
 }
 
-export async function loadStrings(path = "data/i18n.json") {
-  try {
-    const res = await fetch(path, { cache: "no-store" });
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    const data = await res.json();
-    if (!data || !data.zh) throw new Error("missing zh bundle");
-    return data;
-  } catch (err) {
-    console.warn("[i18n] falling back to built-in strings:", err);
-    return null;
-  }
-}
-
-export function createI18n({ strings, lang }) {
-  const source = strings && strings.zh ? strings : FALLBACK;
+export function createI18n({ lang }) {
+  const source = FALLBACK;
   let current = LANGS.includes(lang) ? lang : "zh";
   const listeners = new Set();
 
@@ -147,12 +139,18 @@ export function createI18n({ strings, lang }) {
   }
 
   function apply(root = document) {
-    document.documentElement.lang = current === "zh" ? "zh-CN" : "en";
+    const html = document.documentElement;
+    html.lang = current === "zh" ? "zh-CN" : "en";
 
-    root.querySelectorAll("[data-i18n]").forEach((el) => {
-      const value = t(el.dataset.i18n);
-      if (value != null) el.textContent = value;
-    });
+    // 双语文本在构建期就写进了 HTML，这里只切 html[lang]，由 CSS 决定显示哪一份。
+    // 标题与描述也跟着换：搜索结果与社交卡片取的就是它们。
+    const title = current === "zh" ? html.dataset.titleZh : html.dataset.titleEn;
+    if (title) document.title = title;
+    const desc = current === "zh" ? html.dataset.descZh : html.dataset.descEn;
+    if (desc) {
+      const meta = root.querySelector('meta[name="description"]');
+      if (meta) meta.setAttribute("content", desc);
+    }
 
     root.querySelectorAll("[data-i18n-aria]").forEach((el) => {
       el.setAttribute("aria-label", t(el.dataset.i18nAria));

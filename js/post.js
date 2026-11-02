@@ -1,36 +1,8 @@
-import { marked } from "./vendor/marked.esm.js";
-import { bootPage } from "./shared.js?v=391cfcd3";
+/* 文章正文在构建期渲染成静态 HTML（tools/markdown.py），这里只剩 mermaid 图表。
 
-const el = {
-  kicker: document.getElementById("post-kicker"),
-  title: document.getElementById("post-title"),
-  lede: document.getElementById("post-lede"),
-  body: document.getElementById("post-body"),
-};
+   mermaid 体积大（约 2.6MB），所以只在文中真的出现 mermaid 代码块时才加载。 */
 
-/* ---- front matter：--- 包裹的 key: value 块 ---- */
-
-function splitFrontMatter(md) {
-  const m = /^---\r?\n([\s\S]*?)\r?\n---\r?\n?/.exec(md);
-  if (!m) return { meta: {}, body: md };
-  const meta = {};
-  for (const line of m[1].split(/\r?\n/)) {
-    const kv = /^([A-Za-z][\w-]*)\s*:\s*(.*)$/.exec(line);
-    if (kv) meta[kv[1].trim()] = kv[2].trim();
-  }
-  return { meta, body: md.slice(m[0].length) };
-}
-
-/* ---- Markdown 渲染 ---- */
-
-marked.setOptions({ gfm: true, breaks: false });
-
-function renderMarkdown(md) {
-  // 内容为作者本人手写，属可信来源，不做 sanitize。
-  el.body.innerHTML = marked.parse(md);
-}
-
-/* ---- Mermaid：仅当文中出现语言为 mermaid 的代码块时才加载 ---- */
+const bodyEl = document.getElementById("post-body");
 
 /* Mermaid 配色跟着纸面主题走：白底、墨线、朱红强调。 */
 const MERMAID_THEME_VARS = {
@@ -46,9 +18,7 @@ const MERMAID_THEME_VARS = {
 };
 
 async function renderMermaidBlocks() {
-  const blocks = Array.from(
-    el.body.querySelectorAll("pre > code.language-mermaid"),
-  );
+  const blocks = Array.from(bodyEl.querySelectorAll("pre > code.language-mermaid"));
   if (!blocks.length) return;
 
   let mermaid;
@@ -89,40 +59,9 @@ function markMermaidFailure(blocks) {
     pre.classList.add("md-mermaid-fail");
     const note = document.createElement("p");
     note.className = "md-mermaid-note";
-    note.textContent = "（图表渲染失败，以上为 Mermaid 源码）";
+    note.textContent = "图表渲染失败，以上为 Mermaid 源码 · Diagram failed to render; the Mermaid source is above.";
     pre.after(note);
   }
 }
 
-/* ---- 引导 ---- */
-
-async function boot() {
-  await bootPage({ stringsPath: "../../data/i18n.json" });
-
-  let md;
-  try {
-    const res = await fetch("./post.md", { cache: "no-store" });
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    md = await res.text();
-  } catch (err) {
-    console.warn("[post] post.md failed:", err);
-    el.title.textContent = "文章加载失败";
-    el.lede.textContent = "找不到本文的 post.md。";
-    return;
-  }
-
-  const { meta, body } = splitFrontMatter(md);
-
-  const title = meta.title || "未命名";
-  const lede = meta.lede || meta.summary || "";
-  document.title = `${title} · 钟闪闪`;
-  el.title.textContent = title;
-  el.kicker.textContent = [meta.date, meta.tag].filter(Boolean).join(" · ");
-  el.lede.textContent = lede;
-  el.lede.style.display = lede ? "" : "none";
-
-  renderMarkdown(body);
-  await renderMermaidBlocks();
-}
-
-boot();
+renderMermaidBlocks();

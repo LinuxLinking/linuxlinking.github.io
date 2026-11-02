@@ -1,12 +1,14 @@
 import { createMap } from "./map.js?v=0bda1abc";
-import { renderHome } from "./home.js?v=975ff9e8";
-import { bootPage, escapeHtml } from "./shared.js?v=391cfcd3";
-import { buildNodes } from "./nodes.js?v=e7ea1fbc";
+import { i18n } from "./site.js?v=d3f7b80f";
+import { escapeHtml } from "./shared.js?v=6737586b";
+import { buildNodes } from "./nodes.js?v=89d92837";
+
+/* 首页：内容在构建期就渲染成静态 HTML 了，脚本只管图纸视图。
+   图纸要把项目和文章摆成节点，所以还是去取 data/*.json。 */
 
 const mapEl = document.getElementById("map");
 const stageEl = document.getElementById("stage");
 const gridEl = document.getElementById("homeView");
-const gridBodyEl = document.getElementById("homeBody");
 const aboutEl = document.getElementById("about");
 const stateErrorEl = document.getElementById("stateError");
 const hintEl = document.querySelector(".hint");
@@ -14,8 +16,7 @@ const viewButtons = Array.from(document.querySelectorAll("[data-view]"));
 const aboutBtn = document.getElementById("aboutBtn");
 const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-const state = { lang: "zh", projects: [], posts: [], now: {} };
-let i18n = null;
+const state = { lang: "zh", projects: [], posts: [] };
 let mapView = null;
 const mapLabels = {};
 let lastFocus = null;
@@ -55,19 +56,6 @@ async function loadProjects() {
   }
 }
 
-/* 「此刻在做什么」的数据。作者维护 data/now.json，这里只负责取。 */
-async function loadNow() {
-  try {
-    const res = await fetch("data/now.json", { cache: "no-store" });
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    const data = await res.json();
-    return data?.now || {};   // { zh: { items: [...] }, en: { items: [...] } }
-  } catch (err) {
-    console.warn("[now] load failed:", err);
-    return {};
-  }
-}
-
 const VIEWS = ["grid", "map"];
 
 function readView() {
@@ -92,10 +80,6 @@ function syncMapLabels() {
 function refresh() {
   const nodes = localize(buildNodes({ projects: state.projects, posts: state.posts }), state.lang);
   mapView.setNodes(nodes);
-  renderHome(gridBodyEl, { nodes, posts: state.posts, now: state.now, lang: state.lang, t: i18n.t });
-  document.title = i18n.t("meta.title.home");
-  const desc = document.querySelector('meta[name="description"]');
-  if (desc) desc.setAttribute("content", i18n.t("meta.desc.home"));
 }
 
 function setView(next, persist = true) {
@@ -193,7 +177,6 @@ function wireUi() {
 }
 
 async function boot() {
-  i18n = await bootPage({ stringsPath: "data/i18n.json" });
   state.lang = i18n.lang;
   syncMapLabels();
 
@@ -205,7 +188,6 @@ async function boot() {
 
   state.projects = projects;
   state.posts = await loadPosts();
-  state.now = await loadNow();
 
   mapView = createMap({
     container: mapEl,
