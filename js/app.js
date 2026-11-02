@@ -1,5 +1,5 @@
 import { createHoneycomb } from "./honeycomb.js?v=e9ff3f9e";
-import { renderHome } from "./home.js?v=c67ae589";
+import { renderHome } from "./home.js?v=4db3961b";
 import { bootPage, escapeHtml } from "./shared.js?v=a89b5bc1";
 import { buildNodes } from "./nodes.js?v=24e36e67";
 

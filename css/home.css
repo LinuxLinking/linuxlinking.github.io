@@ -232,6 +232,50 @@
   color: var(--fg-faint);
 }
 
+/* ---------- Now 区 ---------- */
+
+.now-panel {
+  margin-top: 40px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+}
+
+.now-panel .section-label {
+  padding: 16px 20px 0;
+}
+
+.now-list {
+  margin-top: 12px;
+}
+
+.now-item {
+  display: grid;
+  grid-template-columns: 5.5rem minmax(0, 1fr);
+  align-items: baseline;
+  gap: 18px;
+  padding: 14px 20px;
+  border-top: 1px solid var(--line);
+}
+
+.now-kind {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--fg-faint);
+}
+
+.now-text {
+  color: var(--fg);
+  font-size: 15px;
+  line-height: 1.7;
+}
+
+a.now-text:hover {
+  color: var(--accent);
+}
+
 /* ---------- 窄屏 ---------- */
 
 @media (max-width: 700px) {
@@ -251,5 +295,10 @@
   .post-line {
     grid-template-columns: minmax(0, 1fr);
     gap: 6px;
+  }
+
+  .now-item {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 4px;
   }
 }

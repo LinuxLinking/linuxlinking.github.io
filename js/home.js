@@ -53,6 +53,27 @@ function postLine(post, lang) {
   </a>`;
 }
 
+/** Now 区：此刻正在做的事。数据来自 data/now.json，作者维护。 */
+function nowSection(now, lang, t) {
+  const items = now?.[lang]?.items ?? now?.zh?.items ?? [];
+  if (!items.length) return "";
+  const rows = items
+    .map((item) => {
+      const kind = t(`now.label.${item.kind}`) || item.kind;
+      const raw = item.text;
+      const text = escapeHtml(typeof raw === "string" ? raw : raw?.[lang] ?? raw?.zh ?? "");
+      const body = item.href
+        ? `<a class="now-text" href="${escapeHtml(item.href)}">${text}</a>`
+        : `<span class="now-text">${text}</span>`;
+      return `<div class="now-item"><span class="now-kind">${escapeHtml(kind)}</span>${body}</div>`;
+    })
+    .join("");
+  return `<section class="now-panel">
+    <p class="section-label">${escapeHtml(t("now.kicker"))}</p>
+    <div class="now-list">${rows}</div>
+  </section>`;
+}
+
 /**
  * 渲染首页。
  *
@@ -60,16 +81,19 @@ function postLine(post, lang) {
  * @param {object} data
  * @param {Array} data.nodes projects.json 里的条目（已 localize，含 href/titleText）
  * @param {Array} data.posts posts.json 里的文章
+ * @param {object} data.now now.json 的语言分桶
  * @param {string} data.lang 当前语言
  * @param {Function} data.t i18n 取值函数
  */
-export function renderHome(root, { nodes, posts, lang, t }) {
+export function renderHome(root, { nodes, posts, now, lang, t }) {
   if (!root) return;
 
   const projects = nodes.filter((node) => node.kind === "project");
   const moon = nodes.find((node) => node.kind === "moon");
 
   const parts = [];
+
+  parts.push(nowSection(now, lang, t));
 
   parts.push(`<section class="home-section">
     <h2 class="section-label">${escapeHtml(t("home.index"))}</h2>
