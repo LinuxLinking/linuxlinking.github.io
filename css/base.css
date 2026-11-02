@@ -73,7 +73,8 @@ body {
   text-rendering: optimizeLegibility;
 }
 
-body.page-home {
+/* 星图视图占满整屏、不滚动；网格视图是正常文档流，需要滚动。 */
+body.page-home.view-honeycomb {
   overflow: hidden;
 }
 

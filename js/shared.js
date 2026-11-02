@@ -1,4 +1,4 @@
-import { createI18n, loadStrings, resolveLang } from "./i18n.js?v=f7997f9f";
+import { createI18n, loadStrings, resolveLang } from "./i18n.js?v=bb544627";
 import { startStarfield } from "./starfield.js?v=d6c07621";
 
 /* 页面共用的两件事：HTML 转义，以及启动序列。

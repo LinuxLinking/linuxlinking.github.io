@@ -1,10 +1,11 @@
 import { createHoneycomb } from "./honeycomb.js?v=e9ff3f9e";
-import { renderList } from "./list.js?v=7f7fd53d";
+import { renderGrid } from "./grid.js?v=80c5e931";
 import { bootPage, escapeHtml } from "./shared.js?v=2e114873";
 
 const honeyEl = document.getElementById("honeycomb");
 const stageEl = document.getElementById("stage");
-const listEl = document.getElementById("listView");
+const gridEl = document.getElementById("gridView");
+const gridBodyEl = document.getElementById("gridBody");
 const aboutEl = document.getElementById("about");
 const stateErrorEl = document.getElementById("stateError");
 const hintEl = document.querySelector(".hint");
@@ -30,10 +31,11 @@ if (spotlightEl && !reduced && matchMedia("(pointer: fine)").matches) {
   }, { passive: true });
 }
 
-const state = { lang: "zh", projects: [] };
+const state = { lang: "zh", projects: [], posts: [] };
 let i18n = null;
 let honey = null;
 let lastFocus = null;
+let gridScroll = 0;
 
 function hrefFor(node) {
   if (node.kind === "blog") return node.path || "blog/";
@@ -51,6 +53,18 @@ function localize(projects, lang) {
   }));
 }
 
+async function loadPosts() {
+  try {
+    const res = await fetch("data/posts.json", { cache: "no-store" });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const data = await res.json();
+    return Array.isArray(data.posts) ? data.posts : [];
+  } catch (err) {
+    console.warn("[posts] load failed:", err);
+    return [];
+  }
+}
+
 async function loadProjects() {
   try {
     const res = await fetch("data/projects.json", { cache: "no-store" });
@@ -64,25 +78,30 @@ async function loadProjects() {
   }
 }
 
+const VIEWS = ["grid", "honeycomb"];
+
 function readView() {
   try {
-    return localStorage.getItem("view") === "list" ? "list" : "honeycomb";
+    const saved = localStorage.getItem("view");
+    // 旧版本把第二个视图存成 "list"，现在它由网格取代
+    if (saved === "list") return "grid";
+    return VIEWS.includes(saved) ? saved : "grid";
   } catch (err) {
-    return "honeycomb";
+    return "grid";
   }
 }
 
 function refresh() {
   const nodes = localize(state.projects, state.lang);
   honey.setNodes(nodes);
-  renderList(listEl, { nodes, t: i18n.t, onAbout: openAbout });
+  renderGrid(gridBodyEl, { nodes, posts: state.posts, lang: state.lang, t: i18n.t });
   document.title = i18n.t("meta.title.home");
   const desc = document.querySelector('meta[name="description"]');
   if (desc) desc.setAttribute("content", i18n.t("meta.desc.home"));
 }
 
 function setView(next, persist = true) {
-  const isList = next === "list";
+  const isGrid = next === "grid";
 
   if (persist) {
     try {
@@ -92,12 +111,14 @@ function setView(next, persist = true) {
     }
   }
 
-  honeyEl.classList.toggle("is-hidden", isList);
-  listEl.classList.toggle("is-open", isList);
-  listEl.setAttribute("aria-hidden", String(!isList));
-  honeyEl.setAttribute("aria-hidden", String(isList));
-  honeyEl.inert = isList;
-  listEl.inert = !isList;
+  document.body.classList.toggle("view-honeycomb", !isGrid);
+  gridEl.classList.toggle("is-hidden", !isGrid);
+  gridEl.setAttribute("aria-hidden", String(!isGrid));
+  gridEl.inert = !isGrid;
+
+  honeyEl.classList.toggle("is-hidden", isGrid);
+  honeyEl.setAttribute("aria-hidden", String(isGrid));
+  honeyEl.inert = isGrid;
 
   viewButtons.forEach((btn) => {
     const active = btn.dataset.view === next;
@@ -105,8 +126,17 @@ function setView(next, persist = true) {
     btn.classList.toggle("is-active", active);
   });
 
-  if (hintEl) hintEl.classList.toggle("is-hidden", isList);
-  if (!isList && honey) honey.fit(false);
+  // 拖拽提示只属于星图视图
+  if (hintEl) hintEl.classList.toggle("is-hidden", isGrid);
+
+  // 网格是文档流、星图是固定层，切过去时把滚动位置收起来再放回去
+  if (isGrid) {
+    window.scrollTo(0, gridScroll);
+  } else {
+    gridScroll = window.scrollY;
+    window.scrollTo(0, 0);
+    if (honey) honey.fit(false);
+  }
 }
 
 function openAbout() {
@@ -138,7 +168,7 @@ function showError() {
   </div>`;
   stateErrorEl.hidden = false;
   honeyEl.classList.add("is-hidden");
-  listEl.classList.remove("is-open");
+  gridEl.classList.add("is-hidden");
   viewButtons.forEach((btn) => {
     btn.disabled = true;
   });
@@ -175,6 +205,7 @@ async function boot() {
   }
 
   state.projects = projects;
+  state.posts = await loadPosts();
 
   honey = createHoneycomb({
     container: honeyEl,

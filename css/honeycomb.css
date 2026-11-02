@@ -206,117 +206,6 @@
   );
 }
 
-/* ---------- list view ---------- */
-
-.list-view {
-  position: fixed;
-  inset: 0;
-  z-index: var(--z-list);
-  overflow-y: auto;
-  overscroll-behavior: contain;
-  padding: calc(var(--topbar-h) + 26px) clamp(18px, 5vw, 48px) 92px;
-  opacity: 0;
-  visibility: hidden;
-  transition: opacity 0.34s var(--ease), visibility 0.34s var(--ease);
-}
-
-.list-view.is-open {
-  opacity: 1;
-  visibility: visible;
-}
-
-.list-inner {
-  width: min(840px, 100%);
-  margin: 0 auto;
-}
-
-.list-group {
-  margin-bottom: 38px;
-}
-
-.list-group h2 {
-  margin: 0 0 10px;
-  font-weight: 500;
-}
-
-.row {
-  display: flex;
-  align-items: center;
-  gap: 15px;
-  width: 100%;
-  padding: 13px 8px;
-  border: 0;
-  border-bottom: 1px solid var(--line-soft);
-  border-radius: 10px;
-  background: transparent;
-  text-align: left;
-  cursor: pointer;
-  transition: background 0.22s var(--ease), padding 0.22s var(--ease);
-}
-
-.row:hover,
-.row:focus-visible {
-  background: rgba(255, 255, 255, 0.035);
-  padding-left: 14px;
-  padding-right: 8px;
-}
-
-/* 列表行的圆球：复用 .orb 的结构（尺寸、字重、居中），底色与阴影按列表观感单独调。 */
-.row-orb {
-  --r: 21px;
-  font-size: 12.5px;
-  letter-spacing: 0.03em;
-  background:
-    radial-gradient(120% 120% at 30% 16%, rgba(255, 255, 255, 0.24), rgba(255, 255, 255, 0) 58%),
-    var(--orb-tint);
-  box-shadow: 0 12px 26px -14px var(--c1), inset 0 0 0 1px rgba(255, 255, 255, 0.14);
-}
-
-.row-orb::before,
-.row-orb::after {
-  display: none;
-}
-
-.row-orb.is-glyph {
-  font-size: 17px;
-}
-
-.row-main {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  min-width: 0;
-}
-
-.row-title {
-  font-size: 15px;
-  letter-spacing: 0.01em;
-  color: var(--fg);
-}
-
-.row-sub {
-  font-size: 12.5px;
-  color: var(--fg-dim);
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.row-go {
-  margin-left: auto;
-  font-size: 14px;
-  color: var(--fg-faint);
-  opacity: 0;
-  transform: translateX(-4px);
-  transition: opacity 0.22s var(--ease), transform 0.22s var(--ease);
-}
-
-.row:hover .row-go,
-.row:focus-visible .row-go {
-  opacity: 1;
-  transform: none;
-}
-
 /* ---------- data error ---------- */
 
 .state-error {
@@ -356,19 +245,6 @@
     font-size: 10px;
     letter-spacing: 0.06em;
     padding: 5px 11px;
-  }
-
-  .list-view {
-    padding-top: calc(var(--topbar-h) + 16px);
-  }
-
-  .row-orb {
-    --r: 19px;
-    font-size: 11.5px;
-  }
-
-  .row-title {
-    font-size: 14px;
   }
 }
 
