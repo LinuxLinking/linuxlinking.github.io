@@ -25,18 +25,29 @@ function swatch(node) {
   return `<span class="index-swatch" style="--c1:${escapeHtml(c1)}" aria-hidden="true"></span>`;
 }
 
-function projectRow(node, index) {
+/* 行本身是 div，标题里的链接用 ::after 撑满整行（stretched link）。
+   行内还要放文章链接，嵌套 <a> 是非法 HTML —— 浏览器会把外层提前闭合。 */
+function projectRow(node, index, related) {
   const stack = (node.stack || []).slice(0, MAX_STACK);
   const meta = [node.year, ...stack].filter(Boolean).join(" · ");
+  const links = related.length
+    ? `<span class="index-posts">${related
+        .map(
+          (post) =>
+            `<a class="index-post" href="${escapeHtml(post.href)}">${escapeHtml(post.title)}</a>`
+        )
+        .join('<span class="index-post-sep">·</span>')}</span>`
+    : "";
 
-  return `<a class="index-row" href="${escapeHtml(node.href)}">
+  return `<div class="index-row">
     <span class="index-num">${pad(index)}</span>
     <span class="index-body">
-      <span class="index-title">${swatch(node)}${escapeHtml(node.titleText)}</span>
+      <span class="index-title">${swatch(node)}<a class="index-link" href="${escapeHtml(node.href)}">${escapeHtml(node.titleText)}</a></span>
       <span class="index-tagline">${escapeHtml(node.taglineText)}</span>
+      ${links}
     </span>
     <span class="index-meta">${escapeHtml(meta)}</span>
-  </a>`;
+  </div>`;
 }
 
 function postLine(post, lang) {
@@ -91,13 +102,25 @@ export function renderHome(root, { nodes, posts, now, lang, t }) {
   const projects = nodes.filter((node) => node.kind === "project");
   const moon = nodes.find((node) => node.kind === "moon");
 
+  // 文章挂在项目下：先按 projectId 归组，标题按当前语言取。
+  const byProject = new Map();
+  for (const post of posts) {
+    if (!post.projectId) continue;
+    const title = post.title?.[lang] ?? post.title?.zh ?? post.slug;
+    const href = post.url || `${post.slug}/`;
+    if (!byProject.has(post.projectId)) byProject.set(post.projectId, []);
+    byProject.get(post.projectId).push({ title, href });
+  }
+
   const parts = [];
 
   parts.push(nowSection(now, lang, t));
 
   parts.push(`<section class="home-section">
     <h2 class="section-label">${escapeHtml(t("home.index"))}</h2>
-    <div class="index-list">${projects.map(projectRow).join("")}</div>
+    <div class="index-list">${projects
+      .map((node, i) => projectRow(node, i + 1, byProject.get(node.id) || []))
+      .join("")}</div>
   </section>`);
 
   if (posts.length) {

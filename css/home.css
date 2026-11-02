@@ -76,6 +76,7 @@
 }
 
 .index-row {
+  position: relative;
   display: grid;
   grid-template-columns: 3.4rem minmax(0, 1fr) auto;
   align-items: baseline;
@@ -83,6 +84,18 @@
   padding: 26px 0;
   border-bottom: 1px solid var(--line);
   transition: background 0.2s var(--ease);
+}
+
+.index-link {
+  color: inherit;
+  text-decoration: none;
+}
+
+/* 标题链接撑满整行，行内其他地方也能点开项目 */
+.index-link::after {
+  content: "";
+  position: absolute;
+  inset: 0;
 }
 
 .index-row:hover {
@@ -134,6 +147,39 @@
   color: var(--fg-faint);
   text-align: right;
   white-space: nowrap;
+}
+
+/* ---------- 作品行下的关联文章 ---------- */
+
+.index-posts {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.index-post {
+  position: relative;
+  z-index: 1;
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  letter-spacing: 0.04em;
+  color: var(--fg-dim);
+  text-decoration: underline;
+  text-decoration-color: var(--line-strong);
+  text-underline-offset: 3px;
+}
+
+.index-post:hover {
+  color: var(--accent);
+  text-decoration-color: var(--accent);
+}
+
+.index-post-sep {
+  color: var(--fg-faint);
+  font-size: 11.5px;
 }
 
 /* ---------- 文字条目 ---------- */
