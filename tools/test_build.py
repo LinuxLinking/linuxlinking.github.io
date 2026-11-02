@@ -111,13 +111,16 @@ class ProjectPageTests(unittest.TestCase):
         html = self.written[ROOT / "projects" / "intent-os" / "index.html"]
         self.assertIn("Intent OS", html)
         self.assertIn("把意图编译成可验证、可回滚的执行链", html)
-        self.assertIn('<script type="application/json" id="project-data">', html)
+        # 整页内容都在 HTML 里：技术栈、要点、按钮，不再依赖运行时取数据
+        self.assertIn("LangGraph", html)
+        self.assertIn("在 GitHub 查看", html)
+        self.assertNotIn('id="project-data"', html)
 
     def test_static_page_uses_two_level_relative_prefixes(self):
         html = self.written[ROOT / "projects" / "intent-os" / "index.html"]
         self.assertIn('href="../../css/base.css', html)
         self.assertIn('href="../../blog/"', html)
-        self.assertIn('src="../../js/detail.js', html)
+        self.assertIn('src="../../js/site.js', html)
 
     def test_old_address_redirects_to_the_new_one(self):
         html = self.written[ROOT / "project.html"]
@@ -141,6 +144,94 @@ class ProjectPageTests(unittest.TestCase):
         now["now"]["zh"]["items"][0]["href"] = "projects/no-such-project/"
         with self.assertRaises(SystemExit):
             build.validate(self.projects, self.posts, now)
+
+
+class StaticContentTests(unittest.TestCase):
+    """首页、博客列表、文章正文都在构建期渲染：不靠 JS 也读得到。"""
+
+    def setUp(self):
+        self.written = dict(build.build_all(build.asset_hashes()))
+        self.extra = dict(build.build_extra())
+
+    def test_home_lists_every_project_without_js(self):
+        html = self.written[ROOT / "index.html"]
+        for project in load("data/projects.json")["projects"]:
+            if project.get("kind") != "project":
+                continue
+            self.assertIn(f'href="projects/{project["id"]}/"', html)
+            self.assertIn(project["tagline"]["zh"], html)
+
+    def test_home_carries_both_languages(self):
+        html = self.written[ROOT / "index.html"]
+        self.assertIn('<span class="i18n-zh" lang="zh-CN">写工具，也写字</span>', html)
+        self.assertIn('<span class="i18n-en" lang="en">I build tools, and I write</span>', html)
+
+    def test_post_body_is_rendered_into_html(self):
+        html = self.written[ROOT / "blog" / "cage-for-a-model" / "index.html"]
+        self.assertIn("<h2>问题：笼子为什么只锁一个模型</h2>", html)
+        self.assertIn('<pre><code class="language-mermaid">', html)
+        self.assertNotIn("<p id=\"post-body\"></p>", html)
+
+    def test_post_page_links_back_to_its_project(self):
+        html = self.written[ROOT / "blog" / "cage-for-a-model" / "index.html"]
+        self.assertIn('href="../../projects/lockdown/"', html)
+
+    def test_blog_list_is_static(self):
+        html = self.written[ROOT / "blog" / "index.html"]
+        for post in load("data/posts.json")["posts"]:
+            self.assertIn(f'href="{post["url"]}"', html)
+
+    def test_every_page_has_a_canonical_url(self):
+        for path, html in self.written.items():
+            rel = path.relative_to(ROOT).as_posix()
+            self.assertIn('<link rel="canonical" href="https://linuxlinking.github.io/', html, rel)
+
+    def test_project_page_has_structured_data(self):
+        html = self.written[ROOT / "projects" / "ollama-harness" / "index.html"]
+        self.assertIn('"@type": "SoftwareApplication"', html)
+        self.assertIn("https://github.com/LinuxLinking/local_ollama_harness", html)
+
+    def test_post_page_has_article_structured_data(self):
+        html = self.written[ROOT / "blog" / "cage-for-a-model" / "index.html"]
+        self.assertIn('"@type": "BlogPosting"', html)
+
+    def test_sitemap_lists_projects_and_posts(self):
+        xml = self.extra[ROOT / "sitemap.xml"]
+        for project in load("data/projects.json")["projects"]:
+            if project.get("kind") != "project":
+                continue
+            self.assertIn(f"https://linuxlinking.github.io/projects/{project['id']}/", xml)
+        for post in load("data/posts.json")["posts"]:
+            self.assertIn(f"https://linuxlinking.github.io/blog/{post['url']}", xml)
+        # soul-for-u 是写给一个人的小房间，不进 sitemap
+        self.assertNotIn("soul-for-u", xml)
+
+    def test_robots_points_at_the_sitemap(self):
+        robots = self.extra[ROOT / "robots.txt"]
+        self.assertIn("Sitemap: https://linuxlinking.github.io/sitemap.xml", robots)
+
+    def test_og_image_is_a_real_png(self):
+        data = (ROOT / "assets" / "og.png").read_bytes()
+        self.assertTrue(data.startswith(b"\x89PNG\r\n\x1a\n"))
+        width = int.from_bytes(data[16:20], "big")
+        height = int.from_bytes(data[20:24], "big")
+        self.assertEqual((width, height), (1200, 630))
+
+
+class BilingualTests(unittest.TestCase):
+    """双语展开：模板里的 data-i18n 元素换成中英两份。"""
+
+    def test_data_i18n_element_becomes_two_languages(self):
+        html = build.expand_i18n(
+            '<p class="kicker" data-i18n="home.kicker">作品与文字</p>',
+            {"zh": {"home.kicker": "作品与文字"}, "en": {"home.kicker": "Projects & Writing"}},
+        )
+        self.assertIn('<span class="i18n-zh" lang="zh-CN">作品与文字</span>', html)
+        self.assertIn('<span class="i18n-en" lang="en">Projects &amp; Writing</span>', html)
+
+    def test_unknown_key_is_left_alone(self):
+        source = '<p data-i18n="no.such.key">原样</p>'
+        self.assertEqual(build.expand_i18n(source, {"zh": {}, "en": {}}), source)
 
 
 if __name__ == "__main__":
