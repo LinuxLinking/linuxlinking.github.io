@@ -293,7 +293,7 @@ def build_all(hashes: dict[str, str]) -> list[tuple[Path, str]]:
 # ---------------------------------------------------------------- 校验
 
 
-def validate(projects: list[dict], posts: list[dict]) -> None:
+def validate(projects: list[dict], posts: list[dict], now: dict | None = None) -> None:
     ids = [p.get("id") for p in projects]
     dupes = {i for i in ids if ids.count(i) > 1}
     if dupes:
@@ -320,6 +320,19 @@ def validate(projects: list[dict], posts: list[dict]) -> None:
         if not (ROOT / "blog" / url).is_dir():
             fail(f"文章 {slug} 的 url 指向不存在的目录: {url}")
 
+    if now is not None:
+        for lang, bucket in (now.get("now") or {}).items():
+            items = bucket.get("items") or []
+            if not items:
+                fail(f"now.json 的 {lang} 分支没有条目")
+            for item in items:
+                href = item.get("href")
+                if not href:
+                    continue
+                target = href.split("?", 1)[0]
+                if not (ROOT / target).exists():
+                    fail(f"now.json 的 {lang} 条目指向不存在的路径: {href}")
+
 
 # ---------------------------------------------------------------- 主流程
 
@@ -331,7 +344,8 @@ def main() -> int:
 
     projects = json.loads((ROOT / "data" / "projects.json").read_text(encoding="utf-8"))["projects"]
     posts = json.loads((ROOT / "data" / "posts.json").read_text(encoding="utf-8"))["posts"]
-    validate(projects, posts)
+    now = json.loads((ROOT / "data" / "now.json").read_text(encoding="utf-8"))
+    validate(projects, posts, now)
 
     if args.check:
         stale = []

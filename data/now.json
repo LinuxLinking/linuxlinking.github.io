@@ -1,0 +1,22 @@
+{
+  "now": {
+    "zh": {
+      "items": [
+        {
+          "kind": "building",
+          "text": "这个站本身——正在重写它的骨架",
+          "href": "project.html?id=site"
+        }
+      ]
+    },
+    "en": {
+      "items": [
+        {
+          "kind": "building",
+          "text": "This site itself — rewriting its skeleton",
+          "href": "project.html?id=site"
+        }
+      ]
+    }
+  }
+}
