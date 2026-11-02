@@ -89,20 +89,55 @@ function renderProject(lang) {
       </section>`
     : "";
 
+  const highlightItem = (item) => {
+    if (item && typeof item === "object" && item.title) {
+      return `<li class="is-titled">
+          <p class="highlight-title">${escapeHtml(item.title)}</p>
+          <p class="highlight-body">${escapeHtml(item.body || "")}</p>
+        </li>`;
+    }
+    const text = typeof item === "string" ? item : (item && item.body) || "";
+    return `<li><p class="highlight-body">${escapeHtml(text)}</p></li>`;
+  };
+
   const highlightsSection = highlights.length
     ? `<section class="detail-section">
         <h2>${escapeHtml(i18n.t("detail.highlights"))}</h2>
-        <ol class="highlights">${highlights.map((h) => `<li>${escapeHtml(h)}</li>`).join("")}</ol>
+        <ol class="highlights">${highlights.map(highlightItem).join("")}</ol>
       </section>`
     : "";
 
-  const primaryAction = project.repo
-    ? `<a class="btn primary" href="${escapeHtml(project.repo)}" target="_blank" rel="noopener">${escapeHtml(
-        i18n.t("detail.viewRepo")
-      )} ↗</a>`
+  const download = project.download && project.download.href ? project.download : null;
+  const downloadBits = download
+    ? [
+        `<a class="btn primary" href="${escapeHtml(download.href)}">${escapeHtml(i18n.t("detail.download"))} ↓</a>`,
+        ...(download.note
+          ? [`<span class="action-note">${escapeHtml(pick(download.note, lang))}</span>`]
+          : [])
+      ]
+    : [];
+
+  const repoAction = project.repo
+    ? [
+        `<a class="btn${download ? "" : " primary"}" href="${escapeHtml(project.repo)}" target="_blank" rel="noopener">${escapeHtml(
+          i18n.t("detail.viewRepo")
+        )} ↗</a>`
+      ]
     : project.path
-      ? `<a class="btn primary" href="${escapeHtml(project.path)}">${escapeHtml(i18n.t("detail.open"))} ↗</a>`
-      : "";
+      ? [`<a class="btn primary" href="${escapeHtml(project.path)}">${escapeHtml(i18n.t("detail.open"))} ↗</a>`]
+      : [];
+
+  const linkChips = (Array.isArray(project.links) ? project.links : [])
+    .filter((link) => link && link.href)
+    .map((link) => {
+      const external = /^https?:/i.test(link.href);
+      return `<a class="chip" href="${escapeHtml(link.href)}"${external ? ' target="_blank" rel="noopener"' : ""}>${escapeHtml(
+        pick(link.label, lang)
+      )} ↗</a>`;
+    });
+
+  const actions = [...downloadBits, ...repoAction, ...linkChips];
+  const actionsSection = actions.length ? `<div class="detail-actions">${actions.join("")}</div>` : "";
 
   wrap.innerHTML = `<div class="detail-wrap">
     <article class="detail-card">
@@ -117,7 +152,7 @@ function renderProject(lang) {
       <p class="detail-summary">${escapeHtml(summary)}</p>
       ${stackSection}
       ${highlightsSection}
-      ${primaryAction ? `<div class="detail-actions">${primaryAction}</div>` : ""}
+      ${actionsSection}
     </article>
     <nav class="detail-nav" aria-label="Project navigation">
       <a class="btn" href="project.html?id=${encodeURIComponent(prev.id)}">← ${escapeHtml(i18n.t("detail.prev"))}</a>

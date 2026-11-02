@@ -225,27 +225,90 @@
         "en": "Mdeditor"
       },
       "tagline": {
-        "zh": "Android 上的 Markdown 编辑器",
-        "en": "A Markdown editor for Android"
+        "zh": "Flutter 壳、Milkdown 芯的 Android Markdown 编辑器",
+        "en": "A Flutter shell around a Milkdown core, on Android"
       },
       "summary": {
-        "zh": "Flutter 搭界面，WebView 里跑 Milkdown，通过 Android SAF 读写文档；带最近文件、主题与字号设置，能接收系统文件关联，也能导出 DOCX、HTML 与 PDF。",
-        "en": "Flutter shell, Milkdown inside a WebView, Android SAF for file access — plus recents, themes, font size, file associations, and DOCX / HTML / PDF export."
+        "zh": "Milkdown 内核跑在 WebView 里，Flutter 只做壳，写起来是所见即所得；代码块自带高亮、行号、折叠与复制，文档能直接导出 DOCX、HTML 与 PDF。文件走 Android SAF，打开—编辑—保存始终是同一个文档 URI，每个版本由 GitHub Actions 自动打包发布。",
+        "en": "A Milkdown core inside a WebView, a Flutter shell around it — editing feels WYSIWYG. Code blocks ship with highlighting, line numbers, folding and copy, and documents export to DOCX, HTML and PDF. Files flow through Android SAF so open–edit–save keeps the same document URI, and every release is packaged automatically by GitHub Actions."
       },
       "highlights": {
         "zh": [
-          "保留 Android 文档 URI，打开、编辑、保存都不丢位置",
-          "代码块主题高亮、行号、折叠与复制",
-          "通过 Android 系统打印生成 PDF",
-          "GPL-3.0，中英日法四语 README"
+          {
+            "title": "所见即所得",
+            "body": "Milkdown（ProseMirror + remark）跑在 WebView 里，标题、列表、表格、代码块即时成形，而不是纯文本加一个预览窗。"
+          },
+          {
+            "title": "代码块完整体验",
+            "body": "语法高亮随主题切换重建，行号、折叠与一键复制齐备，长代码也读得下去。"
+          },
+          {
+            "title": "DOCX / HTML / PDF 三格式导出",
+            "body": "DOCX 保留代码分词高亮，HTML 带完整样式可直接分享，PDF 走 Android 系统打印。"
+          },
+          {
+            "title": "SAF 文档 URI 不丢位置",
+            "body": "打开—编辑—保存始终是同一个 Android 文档 URI，并持有持久化权限，重启应用接着写，不会另存出副本。"
+          },
+          {
+            "title": "接进系统",
+            "body": "接收系统文件关联，从其他应用直接打开 .md；最近文件、明暗主题与字号设置一应俱全。"
+          },
+          {
+            "title": "开箱即用的开源包",
+            "body": "GitHub Actions 为每个版本自动构建 APK，Releases 里直接下载；GPL-3.0 开源。"
+          }
         ],
         "en": [
-          "Keeps the Android document URI, so open–edit–save never loses its place",
-          "Themed code blocks with line numbers, folding and copy",
-          "PDF generated through Android system printing",
-          "GPL-3.0, with READMEs in Chinese, English, Japanese and French"
+          {
+            "title": "WYSIWYG editing",
+            "body": "Milkdown (ProseMirror + remark) runs inside a WebView — headings, lists, tables and code blocks take shape as you type, not in a side-by-side preview."
+          },
+          {
+            "title": "Serious code blocks",
+            "body": "Highlighting rebuilds when the theme switches, with line numbers, folding and one-tap copy built in."
+          },
+          {
+            "title": "Exports to DOCX, HTML and PDF",
+            "body": "DOCX keeps tokenized code highlighting, HTML ships styled and ready to share, and PDF goes through Android system printing."
+          },
+          {
+            "title": "SAF document URIs persist",
+            "body": "Open–edit–save always targets the same Android document URI with persisted permissions — restart the app and keep writing, no stray copies."
+          },
+          {
+            "title": "Plugs into the system",
+            "body": "Handles system file associations so other apps can open .md straight into the editor; recents, light/dark themes and font size settings are all there."
+          },
+          {
+            "title": "Open source, ready to install",
+            "body": "GitHub Actions builds the APK for every release, ready to grab from Releases; GPL-3.0 open source."
+          }
         ]
       },
+      "download": {
+        "href": "https://github.com/LinuxLinking/Mdeditor/releases/latest/download/app-release.apk",
+        "note": {
+          "zh": "GitHub Releases · 自动构建",
+          "en": "GitHub Releases · built by CI"
+        }
+      },
+      "links": [
+        {
+          "label": {
+            "zh": "博文：把 Milkdown 塞进 WebView",
+            "en": "Post: Milkdown in a WebView"
+          },
+          "href": "blog/milkdown-in-webview/"
+        },
+        {
+          "label": {
+            "zh": "GPL-3.0 许可证",
+            "en": "GPL-3.0 license"
+          },
+          "href": "https://github.com/LinuxLinking/Mdeditor/blob/master/LICENSE"
+        }
+      ],
       "repo": "https://github.com/LinuxLinking/Mdeditor",
       "path": null
     },
