@@ -1,14 +1,47 @@
 :root {
+  /* 底色与文字 */
   --bg: #05060a;
-  --bg-soft: #0a0d16;
   --fg: #e8ecf6;
   --fg-dim: #8b93a7;
   --fg-faint: rgba(139, 147, 167, 0.72);
+  --fg-soft: rgba(232, 236, 246, 0.88);
+  --fg-strong: rgba(240, 243, 250, 0.96);
+  --fg-code: rgba(226, 232, 244, 0.94);
+  --fg-code-dim: rgba(226, 232, 244, 0.86);
+  --fg-pre: rgba(210, 220, 238, 0.9);
+
+  /* 描边与面 */
   --line: rgba(232, 236, 246, 0.12);
   --line-soft: rgba(232, 236, 246, 0.07);
-  --glass: rgba(11, 14, 24, 0.86);
+  --line-strong: rgba(232, 236, 246, 0.24);
+  --surface: rgba(255, 255, 255, 0.045);
+  --surface-soft: rgba(255, 255, 255, 0.03);
+  --surface-hover: rgba(255, 255, 255, 0.08);
+  --surface-active: rgba(255, 255, 255, 0.1);
+
+  /* 品牌色 */
+  --brand-a: #7c5cff;
+  --brand-b: #3ad0ff;
+  --focus-ring: rgba(124, 156, 255, 0.78);
+
+  /* 圆角与动效 */
+  --radius-lg: 22px;
+  --radius-md: 14px;
+  --radius-pill: 999px;
   --ease: cubic-bezier(0.22, 0.61, 0.36, 1);
   --topbar-h: 64px;
+
+  /* 层级 */
+  --z-bg: 0;
+  --z-vignette: 1;
+  --z-content: 2;
+  --z-hint: 12;
+  --z-list: 20;
+  --z-error: 25;
+  --z-foot: 22;
+  --z-topbar: 40;
+  --z-modal: 60;
+
   --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC",
     "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans SC", sans-serif;
   --font-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
@@ -61,13 +94,50 @@ button {
 }
 
 :focus-visible {
-  outline: 2px solid rgba(124, 156, 255, 0.78);
+  outline: 2px solid var(--focus-ring);
   outline-offset: 3px;
 }
 
 ::selection {
   background: rgba(124, 92, 255, 0.35);
   color: #fff;
+}
+
+/* ---------- 共享原语 ---------- */
+
+/* 玻璃胶囊：描边 + 半透明面 + 全圆角。
+   .segmented / .chip / .btn 共用这一份配方，改主题只改这里；
+   .pill 供新增元素直接复用同一外观。 */
+.pill,
+.segmented,
+.chip,
+.btn {
+  border: 1px solid var(--line);
+  background: var(--surface);
+  border-radius: var(--radius-pill);
+}
+
+/* 玻璃面板：描边 + 大圆角。
+   .detail-card / .about-card 共用，各自再覆盖底色、阴影与模糊。 */
+.card {
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+}
+
+/* 阅读页与文章页共用的窄栏外壳 */
+.page-wrap {
+  position: relative;
+  z-index: var(--z-content);
+  width: min(760px, 100%);
+  margin: 0 auto;
+  padding: calc(var(--topbar-h) + 54px) clamp(18px, 5vw, 32px) 120px;
+}
+
+@keyframes page-in {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
 }
 
 /* ---------- background layers ---------- */
@@ -77,14 +147,14 @@ button {
   inset: 0;
   width: 100%;
   height: 100%;
-  z-index: 0;
+  z-index: var(--z-bg);
   pointer-events: none;
 }
 
 .vignette {
   position: fixed;
   inset: 0;
-  z-index: 1;
+  z-index: var(--z-vignette);
   pointer-events: none;
   background:
     radial-gradient(72% 62% at 50% 44%, rgba(5, 6, 10, 0) 38%, rgba(3, 4, 8, 0.72) 100%),
@@ -104,7 +174,7 @@ button {
   justify-content: space-between;
   gap: 12px;
   padding: 0 clamp(14px, 2.4vw, 28px);
-  z-index: 40;
+  z-index: var(--z-topbar);
   pointer-events: none;
   background: linear-gradient(180deg, rgba(5, 6, 10, 0.86) 0%, rgba(5, 6, 10, 0) 100%);
 }
@@ -127,8 +197,8 @@ button {
   font-weight: 700;
   letter-spacing: 0.06em;
   color: #fff;
-  background: linear-gradient(145deg, #7c5cff, #3ad0ff);
-  box-shadow: 0 8px 20px -10px #7c5cff;
+  background: linear-gradient(145deg, var(--brand-a), var(--brand-b));
+  box-shadow: 0 8px 20px -10px var(--brand-a);
 }
 
 .brand-name {
@@ -149,9 +219,6 @@ button {
   display: inline-flex;
   align-items: center;
   padding: 3px;
-  border-radius: 999px;
-  border: 1px solid var(--line);
-  background: rgba(255, 255, 255, 0.045);
   backdrop-filter: blur(8px);
 }
 
@@ -162,7 +229,7 @@ button {
   font-size: 12px;
   letter-spacing: 0.05em;
   padding: 5px 11px;
-  border-radius: 999px;
+  border-radius: var(--radius-pill);
   cursor: pointer;
   transition: color 0.2s var(--ease), background 0.2s var(--ease);
   white-space: nowrap;
@@ -174,31 +241,31 @@ button {
 
 .seg[aria-pressed="true"] {
   color: var(--fg);
-  background: rgba(255, 255, 255, 0.1);
+  background: var(--surface-active);
 }
 
 .chip {
-  border: 1px solid var(--line);
-  background: rgba(255, 255, 255, 0.045);
   backdrop-filter: blur(8px);
   color: var(--fg-dim);
   font-size: 12px;
   letter-spacing: 0.05em;
   padding: 6px 13px;
-  border-radius: 999px;
   cursor: pointer;
   transition: color 0.2s var(--ease), border-color 0.2s var(--ease), background 0.2s var(--ease);
 }
 
 .chip:hover {
   color: var(--fg);
-  border-color: rgba(232, 236, 246, 0.24);
-  background: rgba(255, 255, 255, 0.08);
+  border-color: var(--line-strong);
+  background: var(--surface-hover);
 }
 
 /* ---------- orb ---------- */
 
 .orb {
+  /* --c1 / --c2 由各页面按项目主色内联设置，所以渐变配方只能定义在 .orb 上，
+     不能放进 :root —— 那里取不到这两个变量。 */
+  --orb-tint: linear-gradient(150deg, var(--c1), var(--c2));
   position: relative;
   display: grid;
   place-items: center;
@@ -215,7 +282,7 @@ button {
   background:
     radial-gradient(58% 46% at 32% 20%, rgba(255, 255, 255, 0.5), rgba(255, 255, 255, 0) 62%),
     radial-gradient(120% 120% at 30% 16%, rgba(255, 255, 255, 0.22), rgba(255, 255, 255, 0) 55%),
-    linear-gradient(150deg, var(--c1), var(--c2));
+    var(--orb-tint);
   box-shadow:
     0 22px 52px -22px var(--c1),
     0 0 44px -10px var(--c2),
@@ -271,7 +338,7 @@ button {
   left: 0;
   right: 0;
   bottom: 0;
-  z-index: 22;
+  z-index: var(--z-foot);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -305,7 +372,7 @@ button {
 .about {
   position: fixed;
   inset: 0;
-  z-index: 60;
+  z-index: var(--z-modal);
   display: grid;
   place-items: center;
   padding: 24px;
@@ -328,8 +395,6 @@ button {
   position: relative;
   width: min(520px, 100%);
   padding: clamp(26px, 4vw, 38px);
-  border-radius: 20px;
-  border: 1px solid var(--line);
   background: linear-gradient(165deg, rgba(20, 24, 38, 0.94), rgba(9, 11, 19, 0.96));
   box-shadow: 0 40px 90px -40px rgba(0, 0, 0, 0.9);
   opacity: 0;
@@ -354,7 +419,7 @@ button {
   height: 34px;
   border: 1px solid var(--line);
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.04);
+  background: var(--surface);
   color: var(--fg-dim);
   cursor: pointer;
   transition: color 0.2s var(--ease), background 0.2s var(--ease);
@@ -362,7 +427,7 @@ button {
 
 .about-close:hover {
   color: var(--fg);
-  background: rgba(255, 255, 255, 0.09);
+  background: var(--surface-hover);
 }
 
 .about-card h2 {
@@ -391,8 +456,8 @@ button {
 .about-links a {
   display: inline-block;
   padding: 7px 14px;
-  border-radius: 999px;
   border: 1px solid var(--line);
+  border-radius: var(--radius-pill);
   font-size: 12.5px;
   color: var(--fg-dim);
   transition: color 0.2s var(--ease), border-color 0.2s var(--ease), background 0.2s var(--ease);
@@ -400,7 +465,7 @@ button {
 
 .about-links a:hover {
   color: var(--fg);
-  border-color: rgba(232, 236, 246, 0.26);
+  border-color: var(--line-strong);
   background: rgba(255, 255, 255, 0.06);
 }
 
@@ -419,26 +484,23 @@ button {
   align-items: center;
   gap: 6px;
   padding: 10px 18px;
-  border-radius: 999px;
-  border: 1px solid var(--line);
   font-size: 13px;
   letter-spacing: 0.02em;
   color: var(--fg);
-  background: rgba(255, 255, 255, 0.045);
   transition: transform 0.22s var(--ease), background 0.22s var(--ease), border-color 0.22s var(--ease);
 }
 
 .btn:hover {
-  background: rgba(255, 255, 255, 0.1);
-  border-color: rgba(232, 236, 246, 0.26);
+  background: var(--surface-active);
+  border-color: var(--line-strong);
   transform: translateY(-1px);
 }
 
 .btn.primary {
   border-color: transparent;
-  background: linear-gradient(140deg, #7c5cff, #3ad0ff);
+  background: linear-gradient(140deg, var(--brand-a), var(--brand-b));
   color: #fff;
-  box-shadow: 0 16px 34px -18px #7c5cff;
+  box-shadow: 0 16px 34px -18px var(--brand-a);
 }
 
 .btn.primary:hover {
@@ -458,7 +520,7 @@ button {
   }
 }
 
-@media (max-width: 560px) {
+@media (max-width: 520px) {
   .brand-name {
     display: none;
   }

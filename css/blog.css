@@ -1,14 +1,11 @@
+/* 外壳几何由 base.css 的 .page-wrap 提供，这里只保留博客自己的留白差异。 */
 .blog-wrap {
-  position: relative;
-  z-index: 2;
-  width: min(760px, 100%);
-  margin: 0 auto;
-  padding: calc(var(--topbar-h) + 64px) clamp(18px, 5vw, 32px) 120px;
+  padding-top: calc(var(--topbar-h) + 64px);
 }
 
 .blog-head {
   margin-bottom: 44px;
-  animation: blog-in 0.6s var(--ease) both;
+  animation: page-in 0.6s var(--ease) both;
 }
 
 .blog-head h1 {
@@ -19,15 +16,8 @@
   line-height: 1.12;
 }
 
-@keyframes blog-in {
-  from {
-    opacity: 0;
-    transform: translateY(14px);
-  }
-}
-
 .posts {
-  animation: blog-in 0.7s 0.08s var(--ease) both;
+  animation: page-in 0.7s 0.08s var(--ease) both;
 }
 
 .post-row {
@@ -66,8 +56,8 @@
   padding: clamp(48px, 12vw, 96px) clamp(20px, 5vw, 34px);
   text-align: center;
   border: 1px dashed var(--line);
-  border-radius: 20px;
-  background: rgba(255, 255, 255, 0.018);
+  border-radius: var(--radius-lg);
+  background: var(--surface-soft);
 }
 
 .blog-empty-glyph {
@@ -92,7 +82,7 @@
 
 .blog-skeleton {
   height: 120px;
-  border-radius: 20px;
+  border-radius: var(--radius-lg);
   border: 1px dashed var(--line);
   opacity: 0.5;
 }

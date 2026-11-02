@@ -1,7 +1,7 @@
 .honeycomb {
   position: fixed;
   inset: 0;
-  z-index: 2;
+  z-index: var(--z-content);
   touch-action: none;
   cursor: grab;
   opacity: 1;
@@ -172,11 +172,11 @@
   position: fixed;
   left: 50%;
   bottom: 44px;
-  z-index: 12;
+  z-index: var(--z-hint);
   margin: 0;
   transform: translateX(-50%);
   padding: 6px 14px;
-  border-radius: 999px;
+  border-radius: var(--radius-pill);
   border: 1px solid var(--line-soft);
   background: rgba(8, 10, 18, 0.5);
   backdrop-filter: blur(6px);
@@ -197,7 +197,7 @@
 .spotlight {
   position: fixed;
   inset: 0;
-  z-index: 1;
+  z-index: var(--z-vignette);
   pointer-events: none;
   background: radial-gradient(
     420px circle at var(--mx, 50%) var(--my, 42%),
@@ -211,7 +211,7 @@
 .list-view {
   position: fixed;
   inset: 0;
-  z-index: 20;
+  z-index: var(--z-list);
   overflow-y: auto;
   overscroll-behavior: contain;
   padding: calc(var(--topbar-h) + 26px) clamp(18px, 5vw, 48px) 92px;
@@ -261,21 +261,20 @@
   padding-right: 8px;
 }
 
+/* 列表行的圆球：复用 .orb 的结构（尺寸、字重、居中），底色与阴影按列表观感单独调。 */
 .row-orb {
-  width: 42px;
-  height: 42px;
-  border-radius: 50%;
-  display: grid;
-  place-items: center;
-  flex: 0 0 auto;
+  --r: 21px;
   font-size: 12.5px;
-  font-weight: 650;
   letter-spacing: 0.03em;
-  color: #fff;
   background:
     radial-gradient(120% 120% at 30% 16%, rgba(255, 255, 255, 0.24), rgba(255, 255, 255, 0) 58%),
-    linear-gradient(150deg, var(--c1), var(--c2));
+    var(--orb-tint);
   box-shadow: 0 12px 26px -14px var(--c1), inset 0 0 0 1px rgba(255, 255, 255, 0.14);
+}
+
+.row-orb::before,
+.row-orb::after {
+  display: none;
 }
 
 .row-orb.is-glyph {
@@ -323,7 +322,7 @@
 .state-error {
   position: fixed;
   inset: 0;
-  z-index: 25;
+  z-index: var(--z-error);
   display: grid;
   place-items: center;
   padding: 24px;
@@ -364,8 +363,7 @@
   }
 
   .row-orb {
-    width: 38px;
-    height: 38px;
+    --r: 19px;
     font-size: 11.5px;
   }
 

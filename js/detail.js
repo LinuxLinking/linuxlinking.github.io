@@ -35,7 +35,7 @@ async function loadProjects() {
 }
 
 function renderNotice(title, body, primaryLabel, primaryHref) {
-  wrap.innerHTML = `<div class="detail-card detail-notice">
+  wrap.innerHTML = `<div class="card detail-card detail-notice">
     <p class="kicker">404</p>
     <h1>${escapeHtml(title)}</h1>
     <p>${escapeHtml(body)}</p>
@@ -45,7 +45,7 @@ function renderNotice(title, body, primaryLabel, primaryHref) {
 }
 
 function renderError() {
-  wrap.innerHTML = `<div class="detail-card detail-notice">
+  wrap.innerHTML = `<div class="card detail-card detail-notice">
     <p class="kicker">error</p>
     <h1>${escapeHtml(i18n.t("error.data"))}</h1>
     <p>${escapeHtml(i18n.t("error.dataHint"))}</p>
@@ -139,8 +139,8 @@ function renderProject(lang) {
   const actions = [...downloadBits, ...repoAction, ...linkChips];
   const actionsSection = actions.length ? `<div class="detail-actions">${actions.join("")}</div>` : "";
 
-  wrap.innerHTML = `<div class="detail-wrap">
-    <article class="detail-card">
+  wrap.innerHTML = `<div class="page-wrap detail-wrap">
+    <article class="card detail-card">
       <header class="detail-head">
         <span class="orb" style="--c1:${c1};--c2:${c2}"><span>${escapeHtml(project.monogram || "·")}</span></span>
         <div>

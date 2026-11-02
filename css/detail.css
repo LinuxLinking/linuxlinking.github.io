@@ -1,15 +1,10 @@
+/* 外壳几何由 base.css 的 .page-wrap 提供，详情页只是更宽一点。 */
 .detail-wrap {
-  position: relative;
-  z-index: 2;
   width: min(820px, 100%);
-  margin: 0 auto;
-  padding: calc(var(--topbar-h) + 54px) clamp(18px, 5vw, 32px) 120px;
 }
 
 .detail-card {
   padding: clamp(22px, 4vw, 42px);
-  border-radius: 22px;
-  border: 1px solid var(--line);
   background: linear-gradient(165deg, rgba(17, 21, 34, 0.72), rgba(8, 10, 18, 0.82));
   backdrop-filter: blur(14px);
   box-shadow: 0 40px 90px -50px rgba(0, 0, 0, 0.9);
@@ -64,7 +59,7 @@
   border-bottom: 1px solid var(--line-soft);
   font-size: 15px;
   line-height: 1.9;
-  color: rgba(232, 236, 246, 0.86);
+  color: var(--fg-soft);
 }
 
 .detail-section {
@@ -91,9 +86,9 @@
 
 .detail-stack li {
   padding: 5px 12px;
-  border-radius: 999px;
+  border-radius: var(--radius-pill);
   border: 1px solid var(--line);
-  background: rgba(255, 255, 255, 0.03);
+  background: var(--surface-soft);
   font-size: 12px;
   letter-spacing: 0.03em;
   color: var(--fg-dim);
@@ -113,8 +108,8 @@
   position: relative;
   padding: 16px 44px 15px 18px;
   border: 1px solid var(--line-soft);
-  border-radius: 14px;
-  background: rgba(255, 255, 255, 0.03);
+  border-radius: var(--radius-md);
+  background: var(--surface-soft);
   counter-increment: hl;
 }
 

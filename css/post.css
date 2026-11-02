@@ -1,17 +1,6 @@
+/* 外壳几何由 base.css 的 .page-wrap 提供，这里只保留文章自己的入场动效。 */
 .post-wrap {
-  position: relative;
-  z-index: 2;
-  width: min(760px, 100%);
-  margin: 0 auto;
-  padding: calc(var(--topbar-h) + 54px) clamp(18px, 5vw, 32px) 120px;
-  animation: post-in 0.6s var(--ease) both;
-}
-
-@keyframes post-in {
-  from {
-    opacity: 0;
-    transform: translateY(14px);
-  }
+  animation: page-in 0.6s var(--ease) both;
 }
 
 .post-kicker {
@@ -44,7 +33,7 @@
 .post-body {
   font-size: 15px;
   line-height: 2;
-  color: rgba(232, 236, 246, 0.88);
+  color: var(--fg-soft);
 }
 
 .post-body h2 {
@@ -61,7 +50,7 @@
   font-size: 17px;
   font-weight: 550;
   letter-spacing: -0.005em;
-  color: rgba(240, 243, 250, 0.94);
+  color: var(--fg-strong);
 }
 
 .post-body p {
@@ -69,7 +58,7 @@
 }
 
 .post-body strong {
-  color: rgba(240, 243, 250, 0.96);
+  color: var(--fg-strong);
   font-weight: 600;
 }
 
@@ -110,7 +99,7 @@
   border-radius: 6px;
   border: 1px solid var(--line-soft);
   background: rgba(255, 255, 255, 0.04);
-  color: rgba(226, 232, 244, 0.94);
+  color: var(--fg-code);
   white-space: nowrap;
 }
 
@@ -119,7 +108,7 @@
 .post-body pre {
   margin: 20px 0 22px;
   padding: 18px 20px;
-  border-radius: 14px;
+  border-radius: var(--radius-md);
   border: 1px solid var(--line);
   background: rgba(6, 8, 14, 0.72);
   overflow-x: auto;
@@ -132,7 +121,7 @@
   background: none;
   white-space: pre;
   font-size: 12.5px;
-  color: rgba(210, 220, 238, 0.9);
+  color: var(--fg-pre);
 }
 
 /* 图 / ASCII 示意 */
@@ -141,7 +130,7 @@
   margin: 22px 0 24px;
   padding: 18px 16px;
   border: 1px dashed var(--line);
-  border-radius: 14px;
+  border-radius: var(--radius-md);
   overflow-x: auto;
   text-align: center;
 }
@@ -229,11 +218,11 @@
 .post-body th {
   font-weight: 550;
   background: rgba(255, 255, 255, 0.035);
-  color: rgba(240, 243, 250, 0.94);
+  color: var(--fg-strong);
 }
 
 .post-body td {
-  color: rgba(226, 232, 244, 0.86);
+  color: var(--fg-code-dim);
 }
 
 /* Mermaid 图表容器 */
@@ -242,7 +231,7 @@
   margin: 24px 0 26px;
   padding: 20px 16px;
   border: 1px dashed var(--line);
-  border-radius: 14px;
+  border-radius: var(--radius-md);
   overflow-x: auto;
   text-align: center;
 }

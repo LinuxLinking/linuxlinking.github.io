@@ -1,6 +1,6 @@
 import { createHoneycomb } from "./honeycomb.js?v=e9ff3f9e";
 import { createI18n, loadStrings, resolveLang } from "./i18n.js?v=b69bb391";
-import { renderList } from "./list.js?v=9fbbfc02";
+import { renderList } from "./list.js?v=04b817cc";
 import { startStarfield } from "./starfield.js?v=d6c07621";
 
 const honeyEl = document.getElementById("honeycomb");
