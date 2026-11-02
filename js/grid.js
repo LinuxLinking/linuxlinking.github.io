@@ -1,4 +1,4 @@
-import { escapeHtml } from "./shared.js?v=2e114873";
+import { escapeHtml } from "./shared.js?v=a89b5bc1";
 
 /* 首页的默认视图：项目网格 + 文字列表 + 一张安静的收尾卡片。
    蜂窝星图退居第二视图（见 app.js），两套视图读的是同一份 projects.json / posts.json。 */
