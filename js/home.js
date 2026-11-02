@@ -1,8 +1,8 @@
 import { escapeHtml } from "./shared.js?v=33539a65";
-import { postHref } from "./nodes.js?v=b189be2a";
+import { postHref } from "./nodes.js?v=192a1a44";
 
-/* 首页默认视图：编辑式排版 —— 大标题 + 编号索引行 + 文字条目。
-   蜂窝星图退居第二视图（见 app.js），两套视图读的是同一份 projects.json / posts.json。 */
+/* 首页默认视图：海报式排版 —— 巨型重体标题 + 编号索引行 + 文字条目。
+   图纸退居第二视图（见 app.js），两套视图读的是同一份 projects.json / posts.json。 */
 
 const MAX_STACK = 4;
 

@@ -1,7 +1,7 @@
-import { createMap } from "./map.js?v=2f8a4b40";
-import { renderHome } from "./home.js?v=20d49e3c";
+import { createMap } from "./map.js?v=0bda1abc";
+import { renderHome } from "./home.js?v=eb31360f";
 import { bootPage, escapeHtml } from "./shared.js?v=33539a65";
-import { buildNodes } from "./nodes.js?v=b189be2a";
+import { buildNodes } from "./nodes.js?v=192a1a44";
 
 const mapEl = document.getElementById("map");
 const stageEl = document.getElementById("stage");
@@ -124,10 +124,10 @@ function setView(next, persist = true) {
     btn.classList.toggle("is-active", active);
   });
 
-  // 拖拽提示只属于星图视图
+  // 拖拽提示只属于图纸视图
   if (hintEl) hintEl.classList.toggle("is-hidden", isGrid);
 
-  // 网格是文档流、星图是固定层，切过去时把滚动位置收起来再放回去
+  // 网格是文档流、图纸是固定层，切过去时把滚动位置收起来再放回去
   if (isGrid) {
     window.scrollTo(0, gridScroll);
   } else {
