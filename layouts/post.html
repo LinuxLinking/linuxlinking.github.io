@@ -1,0 +1,45 @@
+<!--
+  Markdown 文章壳模板。
+
+  发布一篇新文章的步骤：
+  1. 建目录 blog/<slug>/，放一个 post.md，开头用 front matter 声明元数据，正文写 Markdown：
+
+       ---
+       title: 文章标题
+       date: 2026-10-31
+       tag: 项目标签（可选）
+       lede: 一两句话的导读（可选）
+       ---
+
+       正文……
+
+     图表直接写 ```mermaid 代码块，页面会惰性加载本地 mermaid 渲染（约 2.6MB，首次较慢）。
+  2. 在 data/posts.json 的 posts 数组里加一条记录（slug / date / title 双语 / summary 双语 / url）。
+  3. 跑 `python tools/build.py` 生成 blog/<slug>/index.html。
+
+  本文件由 tools/build.py 套进 layouts/base.html 渲染，不要直接编辑生成出来的文章页。
+-->
+<!--meta
+title: 文章 · 钟闪闪
+description: 文章
+bodyClass: page-post
+css: base.css, post.css
+js: post.js
+-->
+
+<!--block topbarAction-->
+<a class="chip" href="{{link}}blog/" data-i18n="blog.back">返回蜂窝</a>
+<!--endblock-->
+
+<main class="post-wrap">
+  <p class="post-kicker" id="post-kicker"></p>
+  <h1 id="post-title"></h1>
+  <p class="post-lede" id="post-lede" hidden></p>
+
+  <article class="post-body md" id="post-body"></article>
+
+  <div class="post-foot">
+    <a class="btn" href="{{link}}blog/">← 更多文字</a>
+    <a class="btn" href="{{link}}">返回蜂窝</a>
+  </div>
+</main>

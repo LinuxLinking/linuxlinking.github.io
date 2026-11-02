@@ -1,6 +1,6 @@
 import { marked } from "./vendor/marked.esm.js";
-import { createI18n, loadStrings, resolveLang } from "./i18n.js";
-import { startStarfield } from "./starfield.js";
+import { createI18n, loadStrings, resolveLang } from "./i18n.js?v=b69bb391";
+import { startStarfield } from "./starfield.js?v=d6c07621";
 
 const langButtons = Array.from(document.querySelectorAll("[data-lang-btn]"));
 

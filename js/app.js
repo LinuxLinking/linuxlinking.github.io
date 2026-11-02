@@ -1,7 +1,7 @@
-import { createHoneycomb } from "./honeycomb.js?v=hex3";
-import { createI18n, loadStrings, resolveLang } from "./i18n.js";
-import { renderList } from "./list.js";
-import { startStarfield } from "./starfield.js";
+import { createHoneycomb } from "./honeycomb.js?v=e9ff3f9e";
+import { createI18n, loadStrings, resolveLang } from "./i18n.js?v=b69bb391";
+import { renderList } from "./list.js?v=9fbbfc02";
+import { startStarfield } from "./starfield.js?v=d6c07621";
 
 const honeyEl = document.getElementById("honeycomb");
 const stageEl = document.getElementById("stage");

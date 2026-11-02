@@ -1,5 +1,5 @@
-import { createI18n, loadStrings, resolveLang } from "./i18n.js";
-import { startStarfield } from "./starfield.js";
+import { createI18n, loadStrings, resolveLang } from "./i18n.js?v=b69bb391";
+import { startStarfield } from "./starfield.js?v=d6c07621";
 
 const wrap = document.getElementById("detail");
 const requestedId = new URLSearchParams(location.search).get("id");
