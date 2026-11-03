@@ -63,6 +63,54 @@
         "en": "Code handles the certain, humans handle the exceptions, a model handles the gray zone: three layers lock down MiniMax inside Claude Code, and no other model."
       },
       "url": "cage-for-a-model/"
+    },
+    {
+      "slug": "ocr-mcp",
+      "date": "2026-11-01",
+      "projectId": "ocr-mcp",
+      "label": {"zh": "四件工具", "en": "Four Tools"},
+      "monogram": {"zh": "识", "en": "F"},
+      "title": {
+        "zh": "把 OCR 做成 agent 的工具服务：四件工具，四种失败",
+        "en": "OCR as a Tool Service for Agents: Four Tools, Four Failure Modes"
+      },
+      "summary": {
+        "zh": "PaddleOCR 很强，但我不想给 agent 一个万能 OCR 端点。于是拆成四件工具：文字、表格、手写、公式——表格给结构化文本，公式给 LaTeX。四种识别各有各的失败方式。",
+        "en": "PaddleOCR is strong, but I did not want one do-everything OCR endpoint for an agent. So it became four tools: text, tables, handwriting and formulas, with structured output for tables and LaTeX for formulas. Each one fails in its own way."
+      },
+      "url": "ocr-mcp/"
+    },
+    {
+      "slug": "jenv-on-windows",
+      "date": "2026-11-02",
+      "projectId": "jenv",
+      "label": {"zh": "PATH 上的垫片", "en": "Batch on PATH"},
+      "monogram": {"zh": "换", "en": "B"},
+      "title": {
+        "zh": "在 PATH 上放一个 java.bat：我用纯批处理写了个 JDK 切换器",
+        "en": "A java.bat on PATH: A JDK Switcher Written in Pure Batch"
+      },
+      "summary": {
+        "zh": "Windows 上切 JDK 的老办法是改 JAVA_HOME，改完得开新终端。我把 java.bat 垫在 PATH 前面转发给选中的 JDK，JAVA_HOME 恒指向 JEnv 目录，改版本不用动环境变量。",
+        "en": "The old way to switch a JDK on Windows is to edit JAVA_HOME and open a new terminal. I put a java.bat shim in front of java on PATH and forward it to the JDK you picked; JAVA_HOME always points at the JEnv directory, so switching versions never means editing environment variables."
+      },
+      "url": "jenv-on-windows/"
+    },
+    {
+      "slug": "this-site",
+      "date": "2026-11-03",
+      "projectId": "site",
+      "label": {"zh": "零依赖的站", "en": "No Build Step"},
+      "monogram": {"zh": "站", "en": "N"},
+      "title": {
+        "zh": "我把这个站写成一台 Windows XP：零依赖、零构建、关掉 JS 也能读",
+        "en": "I Wrote This Site as a Windows XP Machine: Zero Dependencies, Zero Build"
+      },
+      "summary": {
+        "zh": "原生 HTML、CSS 和 ES module，一个只用标准库的 Python 脚本组装。没有框架、没有打包器、没有 CDN，也没有网络字体。桌面是 XP，窗口是 IE6，页面在构建期就渲染好了。",
+        "en": "Native HTML, CSS and ES modules, assembled by a Python script that uses nothing but the standard library. No framework, no bundler, no CDN, no web fonts. The desktop is XP, every window is an IE6 shell, and the pages are rendered at build time."
+      },
+      "url": "this-site/"
     }
   ]
 }

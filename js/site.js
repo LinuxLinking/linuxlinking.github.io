@@ -1,4 +1,4 @@
-import { bootPage } from "./shared.js?v=dcf1f494";
+import { bootPage } from "./shared.js?v=9760b0ff";
 
 /* 全站共用的启动：语言按钮，以及标题/描述随语言切换。
 

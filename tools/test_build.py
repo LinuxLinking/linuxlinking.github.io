@@ -196,9 +196,17 @@ class StaticContentTests(unittest.TestCase):
             self.assertIn(f'href="{post["url"]}"', html)
 
     def test_no_placeholder_survives_the_build(self):
-        # 外壳（任务栏、开始菜单、窗口模板）每页都要有，少给一个就留下 {{...}} 在页面上
+        # 外壳（任务栏、开始菜单、窗口模板）每页都要有，少给一个就留下 {{...}} 在页面上。
+        # 文章正文里可以出现 {{...}} 字面量 —— 讲构建系统的文章就会这么写 ——
+        # 所以先把正文摘掉再扫，正文里漏替换的情况由另一条测试盯着。
         for path, html in self.written.items():
-            leftovers = re.findall(r"\{\{[A-Za-z]+\}\}", html)
+            shell = re.sub(
+                r'<article class="post-body md" id="post-body">.*?</article>',
+                "",
+                html,
+                flags=re.S,
+            )
+            leftovers = re.findall(r"\{\{[A-Za-z]+\}\}", shell)
             self.assertEqual([], leftovers, f"{path} 还有没替换的占位符")
 
     def test_every_page_has_a_canonical_url(self):
@@ -426,6 +434,17 @@ class BilingualPostTests(unittest.TestCase):
         self.assertNotIn('class="i18n-en"', body)
         self.assertIn("中文段落。", body)
 
+    def test_a_placeholder_in_the_body_is_not_substituted(self):
+        """正文里写 {{iconGrid}} 这种字面量，不能被换成真的图标网格。"""
+        (self.dir / "post.md").write_text(
+            "---\ntitle: 中\n---\n\n模板里写 {{iconGrid}} 这种占位符。\n",
+            encoding="utf-8",
+        )
+        body, _, _ = build.post_body_html({"slug": self.slug})
+        page = build.render("<article>{{postBody}}</article>", {"postBody": body})
+        self.assertIn("{{iconGrid}}", page)
+        self.assertNotIn("xp-icons", page)
+
 
 class BilingualTests(unittest.TestCase):
     """双语展开：模板里的 data-i18n 元素换成中英两份。"""
@@ -505,6 +524,40 @@ class CopyConsistencyTests(unittest.TestCase):
         source = (ROOT / "js" / "map.js").read_text(encoding="utf-8")
         self.assertIn("setLabels", source)
         self.assertIn("label.dataset.key = row.key", source)
+
+    def test_the_essay_count_in_the_copy_matches_the_number_of_posts(self):
+        """文章加减了，文案里写死的篇数要跟着改。"""
+        words = {
+            4: ("四", "four"),
+            5: ("五", "five"),
+            6: ("六", "six"),
+            7: ("七", "seven"),
+            8: ("八", "eight"),
+        }
+        count = len(self.posts)
+        self.assertIn(count, words, "文章数变了，先在 words 里补一个数词")
+        zh, en = words[count]
+
+        blog = next(p for p in self.projects if p["id"] == "blog")
+        for text in (
+            self.strings["zh"]["home.lede"],
+            self.strings["zh"]["meta.desc.home"],
+            blog["tagline"]["zh"],
+        ):
+            self.assertIn(f"{zh}篇", text, "中文文案里的篇数跟文章数对不上")
+        for text in (
+            self.strings["en"]["home.lede"],
+            self.strings["en"]["meta.desc.home"],
+            blog["tagline"]["en"],
+        ):
+            self.assertIn(f"{en} essays", text.lower(), "英文文案里的篇数跟文章数对不上")
+
+        # 博客列表页的描述和首页页面片段里各写死了一遍
+        source = (ROOT / "tools" / "build.py").read_text(encoding="utf-8")
+        self.assertIn(f"{zh}篇", source)
+        self.assertIn(f"{en} essays", source.lower())
+        page = (ROOT / "pages" / "index.html").read_text(encoding="utf-8")
+        self.assertIn(f"{zh}篇", page)
 
 
 if __name__ == "__main__":

@@ -13,17 +13,25 @@ const read = (p) => JSON.parse(readFileSync(join(root, p), "utf8"));
 const projects = read("data/projects.json").projects;
 const posts = read("data/posts.json").posts;
 
-test("合并后共 13 个节点", () => {
-  assert.equal(buildNodes({ projects, posts }).length, 13);
+// 节点数跟着数据走：加一篇文章不该让这里红着
+const projectIds = projects.filter((p) => p.kind === "project").map((p) => p.id);
+const blogIds = projects.filter((p) => p.kind === "blog").map((p) => p.id);
+const moonIds = projects.filter((p) => p.kind === "moon").map((p) => p.id);
+
+test("每个项目、每篇文章各占一个节点", () => {
+  const nodes = buildNodes({ projects, posts });
+  assert.equal(nodes.length, projectIds.length + blogIds.length + posts.length + moonIds.length);
 });
 
 test("顺序为 项目 → blog 聚合 → 文章 → moon，前三是精选的三个项目", () => {
   const ids = buildNodes({ projects, posts }).map((n) => n.id);
-  assert.equal(ids[0], "mdeditor");
-  assert.equal(ids[1], "intent-os");
-  assert.equal(ids[2], "ollama-harness");
-  assert.equal(ids[7], "blog");
-  assert.equal(ids[12], "soul-for-u");
+  assert.deepEqual(ids.slice(0, 3), ["mdeditor", "intent-os", "ollama-harness"]);
+  assert.deepEqual(ids.slice(projectIds.length, projectIds.length + blogIds.length), blogIds);
+  assert.deepEqual(
+    ids.slice(projectIds.length + blogIds.length, projectIds.length + blogIds.length + posts.length),
+    posts.map((p) => p.slug)
+  );
+  assert.deepEqual(ids.slice(-moonIds.length), moonIds);
 });
 
 test("文章节点继承关联项目的 accent", () => {

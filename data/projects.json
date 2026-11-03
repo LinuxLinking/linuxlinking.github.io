@@ -499,7 +499,7 @@
         "zh": "纯批处理实现的 JDK 切换器",
         "en": "A JDK switcher written in pure batch"
       },      "desc": {
-        "zh": "Windows 上的纯批处理 JDK 切换器：java.bat 垫片转发到选中的 JDK，JAVA_HOME 不写死，附只读 MCP server。",
+        "zh": "Windows 上的纯批处理 JDK 切换器：java.bat 垫片转发到选中的 JDK，JAVA_HOME 不写死，附一个不写注册表的 MCP server。",
         "en": "JEnv for Windows is a pure-batch JDK switcher: a java.bat shim forwards to the JDK you pick, and JAVA_HOME never points at a hard-coded path."
       },
 
@@ -513,8 +513,8 @@
         "Java toolchain"
       ],
       "summary": {
-        "zh": "一个 java.bat 垫片挡在 PATH 前面，把它转发到你选中的 JDK。同一终端里两个项目可以跑在两套 JDK 上。JAVA_HOME 永远指向 JEnv 目录，jenv use 和 jenv local 立刻对读环境变量的工具生效。附带一个只读 MCP server，让 agent 也能查当前 JDK。",
-        "en": "A java.bat shim sits in front of java on PATH and forwards it to the JDK you picked, so two projects in one terminal can run on two JDKs. JAVA_HOME always points at the JEnv directory, which means jenv use and jenv local take effect immediately for tools that read the environment. A read-only MCP server lets an agent ask which JDK is active."
+        "zh": "一个 java.bat 垫片挡在 PATH 前面，把它转发到你选中的 JDK。同一终端里两个项目可以跑在两套 JDK 上。JAVA_HOME 永远指向 JEnv 目录，jenv use 和 jenv local 立刻对读环境变量的工具生效。附带一个不写注册表的 MCP server：两个只读工具让 agent 查当前 JDK，另一个只给那一个子进程注入 JAVA_HOME。",
+        "en": "A java.bat shim sits in front of java on PATH and forwards it to the JDK you picked, so two projects in one terminal can run on two JDKs. JAVA_HOME always points at the JEnv directory, which means jenv use and jenv local take effect immediately for tools that read the environment. The MCP server never writes the registry: two read-only tools let an agent ask which JDK is active, and a third injects JAVA_HOME into a single child process."
       },
       "highlights": {
         "zh": [
@@ -532,7 +532,7 @@
           },
           {
             "title": "agent 也能查",
-            "body": "附带只读 MCP server，暴露当前 JDK 和已注册版本，只读，不给它改的机会。"
+            "body": "附带 MCP server：jenv_list 和 jenv_current 只读，jenv_run 只给那一个子进程注入 JAVA_HOME，server 自己的环境一个字节都不改。"
           }
         ],
         "en": [
@@ -550,7 +550,7 @@
           },
           {
             "title": "An agent can ask too",
-            "body": "A read-only MCP server exposes the active JDK and the registered versions. Read-only, by design."
+            "body": "The MCP server never writes the registry and never touches its own environment. jenv_list and jenv_current are read-only; jenv_run injects JAVA_HOME into that one child process."
           }
         ]
       },
@@ -656,13 +656,13 @@
       "title": {"zh": "文字", "en": "Writing"},
       "label": {"zh": "文字", "en": "Writing"},
       "tagline": {
-        "zh": "四篇关于代理、运行时和守卫的笔记",
-        "en": "Four notes on agents, runtimes and guards"
+        "zh": "七篇关于工具和它下面那一层的笔记",
+        "en": "Seven essays on tools and the layer underneath"
       },
       "keywords": [],
       "summary": {
-        "zh": "代码之外的记录：一个 3B 模型为什么靠不住、一层 runtime 能做什么、一个混血编辑器的代价，以及怎么给不太可信的模型造个笼子。半夜想通的事，先写下来。",
-        "en": "Notes that sit next to the code: why a 3B model cannot be trusted, what a runtime layer actually buys, what a hybrid editor costs, and how to put a cage around a model you do not fully trust. The things that clicked at 3 a.m., written down."
+        "zh": "代码之外的记录：一个 3B 模型为什么靠不住、一层 runtime 能做什么、一个混血编辑器的代价、怎么给不太可信的模型造个笼子、OCR 为什么要拆成四件工具、换 JDK 为什么要垫一层，以及这个站怎么在没有依赖的情况下长出来。半夜想通的事，先写下来。",
+        "en": "Notes that sit next to the code: why a 3B model cannot be trusted, what a runtime layer actually buys, what a hybrid editor costs, how to put a cage around a model you do not fully trust, why OCR should be four tools instead of one, why switching a JDK needs a shim, and how this site grew without a single dependency. The things that clicked at 3 a.m., written down."
       },
       "highlights": {"zh": [], "en": []},
       "repo": null,

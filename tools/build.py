@@ -62,6 +62,7 @@ PROJECT_PAGE = "pages/detail.html"
 META_RE = re.compile(r"^<!--meta\s*\n(.*?)^-->\s*$", re.S | re.M)
 BLOCK_RE = re.compile(r"<!--block\s+(\w+)-->\s*(.*?)\s*<!--endblock(?:\s+\1)?-->", re.S)
 COMMENT_RE = re.compile(r"<!--.*?-->", re.S)
+PLACEHOLDER_RE = re.compile(r"\{\{([A-Za-z][A-Za-z0-9_]*)\}\}")
 KEY_RE = re.compile(r"^([A-Za-z][\w-]*)\s*:\s*(.*)$")
 # 本地模块引用：静态 import、from ... import，以及 import("...") 动态引入。
 # 动态引入也要跟上指纹，否则改了 map.js 浏览器还在用旧的。
@@ -902,7 +903,7 @@ def desktop_icon(
 
 
 def desktop_icons(projects: list[dict], posts: list[dict]) -> str:
-    """桌面上的快捷方式：七个项目、文字、四篇文章、Soul for U、站点图纸。"""
+    """桌面上的快捷方式：七个项目、文字、七篇文章、Soul for U、站点图纸。"""
     icons = []
     for project in projects:
         accent = (project.get("accent") or ["#2a5fb0"])[0]
@@ -1036,18 +1037,15 @@ def now_line(now: dict) -> tuple[str, str]:
 def render(template: str, values: dict[str, str]) -> str:
     """替换占位符。
 
-    反复替换直到没有占位符为止 —— 正文片段里也可能带占位符（如 {{link}}），
-    单趟替换会因为插入顺序而漏掉它们。
+    只扫模板一趟，插进去的值不再被扫第二遍。
+
+    以前是多趟替换，因为页面片段里也可能带占位符（如 {{link}}）；现在片段
+    在 build_page 里先解一遍再塞进外壳，这里就只处理模板本身。
+
+    一趟的好处是叶子内容不会被当成占位符：文章正文里写 {{iconGrid}} 这种
+    字面量，扫第二遍会被换成真的图标网格，整篇文章当页都没了。
     """
-    out = template
-    for _ in range(6):
-        updated = out
-        for key, value in values.items():
-            updated = updated.replace("{{" + key + "}}", value)
-        if updated == out:
-            break
-        out = updated
-    return out
+    return PLACEHOLDER_RE.sub(lambda m: values.get(m.group(1), m.group(0)), template)
 
 
 def build_page(
@@ -1107,6 +1105,13 @@ def build_page(
         "overlay": blocks.get("overlay", ""),
     }
     values.update(extra or {})
+
+    # 页面片段本身也是模板：先解掉片段里的占位符，再整体塞进外壳。
+    # 只有片段能这样解 —— 叶子内容（正文、项目文案）不能被再扫一遍。
+    values["content"] = render(content, values)
+    for name, block in blocks.items():
+        values[name] = render(block, values)
+
     return render(shell, values)
 
 
@@ -1213,13 +1218,13 @@ def build_all(hashes: dict[str, str]) -> list[tuple[Path, str]]:
             title_zh = f"文字 · {BRAND}"
             title_en = f"Writing · {BRAND_EN}"
             desc_zh = (
-                "四篇文章：LLM 之上的确定性 Runtime、Milkdown 塞进 WebView 的取舍、"
-                "不信 3B 模型把守卫写成代码，以及给一个不太可信的模型造笼子。"
+                "七篇文章：守卫与裁决、运行时与验收、混血编辑器的代价、给不可信模型造笼子、"
+                "OCR 的四件工具、PATH 上的 JDK 垫片，以及这个站本身。"
             )
             desc_en = (
-                "Four essays: a deterministic runtime above the LLM, what a hybrid "
-                "Markdown editor costs, keeping the verdict out of a 3B model's hands, "
-                "and putting a cage around one untrusted model."
+                "Seven essays: guards and verdicts, a runtime with acceptance criteria, "
+                "what a hybrid editor costs, a cage for one untrusted model, four OCR "
+                "tools, a JDK shim on PATH, and the site itself."
             )
             extra.update(
                 {

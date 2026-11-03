@@ -1,11 +1,11 @@
 {
   "zh": {
-    "meta.desc.home": "钟闪闪的开源项目与文章：Android 上的 Markdown 编辑器 Mdeditor、LLM 之上的确定性运行时 Intent OS、本地 Ollama 编程助手、只锁 MiniMax 的 Claude Code hook、OCR 的 MCP 服务、Windows 上的 JDK 切换器，以及四篇文章。",
+    "meta.desc.home": "钟闪闪的开源项目与文章：Android 上的 Markdown 编辑器 Mdeditor、LLM 之上的确定性运行时 Intent OS、本地 Ollama 编程助手、只锁 MiniMax 的 Claude Code hook、OCR 的 MCP 服务、Windows 上的 JDK 切换器，以及七篇文章。",
     "hint.gesture": "拖动 · 滚轮缩放 · 双击复位",
     "a11y.lang": "语言 / Language",
     "a11y.nodes": "站点图纸 / Site map",
     "home.title": "我做工具，也把难的地方写下来",
-    "home.lede": "七个开源项目：Android 上的 Markdown 编辑器 Mdeditor、跑在 LLM 之上的确定性运行时 Intent OS、终端里的本地 Ollama 编程助手、只锁 MiniMax 一个模型的 Claude Code hook、OCR 的 MCP 服务、Windows 上的纯批处理 JDK 切换器，还有这个站本身。四篇文章写的是同一条线索：模型负责提议，代码负责裁决。",
+    "home.lede": "七个开源项目：Android 上的 Markdown 编辑器 Mdeditor、跑在 LLM 之上的确定性运行时 Intent OS、终端里的本地 Ollama 编程助手、只锁 MiniMax 一个模型的 Claude Code hook、OCR 的 MCP 服务、Windows 上的纯批处理 JDK 切换器，还有这个站本身。七篇文章写的是同一条线索：真正决定结果的不是模型本身，而是它下面垫着的那一层。",
     "map.projects": "作品",
     "map.writing": "文字",
     "map.other": "其他",
@@ -93,12 +93,12 @@
     "win.content": "内容"
   },
   "en": {
-    "meta.desc.home": "Open-source projects by Zhong Shanshan: an Android Markdown editor, a runtime above the LLM, a local Ollama coding assistant, an OCR MCP server and a JDK switcher for Windows.",
+    "meta.desc.home": "Open-source projects by Zhong Shanshan: an Android Markdown editor, a runtime above the LLM, a local Ollama coding assistant, an OCR MCP server, a JDK switcher for Windows, and seven essays.",
     "hint.gesture": "Drag · Scroll to zoom · Double-click to reset",
     "a11y.lang": "Language",
     "a11y.nodes": "Site map",
     "home.title": "I build the tools, and I write down the hard parts",
-    "home.lede": "Seven open-source projects: Mdeditor, a Markdown editor for Android; Intent OS, a deterministic runtime above the LLM; a local Ollama coding assistant for the terminal; a Claude Code hook that locks down MiniMax and nothing else; an OCR MCP server; a pure-batch JDK switcher for Windows; and this site. Four essays run along the same thread: the model proposes, the code decides.",
+    "home.lede": "Seven open-source projects: Mdeditor, a Markdown editor for Android; Intent OS, a deterministic runtime above the LLM; a local Ollama coding assistant for the terminal; a Claude Code hook that locks down MiniMax and nothing else; an OCR MCP server; a pure-batch JDK switcher for Windows; and this site. Seven essays run along one thread: what decides the outcome is never the model itself, but the layer you put underneath it.",
     "map.projects": "PROJECTS",
     "map.writing": "WRITING",
     "map.other": "OTHER",

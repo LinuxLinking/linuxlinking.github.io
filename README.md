@@ -14,8 +14,8 @@ social card.
 
 ## What's inside
 
-- **The XP desktop** (home) — Bliss-style wallpaper drawn in pure CSS, a column-major grid of
-  shortcuts (7 projects · Writing · 4 essays · Soul for U · Site Map), and a taskbar with a start
+- **The XP desktop** (home) — the Bliss wallpaper as a real photo over a CSS gradient fallback, a
+  column-major grid of shortcuts (7 projects · Writing · 7 essays · Soul for U · Site Map), and a taskbar with a start
   button, quick-launch icons, a task list, a language toggle and a clock.
 - **IE windows** — clicking a shortcut opens a real window: gradient title bar with
   minimize / maximize / close, menu bar, toolbar with back / forward / reload / home, an address
@@ -77,8 +77,8 @@ Type is **system fonts only** — no web fonts, no CDN:
 - `--font-read` is `Times New Roman` for article bodies, with SimSun / 宋体 for Chinese.
 - `--font-mono` is `Courier New`, used for dates, tags and code.
 
-The wallpaper is a pure-CSS gradient (no image), the icons are inline SVG drawn by
-`tools/xp_icons.py` as 16×16 pixel art (no icon font, no sprite sheet), and
+The wallpaper is the real Bliss photo (`assets/wallpaper.jpg`) over a CSS gradient fallback, the
+icons are inline SVG drawn by `tools/xp_icons.py` as 16×16 pixel art (no icon font, no sprite sheet), and
 `prefers-reduced-motion` collapses every transition and animation to ~0.
 
 ## Directory map
@@ -246,7 +246,7 @@ be touched by hand.
 
 ### Why no `tags` field?
 
-`posts.json` deliberately has no `tags` array. The site has four posts and no tag index, tag
+`posts.json` deliberately has no `tags` array. The site has seven posts and no tag index, tag
 filtering, or tag pages; a tag field with no consumer is a field that will drift out of sync with
 the Markdown front matter (which does carry a single `tag:` label used as a kicker). If tag
 browsing is ever added, add the field and the index page in the same change.

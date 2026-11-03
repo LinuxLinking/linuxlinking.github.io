@@ -1,4 +1,4 @@
-import { i18n } from "./site.js?v=5f6c9dac";
+import { i18n } from "./site.js?v=970ff2d9";
 
 /* Windows XP 桌面与 IE 窗口的脚本。
 
