@@ -13,6 +13,7 @@ import re
 import sys
 import tempfile
 import unittest
+from html.parser import HTMLParser
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -23,6 +24,61 @@ import build  # noqa: E402
 
 def load(name):
     return json.loads((ROOT / name).read_text(encoding="utf-8"))
+
+
+CJK_RE = re.compile(r"[\u4e00-\u9fff]")
+
+
+class ChineseFinder(HTMLParser):
+    """找没包进双语容器的中文：漏写 data-i18n 时，切到英文它们会留在页面上。
+
+    <title>、JSON-LD、窗口标题和语言按钮都是运行时换的，不算漏网之鱼。
+    """
+
+    def __init__(self):
+        super().__init__(convert_charrefs=True)
+        self.depth = 0
+        self.stack = []
+        self.found = []
+
+    @staticmethod
+    def _counted(tag, attrs):
+        a = dict(attrs)
+        cls = a.get("class") or ""
+        return (
+            tag in ("title", "script")
+            or "data-lang-btn" in a
+            or a.get("data-slot") == "title"
+            or "i18n-zh" in cls
+            or "i18n-en" in cls
+            or "data-i18n" in a
+        )
+
+    def handle_starttag(self, tag, attrs):
+        counted = self._counted(tag, attrs)
+        self.stack.append((tag, counted))
+        if counted:
+            self.depth += 1
+
+    def handle_endtag(self, tag):
+        # 标签没闭合也照样往下走，别让 depth 卡住。
+        for i in range(len(self.stack) - 1, -1, -1):
+            if self.stack[i][0] == tag:
+                for _, counted in self.stack[i:]:
+                    if counted:
+                        self.depth -= 1
+                del self.stack[i:]
+                return
+
+    def handle_data(self, data):
+        if self.depth == 0 and CJK_RE.search(data):
+            self.found.append(data.strip()[:40])
+
+
+def chinese_outside_bilingual(html):
+    finder = ChineseFinder()
+    finder.feed(html)
+    return finder.found
 
 
 class ValidateTests(unittest.TestCase):
@@ -194,6 +250,17 @@ class StaticContentTests(unittest.TestCase):
         html = self.written[ROOT / "blog" / "index.html"]
         for post in load("data/posts.json")["posts"]:
             self.assertIn(f'href="{post["url"]}"', html)
+
+    def test_no_chinese_is_left_outside_a_bilingual_wrapper(self):
+        # 模板里漏写一个 data-i18n，这块中文就一直留在页面上 —— 切英文只切了一半。
+        offenders = []
+        for path, html in list(self.written.items()) + list(self.extra.items()):
+            try:
+                name = path.relative_to(ROOT)
+            except ValueError:
+                name = path
+            offenders += [(str(name), s) for s in chinese_outside_bilingual(html)]
+        self.assertEqual(offenders, [])
 
     def test_no_placeholder_survives_the_build(self):
         # 外壳（任务栏、开始菜单、窗口模板）每页都要有，少给一个就留下 {{...}} 在页面上。
