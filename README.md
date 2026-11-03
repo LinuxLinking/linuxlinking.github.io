@@ -122,9 +122,11 @@ icons are inline SVG drawn by `tools/xp_icons.py` as 16×16 pixel art (no icon f
 ├─ assets/                  favicon.svg + og.png (social card)
 ├─ .github/workflows/       build-check.yml — fails the push if the committed
 │                           static output drifts from the sources
-├─ soul-for-u/              untouched sub-site
-└─ docs/superpowers/specs/  design specs
+└─ soul-for-u/              untouched sub-site
 ```
+
+Design specs and plans live in `docs/` on your machine only. The directory is
+gitignored, so it never reaches GitHub and never reaches GitHub Pages.
 
 Generated files (root `index.html`, `project.html`, `404.html`, `blog/index.html`,
 `blog/*/index.html`, `projects/*/index.html`, `sitemap.xml`, `robots.txt`) are committed to the
