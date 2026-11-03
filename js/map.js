@@ -455,6 +455,7 @@ export function createMap({ container, stage, labels = {}, reducedMotion = false
         dot.setAttribute("aria-hidden", "true");
         const label = document.createElement("span");
         label.className = "map-section-label";
+        label.dataset.key = row.key;
         label.textContent = labels[row.key] || row.key;
         head.append(dot, label);
         stage.appendChild(head);
@@ -532,6 +533,13 @@ export function createMap({ container, stage, labels = {}, reducedMotion = false
 
   return {
     setNodes,
+    /* 语言换了，分区标题要跟着换：改掉闭包里的 labels 再重画标题，节点位置不动 */
+    setLabels(next) {
+      labels = next;
+      stage.querySelectorAll(".map-section-label").forEach((el) => {
+        el.textContent = labels[el.dataset.key] || el.dataset.key;
+      });
+    },
     fit,
     reset: () => fit(true),
     zoom: zoomAt

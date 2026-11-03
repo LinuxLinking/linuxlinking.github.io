@@ -649,12 +649,12 @@
       "kind": "blog",
       "order": 8,
       "size": 0.85,
-      "monogram": "W",
+      "monogram": {"zh": "文", "en": "W"},
       "accent": ["#c8a2ff", "#6f7bff"],
       "year": "",
       "stack": [],
       "title": {"zh": "文字", "en": "Writing"},
-      "label": {"zh": "Writing", "en": "Writing"},
+      "label": {"zh": "文字", "en": "Writing"},
       "tagline": {
         "zh": "四篇关于代理、运行时和守卫的笔记",
         "en": "Four notes on agents, runtimes and guards"

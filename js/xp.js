@@ -840,17 +840,28 @@ async function fetchJson(path) {
 function localize(nodes, lang) {
   return nodes.map((node) => ({
     ...node,
+    // 字形可以是一个字，也可以是 {zh, en}：项目的图标两边一样，文字和文章的图标跟着语言走
+    monogram: node.monogram?.[lang] ?? node.monogram ?? "",
     titleText: node.title?.[lang] ?? node.title?.zh ?? node.id,
     labelText: node.label?.[lang] ?? node.label?.zh ?? node.id,
     taglineText: node.tagline?.[lang] ?? node.tagline?.zh ?? "",
   }));
 }
 
+/* 图纸的分区标题：作品 / 文字 / 其他 */
+function mapLabels() {
+  return {
+    projects: i18n.t("map.projects"),
+    writing: i18n.t("map.writing"),
+    other: i18n.t("map.other"),
+  };
+}
+
 async function buildMap() {
   if (mapView || !mapEl || !stageEl) return;
   try {
     const [{ createMap }, { buildNodes }] = await Promise.all([
-      import("./map.js?v=0bda1abc"),
+      import("./map.js?v=78735bc7"),
       import("./nodes.js?v=89d92837"),
     ]);
     const [projects, posts] = await Promise.all([
@@ -861,11 +872,7 @@ async function buildMap() {
     mapView = createMap({
       container: mapEl,
       stage: stageEl,
-      labels: {
-        projects: i18n.t("map.projects"),
-        writing: i18n.t("map.writing"),
-        other: i18n.t("map.other"),
-      },
+      labels: mapLabels(),
       reducedMotion: matchMedia("(prefers-reduced-motion: reduce)").matches,
       onOpen: (node) => {
         closeMap();
@@ -1012,7 +1019,10 @@ function boot() {
       const slot = entry.win.querySelector('[data-slot="url"]');
       if (slot) slot.value = new URL(withLang(entry.url), location.href).href;
     });
-    if (mapView) mapView.setNodes(localize(mapNodes, i18n.lang));
+    if (mapView) {
+      mapView.setNodes(localize(mapNodes, i18n.lang));
+      mapView.setLabels(mapLabels());
+    }
   });
 }
 

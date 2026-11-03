@@ -1506,7 +1506,8 @@ def validate(projects: list[dict], posts: list[dict], now: dict | None = None) -
             fail(f"文章 {slug} 的 projectId 指向不存在的项目: {pid}")
         if not post.get("label"):
             fail(f"文章 {slug} 缺少 label（图纸节点标签用）")
-        if not post.get("monogram"):
+        # 字形可以是一个字，也可以是 {zh, en}：两种语言都得能取到
+        if not pick(post.get("monogram"), "zh") or not pick(post.get("monogram"), "en"):
             fail(f"文章 {slug} 缺少 monogram（图纸节点字形用）")
 
     if now is not None:

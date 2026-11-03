@@ -5,7 +5,7 @@
       "date": "2026-10-31",
       "projectId": "ollama-harness",
       "label": {"zh": "守卫设计", "en": "Guard Design"},
-      "monogram": "守",
+      "monogram": {"zh": "守", "en": "G"},
       "title": {
         "zh": "本地 Ollama 编程 Agent：不信 3B 模型，把守卫写成代码",
         "en": "Ollama Coding Agent, Distrust the 3B Model, Encode the Guard"
@@ -21,7 +21,7 @@
       "date": "2026-10-31",
       "projectId": "intent-os",
       "label": {"zh": "一层 Runtime", "en": "A Runtime"},
-      "monogram": "链",
+      "monogram": {"zh": "链", "en": "A"},
       "title": {
         "zh": "为什么我不做 Agent 框架，而做一层 Runtime",
         "en": "Why a Runtime, Not Another Agent Framework"
@@ -37,7 +37,7 @@
       "date": "2026-10-31",
       "projectId": "mdeditor",
       "label": {"zh": "混血编辑器", "en": "Hybrid Editor"},
-      "monogram": "桥",
+      "monogram": {"zh": "桥", "en": "H"},
       "title": {
         "zh": "把 Milkdown 塞进 WebView：混血编辑器的取舍与代价",
         "en": "Milkdown in a WebView: What a Hybrid Editor Costs"
@@ -53,7 +53,7 @@
       "date": "2026-10-31",
       "projectId": "lockdown",
       "label": {"zh": "造笼子", "en": "The Cage"},
-      "monogram": "笼",
+      "monogram": {"zh": "笼", "en": "T"},
       "title": {
         "zh": "给不可信的模型造笼子：Claude Code Hook 与 LLM 安全",
         "en": "A Cage for One Untrusted Model: A Claude Code Hook for LLM Security"

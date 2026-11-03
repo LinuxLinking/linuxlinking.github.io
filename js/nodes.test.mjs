@@ -36,7 +36,9 @@ test("文章节点继承关联项目的 accent", () => {
 test("文章节点用 posts.json 的 label 与 monogram", () => {
   const nodes = buildNodes({ projects, posts });
   const post = nodes.find((n) => n.id === "harness-guard-design");
-  assert.equal(post.monogram, "守");
+  // 字形分中英两套：图纸按当前语言取
+  assert.equal(post.monogram.zh, "守");
+  assert.equal(post.monogram.en, "G");
   assert.equal(post.label.zh, "守卫设计");
 });
 

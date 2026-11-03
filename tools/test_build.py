@@ -486,6 +486,26 @@ class CopyConsistencyTests(unittest.TestCase):
                     f"{post['slug']} 的 {name} 标题和 posts.json 不一致",
                 )
 
+    def test_map_node_glyphs_follow_the_language(self):
+        blog = next(p for p in self.projects if p["id"] == "blog")
+        # 图纸节点的标签和字形都要跟着语言走：中文界面里不该写着 Writing
+        self.assertEqual(blog["label"]["zh"], "文字")
+        self.assertEqual(blog["monogram"]["zh"], "文")
+        self.assertEqual(blog["monogram"]["en"], "W")
+        for post in self.posts:
+            monogram = post.get("monogram") or {}
+            self.assertTrue(monogram.get("zh"), f"{post['slug']} 缺中文字形")
+            self.assertTrue(monogram.get("en"), f"{post['slug']} 缺英文字形")
+        source = (ROOT / "js" / "xp.js").read_text(encoding="utf-8")
+        self.assertIn("monogram: node.monogram?.[lang]", source)
+
+    def test_map_section_labels_refresh_with_the_language(self):
+        xp = (ROOT / "js" / "xp.js").read_text(encoding="utf-8")
+        self.assertIn("mapView.setLabels", xp)
+        source = (ROOT / "js" / "map.js").read_text(encoding="utf-8")
+        self.assertIn("setLabels", source)
+        self.assertIn("label.dataset.key = row.key", source)
+
 
 if __name__ == "__main__":
     unittest.main()
