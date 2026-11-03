@@ -1,17 +1,21 @@
 ---
-title: 把 Milkdown 塞进 WebView：混血编辑器的取舍
+title: 把 Milkdown 塞进 WebView：混血编辑器的取舍与代价
 date: 2026-10-31
 tag: MDEDITOR
-lede: Flutter 做壳，WebView 里跑 Milkdown，中间靠一个 JS 桥说话——这不是偷懒，是在「自己写编辑器」和「接受 web 技术」之间做的明确取舍。这篇讲清楚四个决定及其代价。
+lede: Mdeditor 把基于 ProseMirror 的 Milkdown 塞进 Android WebView，外壳用 Flutter，中间一条 JS 桥，四个决定，每个都要付代价。
 ---
 
-## 为什么是混血
+代码块里的 `<`，导出成 DOCX 后变成了 `&amp;lt;`。原因不复杂：转义套了两层。markdown 包先把 `<` 转成 `&lt;`，DOCX 的 XML 再转一次。
 
-Android 上做 Markdown 编辑器，第一道选择题就是：编辑器内核用什么写？
+修法只有一个选项：`encodeHtml: false`，关掉第一轮，转义权交给 DOCX 生成器。一条链上两层转义，必须有一层说了算。
 
-纯 Flutter 方案意味着自己实现所见即所得的富文本编辑——光光标定位、选区、输入法合成事件这三件事就够写一年。而 Markdown 编辑器这个赛道，web 生态里已经有成熟得多的答案，比如 Milkdown：基于 ProseMirror，所见即所得，插件体系完整。
+## 为什么混血编辑器要把 Milkdown 塞进 WebView
 
-所以我选了混血：**Flutter 做壳（文件、设置、导出、主题），WebView 里跑 Milkdown（编辑区）**，中间架一座桥。代价是两套渲染体系、一条必须精心维护的边界；换来的是一个真正好用的编辑内核。
+定架构要先回答：编辑内核用什么语言写。全 Flutter 意味着自己实现所见即所得的富文本编辑。光标定位、选区、输入法合成事件，每件都是独立工程，三件加起来一年不宽裕。
+
+Markdown 编辑这件事，web 那边已有答案：Milkdown，基于 ProseMirror，解析层是 remark，所见即所得，插件现成。
+
+所以 App 拆成两半。Flutter 拿文件、设置、导出、主题；Milkdown 拿编辑面，跑在 WebView 里，中间一条 JS 通道。
 
 ```mermaid
 flowchart LR
@@ -31,36 +35,60 @@ flowchart LR
     B -- "changed 事件" --> F
 ```
 
-## 决定一：桥上只走一种协议
+图就这么大，是故意的。代价是两套渲染体系，加一条得有人守着的边界。另一种活法是先花一年写内核。
 
-WebView 桥最容易腐化的地方是消息格式随手写。Mdeditor 定死了一条 `MdBridge` 通道，消息永远是 `{type, ...}` 的 JSON：初始化完成后内核回 `ready`，用户每次编辑推 `changed` 并带上全文。
+## 桥上到底传了多少数据
 
- Flutter 侧用 `addJavaScriptChannel('MdBridge', ...)` 收，用 `evaluateJavascript` 发。协议小到只剩两种消息，反而稳定——桥的复杂度不在于能传多少种东西，而在于两端对「什么时候说什么话」有没有共识。
+WebView 的桥最容易烂在消息格式上。Mdeditor 钉死一条通道 `MdBridge`，消息永远是 `{type, ...}`。
 
-## 决定二：文件停在用户放它的地方
+消息只有两种：初始化完，内核回 `ready`，之后每次编辑推 `changed`，带全文。
 
-很多编辑器打开文件的第一件事是**拷进自己的沙箱**，保存时再拷回去。这对用户是隐形的迁移：改完一个文件，手机存储里凭空多了一份副本。
+Flutter 侧用 `addJavaScriptChannel('MdBridge', ...)` 收，用 `evaluateJavascript` 发。
 
-Mdeditor 走 Android SAF：文件授权后，Kotlin 侧对 URI 调 `takePersistableUriPermission`，把这份授权**跨重启持久化**。打开、编辑、保存始终针对原始 URI——文件从来不动，动的只有内容。最近文件列表存的是 URI 而不是拷贝路径，所以「昨天在下载目录改的那篇」今天点开还在原地。
+> 桥的难处不在能传多少东西，而在两端对「什么时候说什么」有没有共识。
 
-代价是 SAF 的 API 出了名的绕，每个操作都要过 intent 和列解析。但这是「尊重用户的文件在哪」该付的税。
+代价是壳永远不知道光标在哪。`changed` 带文本，不带选区，native 侧只有整篇快照，没有带光标的缓冲。想动光标只能在 JavaScript 那边做。
 
-## 决定三：DOCX 自己写，别拉全家桶
+## SAF 的文档 URI 怎么跨重启活下来
 
-导出 DOCX 时，顺手的选择是拖一个跨平台文档库。但 Android 上这类库往往几十 MB、还和 Flutter 的构建体系打架。Mdeditor 的选择是：**直接手写 OOXML**——`document.xml`、样式表、编号、页眉页脚、目录、媒体关系，一份份生成再打包。
+不少编辑器打开文件先拷进沙箱，保存时再拷回去。用户看不见，手机存储里却多出一份副本。
 
-这不是炫技，是控制力：代码块高亮 token 级映射、图片嵌入走 `media/` + 关系表、目录字段由 Word 打开时自行刷新。整个导出跑在 isolate 里（`compute`），UI 不卡。
+Mdeditor 走 Android SAF。用户选完文档，Kotlin 侧对 URI 调 `takePersistableUriPermission`，授权能扛过重启。打开、编辑、保存都对着原始 URI，文件不挪窝，动的只有内容。最近列表存的也是 URI，昨天改过的那篇今天点开还在原地。
 
-中间踩过一个值得记的坑：markdown 包默认会把 `<`、`&` 转义成 HTML 实体，而 DOCX 的 XML 还要再转义一次——两轮转义叠起来，正文里的代码就成了 `&amp;lt;`。解法是 `encodeHtml: false` 关掉第一轮，转义权完全收归 DOCX 生成器。**当一条链上有两层转义时，必须明确哪层拥有它。**
+SAF 的 API 出了名的绕，每个操作都要过 intent 和列解析，报错是 Android 形状的，不是文件形状的。这是尊重用户文件位置的税。
 
-## 决定四：主题是一条单向流
+## 导出 DOCX 为什么不直接用现成的库
 
-Flutter 壳和 WebView 各有一套样式体系，主题不同步就会「壳是暗色、编辑区是亮色」的割裂。Mdeditor 把壳里的设计令牌（颜色、字体、代码高亮配色）打包成 `NativeEditorTheme`，切主题时单向推给 WebView，Milkdown 侧映射成 CSS 变量。
+导出 DOCX 最省事的做法是拖个跨平台文档库，Android 上这类库动辄几十 MB，还跟 Flutter 构建体系打架。
 
-单向意味着编辑区永远是主题的消费者，不会反过来影响壳。两个世界只有一座桥、一种协议、一个方向——混血架构想要不精神分裂，这是底线。
+所以 OOXML 我自己写：`document.xml`、样式表、编号、页眉页脚、目录、媒体关系，生成再打包。换来的是控制：代码块高亮按 token 映射，图片走 `media/` 加关系表，目录字段等 Word 打开时自己刷新。导出跑在 isolate 里（`compute`），UI 不卡。
 
-## 收束
+开头那个 `&amp;lt;` 就出在这一段。手写 OOXML 的代价长这样：两层转义没人认领，得导出一份带 `<` 的文件才看得出。
 
-混血不丢人。丢人的是混了血却没有边界：桥上消息随手加、文件偷偷拷、依赖随手拖。Mdeditor 的四个决定——单一桥协议、SAF URI 持久化、手写 OOXML、主题单向流——说到底是同一件事：**每接受一次「别人的技术」，就把边界画清楚一次。**
+## 主题是怎么传进编辑区的
 
-仓库在 [LinuxLinking/Mdeditor](https://github.com/LinuxLinking/Mdeditor)，GPL-3.0，中英日法四语 README。
+Flutter 壳和 WebView 各有一套样式。不同步就是壳暗、编辑区亮，像没做完。
+
+壳把设计令牌打包成 `NativeEditorTheme`，颜色、字体、代码高亮配色都在里面，切主题时单向推进 WebView，Milkdown 侧映射成 CSS 变量。
+
+> 只有一个方向。编辑区只消费主题，不反过来影响壳。
+
+代价是编辑区里的主题决定必须绕到壳上再绕回来，它当不了源头。
+
+## 这套混血架构在哪里难受
+
+键盘、选区、输入法合成现在是 ProseMirror 的事，跑在我控制不了的 WebView 里。我用混血躲掉的光标活儿还在，只是换了个地方待着，在 Kotlin 这边修不了。
+
+全文 `changed` 是另一个软肋。每次编辑都把整篇推过桥，开销跟着文件大小走，native 侧拿到的还是快照。这个开销我没量过。
+
+SAF 的绕、两套字体的漂移都是小事，但用户先看见。字体在两处定，没人保证一样。
+
+## 我会改哪些地方
+
+先改协议。两种消息是我还不知道编辑器要什么时定的。现在知道了，加第三种消息给需要选区的命令用，再给 `changed` 限流，别让壳每次按键都收全文。
+
+SAF 那个决定不改，手写 OOXML 也不改。两个都费真时间，换来的东西库给不了：文件待在原地，导出被 Word 挑刺时我改得动。
+
+要是这 App 的主业是原生文本输入，我不会选这套架构。编辑区和输入法、剪贴板、分享面板不停对话时，桥就从接缝变成了产品。Markdown 编辑器的难处在编辑内核，别的只是文件和设置，这套扛得住。
+
+仓库在 [LinuxLinking/Mdeditor](https://github.com/LinuxLinking/Mdeditor)，GPL-3.0，README 有中英日法四份。下一步想量的是全文 `changed` 在长文档上的开销。这个数字我还没有。

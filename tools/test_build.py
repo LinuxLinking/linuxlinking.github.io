@@ -110,8 +110,11 @@ class ProjectPageTests(unittest.TestCase):
 
     def test_static_page_carries_title_and_summary_without_js(self):
         html = self.written[ROOT / "projects" / "intent-os" / "index.html"]
+        project = next(p for p in self.projects if p["id"] == "intent-os")
         self.assertIn("Intent OS", html)
-        self.assertIn("把意图编译成可验证、可回滚的执行链", html)
+        # 文案以 data/projects.json 为准，测试跟着数据走，不写死具体句子
+        self.assertIn(project["tagline"]["zh"], html)
+        self.assertIn(project["summary"]["en"], html)
         # 整页内容都在 HTML 里：技术栈、要点、按钮，不再依赖运行时取数据
         self.assertIn("LangGraph", html)
         self.assertIn("在 GitHub 查看", html)
@@ -164,12 +167,22 @@ class StaticContentTests(unittest.TestCase):
 
     def test_home_carries_both_languages(self):
         html = self.written[ROOT / "index.html"]
-        self.assertIn('<span class="i18n-zh" lang="zh-CN">写工具，也写字</span>', html)
-        self.assertIn('<span class="i18n-en" lang="en">I build tools, and I write</span>', html)
+        # 文案以 data/i18n.json 为准，测试跟着数据走，不写死具体句子
+        strings = load("data/i18n.json")
+        self.assertIn(
+            f'<span class="i18n-zh" lang="zh-CN">{strings["zh"]["home.title"]}</span>', html
+        )
+        self.assertIn(
+            f'<span class="i18n-en" lang="en">{strings["en"]["home.title"]}</span>', html
+        )
 
     def test_post_body_is_rendered_into_html(self):
         html = self.written[ROOT / "blog" / "cage-for-a-model" / "index.html"]
-        self.assertIn("<h2>问题：笼子为什么只锁一个模型</h2>", html)
+        # 标题会被改，断言别写死：拿正文源文件渲染一遍，取第一个二级标题
+        source = (ROOT / "blog" / "cage-for-a-model" / "post.md").read_text(encoding="utf-8")
+        first_h2 = re.search(r"<h2>.*?</h2>", build.markdown.render(source))
+        self.assertIsNotNone(first_h2)
+        self.assertIn(first_h2.group(0), html)
         self.assertIn('<pre><code class="language-mermaid">', html)
         self.assertNotIn("<p id=\"post-body\"></p>", html)
 
@@ -335,6 +348,52 @@ class IeChromeTests(unittest.TestCase):
         source = (ROOT / "js" / "xp.js").read_text(encoding="utf-8")
         self.assertIn('frame.style.height = "100%"', source)
 
+    def test_menu_bar_items_open_dropdowns_with_real_commands(self):
+        html = self.written[ROOT / "index.html"]
+        for cmd in ("open", "print", "props", "close", "selectAll", "zoomIn", "about"):
+            self.assertIn(f'data-cmd="{cmd}"', html)
+
+    def test_every_menu_command_has_a_handler(self):
+        # 菜单里出现的命令，js 里都得有对应分支，不然点了等于没点
+        html = self.written[ROOT / "index.html"]
+        source = (ROOT / "js" / "xp.js").read_text(encoding="utf-8")
+        for cmd in sorted(set(re.findall(r'data-cmd="([a-zA-Z-]+)"', html))):
+            self.assertIn(f'case "{cmd}"', source)
+
+    def test_favorites_menu_lists_every_project(self):
+        html = self.written[ROOT / "index.html"]
+        for project in load("data/projects.json")["projects"]:
+            if project.get("kind") != "project":
+                continue
+            self.assertIn(f'data-cmd="fav" data-url="projects/{project["id"]}/"', html)
+
+    def test_address_bar_takes_input(self):
+        html = self.written[ROOT / "index.html"]
+        self.assertNotIn('<input type="text" readonly', html)
+
+    def test_dialog_shells_are_on_every_page(self):
+        for path, html in self.written.items():
+            for shell in ('id="xpModal"', 'id="xpShutdown"', 'id="xpLogon"'):
+                self.assertIn(shell, html, path)
+
+    def test_pages_carry_the_site_root(self):
+        # 开始菜单里的地址相对站点根写：页面在 /blog/ 下也要能找到 /projects/...
+        self.assertIn('data-root="../"', self.written[ROOT / "blog" / "index.html"])
+        self.assertIn('data-root="../../"', self.written[ROOT / "projects" / "mdeditor" / "index.html"])
+
+    def test_logoff_and_shutdown_ask_instead_of_only_toasting(self):
+        html = self.written[ROOT / "index.html"]
+        self.assertIn('data-sm="logoff"', html)
+        self.assertIn('data-sm="shutdown"', html)
+        self.assertNotIn("data-toast=", html)
+
+    def test_the_wallpaper_is_a_real_image(self):
+        wallpaper = ROOT / "assets" / "wallpaper.jpg"
+        self.assertTrue(wallpaper.exists())
+        self.assertGreater(wallpaper.stat().st_size, 10000)
+        css = (ROOT / "css" / "xp.css").read_text(encoding="utf-8")
+        self.assertIn('url("../assets/wallpaper.jpg")', css)
+
 
 class BilingualPostTests(unittest.TestCase):
     """post.en.md 存在时，英文正文要一起进 HTML。"""
@@ -377,6 +436,50 @@ class BilingualTests(unittest.TestCase):
     def test_unknown_key_is_left_alone(self):
         source = '<p data-i18n="no.such.key">原样</p>'
         self.assertEqual(build.expand_i18n(source, {"zh": {}, "en": {}}), source)
+
+
+class CopyConsistencyTests(unittest.TestCase):
+    """文案不能漂：双语都要有，描述别太长，标题三处一致。"""
+
+    def setUp(self):
+        self.projects = load("data/projects.json")["projects"]
+        self.posts = load("data/posts.json")["posts"]
+        self.strings = load("data/i18n.json")
+
+    def test_project_copy_exists_in_both_languages(self):
+        for project in self.projects:
+            pid = project["id"]
+            for field in ("tagline", "summary"):
+                for lang in ("zh", "en"):
+                    self.assertTrue(
+                        (project.get(field) or {}).get(lang),
+                        f"{pid} 缺少 {field}.{lang}",
+                    )
+            zh = (project.get("highlights") or {}).get("zh") or []
+            en = (project.get("highlights") or {}).get("en") or []
+            self.assertEqual(len(zh), len(en), f"{pid} 的中英亮点条数不一致")
+
+    def test_search_descriptions_stay_inside_one_snippet(self):
+        for project in self.projects:
+            desc = project.get("desc") or {}
+            if not desc:
+                continue
+            self.assertLessEqual(len(desc["en"]), 200, f"{project['id']} 英文描述太长")
+            self.assertLessEqual(len(desc["zh"]), 160, f"{project['id']} 中文描述太长")
+        self.assertLessEqual(len(self.strings["en"]["meta.desc.home"]), 200)
+        self.assertLessEqual(len(self.strings["zh"]["meta.desc.home"]), 160)
+
+    def test_post_title_is_the_same_in_the_index_and_the_front_matter(self):
+        for post in self.posts:
+            for name in ("post.md", "post.en.md"):
+                meta, _ = build.markdown.split_front_matter(
+                    (ROOT / "blog" / post["slug"] / name).read_text(encoding="utf-8")
+                )
+                self.assertEqual(
+                    meta.get("title"),
+                    post["title"]["zh" if name == "post.md" else "en"],
+                    f"{post['slug']} 的 {name} 标题和 posts.json 不一致",
+                )
 
 
 if __name__ == "__main__":

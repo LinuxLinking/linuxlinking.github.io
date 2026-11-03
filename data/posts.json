@@ -4,18 +4,15 @@
       "slug": "harness-guard-design",
       "date": "2026-10-31",
       "projectId": "ollama-harness",
-      "label": {
-        "zh": "守卫设计",
-        "en": "Guard Design"
-      },
+      "label": {"zh": "守卫设计", "en": "Guard Design"},
       "monogram": "守",
       "title": {
-        "zh": "小模型不可信，守卫必须是代码",
-        "en": "Distrust the Model, Encode the Guard"
+        "zh": "本地 Ollama 编程 Agent：不信 3B 模型，把守卫写成代码",
+        "en": "Ollama Coding Agent, Distrust the 3B Model, Encode the Guard"
       },
       "summary": {
-        "zh": "本地 3B 模型写代码，问题不是笨，是不可靠。Local Ollama Harness 把每一种失败模式都变成了守卫里的一条确定性规则：模型只负责提议，裁决权在 harness。",
-        "en": "A local 3B model isn't dumb — it's unreliable. Local Ollama Harness turns every known failure mode into a deterministic guard rule: the model proposes, the harness disposes."
+        "zh": "qwen2.5-coder:3b 写完文件就宣布「退出码 0」，其实什么都没跑。Local Ollama Harness 把每一种失败模式写成守卫里的一条确定性规则：模型只提议，裁决权在 harness。",
+        "en": "A 3B model wrote the file, announced exit code 0, and had run nothing. Local Ollama Harness turns each failure mode into one guard rule: the model proposes, the harness disposes."
       },
       "url": "harness-guard-design/"
     },
@@ -23,18 +20,15 @@
       "slug": "why-runtime-not-agent",
       "date": "2026-10-31",
       "projectId": "intent-os",
-      "label": {
-        "zh": "一层 Runtime",
-        "en": "A Runtime"
-      },
+      "label": {"zh": "一层 Runtime", "en": "A Runtime"},
       "monogram": "链",
       "title": {
-        "zh": "为什么我不做 Agent，而做一层 Runtime",
+        "zh": "为什么我不做 Agent 框架，而做一层 Runtime",
         "en": "Why a Runtime, Not Another Agent Framework"
       },
       "summary": {
-        "zh": "每个 agent 框架最终都会撞上同一堵墙。Intent OS 的回答是：不做第八十个框架，做框架之上的那层确定性——意图编译成带验收标准的计划，副作用过审批闸门，回执进哈希链。",
-        "en": "Every agent harness hits the same wall. Intent OS answers by not being the 80th framework: compile intent into plans with acceptance criteria, gate side effects, and hash-chain the receipts."
+        "zh": "每个 agent 框架最终都会撞上同一堵墙。Intent OS 的回答是不做第八十个框架：意图编译成带验收标准的计划，副作用过审批闸门，回执进哈希链。",
+        "en": "Every agent harness hits the same wall. Intent OS is not the 80th framework: intent compiles into a plan with acceptance criteria, side effects are gated, receipts are hash-chained."
       },
       "url": "why-runtime-not-agent/"
     },
@@ -42,18 +36,15 @@
       "slug": "milkdown-in-webview",
       "date": "2026-10-31",
       "projectId": "mdeditor",
-      "label": {
-        "zh": "混血编辑器",
-        "en": "Hybrid Editor"
-      },
+      "label": {"zh": "混血编辑器", "en": "Hybrid Editor"},
       "monogram": "桥",
       "title": {
-        "zh": "把 Milkdown 塞进 WebView：混血编辑器的取舍",
-        "en": "Milkdown in a WebView: Trade-offs of a Hybrid Editor"
+        "zh": "把 Milkdown 塞进 WebView：混血编辑器的取舍与代价",
+        "en": "Milkdown in a WebView: What a Hybrid Editor Costs"
       },
       "summary": {
-        "zh": "Flutter 做壳，WebView 里跑 Milkdown，中间靠一个 JS 桥说话——这不是偷懒，是明确的取舍。单一桥协议、SAF URI 持久化、手写 OOXML、主题单向流，四个决定及其代价。",
-        "en": "A Flutter shell, Milkdown in a WebView, one JS bridge between them — a deliberate trade, not a shortcut. One bridge protocol, persisted SAF URIs, hand-rolled OOXML, one-way theming."
+        "zh": "Flutter 做壳，WebView 里跑 Milkdown，中间一条 JS 桥——不是偷懒，是取舍。单一桥协议、SAF URI 持久化、手写 OOXML、主题单向流，四个决定各有一笔账。",
+        "en": "A Flutter shell, Milkdown in a WebView, one JS bridge between them: a deliberate trade, not a shortcut. One bridge protocol, persisted SAF URIs, hand-rolled OOXML, one-way theming."
       },
       "url": "milkdown-in-webview/"
     },
@@ -61,18 +52,15 @@
       "slug": "cage-for-a-model",
       "date": "2026-10-31",
       "projectId": "lockdown",
-      "label": {
-        "zh": "造笼子",
-        "en": "The Cage"
-      },
+      "label": {"zh": "造笼子", "en": "The Cage"},
       "monogram": "笼",
       "title": {
-        "zh": "给一个不太可信的模型造笼子",
-        "en": "A Cage for One Untrusted Model"
+        "zh": "给不可信的模型造笼子：Claude Code Hook 与 LLM 安全",
+        "en": "A Cage for One Untrusted Model: A Claude Code Hook for LLM Security"
       },
       "summary": {
-        "zh": "代码管必然，人管例外，模型管灰区——三层防线锁住 Claude Code 里那个不太靠谱的模型，而且只锁它一个：换任何别的模型，这套笼子零开销。",
-        "en": "Code handles the certain, humans handle the exceptions, a model handles the gray zone — three layers lock down one untrusted model in Claude Code, and only that one: any other model runs at zero cost."
+        "zh": "代码管必然，人管例外，模型管灰区——三层防线只锁 Claude Code 里那个 MiniMax：换任何别的模型，这套笼子零开销。",
+        "en": "Code handles the certain, humans handle the exceptions, a model handles the gray zone: three layers lock down MiniMax inside Claude Code, and no other model."
       },
       "url": "cage-for-a-model/"
     }

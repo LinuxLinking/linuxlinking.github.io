@@ -2,31 +2,34 @@
 title: Why a Runtime, Not Another Agent Framework
 date: 2026-10-31
 tag: INTENT OS
-lede: Every agent harness hits the same wall. Intent OS answers by not being the 80th framework: compile intent into plans with acceptance criteria, gate side effects, and hash-chain the receipts.
+lede: Every agent framework eventually hits the same wall, so I built Intent OS, an agent runtime that compiles intent into a Plan DAG, gates every side effect and hash-chains every receipt.
 ---
 
-## The four ways agents die
+## Why I stopped building agent frameworks and started an agent runtime
 
-Run enough agents on enough real tasks and you keep seeing the same four endings:
+There is a version of me that would write one more agent framework: a smarter planner, a nicer router, a config file for everything.
 
-1. **Intent is a single prompt.** What the model will actually do, you only know once it has done it.
-2. **Side effects depend on the model's mood.** Whether a file gets deleted or a request gets sent depends on the model's "judgement" this turn.
-3. **The result lives in the chat log.** What was done and whether it worked can only be pieced together by scrolling through the conversation.
-4. **One failed step stalls the whole chain.** When something in the middle crashes, the run either waits stupidly or starts over from scratch.
+No bug made me stop. A pattern did. My local Ollama harness, LangGraph, three nodes, about 1200 lines, needed one more guard rule for every new kind of task. The model wrote the file, announced the exit code, kept going. I wrote a rule. It dropped the thread elsewhere; I wrote another.
 
-The eightieth agent framework on the market does not solve these, because they all spin inside the same layer — smarter scheduling, finer prompts, more tools. But all of that is about making the model "more reliable", and the common feature of the four deaths above is: **they cannot be solved by counting on the model to be reliable.**
+Every fix landed outside the model, in code that decides what may happen. "It will probably be fine this time" is not a contract you can hand to whoever's files you are about to touch.
 
-## A position
+Run enough agents on enough real tasks and I kept seeing the same four endings: the intent was a single prompt, so what it would do you learned afterwards; side effects followed the model's mood; the result lived in the chat log; one failed step stalled the chain.
 
-Intent OS is not an agent, and not yet another framework. It sits above the agent:
+Every framework promises better scheduling, finer prompts, more tools. That is LLM orchestration: all of it asks the model to be more reliable.
 
-> The model decides **how** to do it; this layer guarantees **that it was done right, that it can be traced, and that it can be rolled back**.
+So I stopped asking which framework to use and asked where the guarantees should live: one layer above the model, below every agent. I did not want to be the eightieth.
 
-The agent is replaceable scaffolding; this layer is the product. Swap the agent underneath and intent compilation, acceptance verification, approval scheduling, the audit hash chain and elastic rerouting all stay the same.
+## What exactly is an agent runtime?
 
-## The life of a single run
+The runtime is the deterministic half: it compiles, checks, gates and records.
 
-Lay a run out flat and it looks like this:
+> The model decides **how** to do the work. The runtime decides **whether it was done, whether it was allowed to happen and what gets written down**.
+
+The agent underneath is replaceable scaffolding: a local small model, a big cloud model, an MCP toolchain. The runtime sees the same in all three, something that can execute a node. Swap it and compilation, acceptance checks, approval scheduling, the audit chain and rerouting stay put. Swap the agent, keep the layer.
+
+The PyPilot executor from [my previous essay on harness guards](../../blog/harness-guard-design/) is **just a replaceable L2 executor** here: those guards police one step, the runtime polices the chain.
+
+One run:
 
 ```mermaid
 flowchart TD
@@ -49,52 +52,72 @@ flowchart TD
     Q -- No --> D([Done])
 ```
 
-Here it is segment by segment.
+## How does an intent become a Plan DAG?
 
-### Intent compilation: the Plan DAG
+An intent arrives as text and becomes a structured plan: nodes, dependencies, parameters, and the part I care about most, **the acceptance criteria each node carries**.
 
-An intent arrives and is first compiled into a structured plan: nodes, dependencies, parameters, and — most importantly — **the acceptance criteria each action carries with it**. Acceptance is not "the model thinks it is right" but a machine-decidable predicate:
+Acceptance is a machine-decidable predicate; the model's opinion of its own work plays no part:
 
-- `exit_code` — the target script exited with code 0
-- `file_exists` — the artefact file exists
-- `file_contains` — the artefact's contents contain a marker
+- `exit_code`: the target script exited with code 0
+- `file_exists`: the artefact file exists
+- `file_contains`: the artefact's contents contain a marker
 
-Every acceptance result carries **evidence** rather than a dry boolean. When it fails you can see which criterion failed and on what evidence.
+Each check returns **evidence**, not a bare boolean. When something fails I can print the criterion that failed and what it saw. That cleared most of the "it says it worked but it didn't" bugs.
 
-### Approval gates: two levels
+A DAG rather than a list: real intent has ordering and parallelism, and a failing node retries without re-running its parents.
 
-Side effects cannot be decided by the model alone. So there are two gates:
+## Who approves a side effect?
 
-- **Plan level** — the whole plan is shown first: what will be touched, how broad the scope is, whether it is reversible.
-- **Side-effect level** — once the plan is approved, every node with side effects is confirmed again before it runs: which tool, what parameters, what the blast radius is, whether it can be undone.
+Side effects are the entire risk surface, so they get two approvals, not one:
 
-Honesty here: in the current version the gates are CLI question-and-answer. A rules engine ("writes inside the sandbox are auto-approved, anything outside always asks a human") comes in the next stage. Putting the gate in the right *place* matters more than putting an automatic toll booth on it.
+- **Plan level**: the whole plan first. What gets touched, how wide the blast radius is, whether it can be undone.
+- **Side-effect level**: every node with a side effect is confirmed again before it runs. Which tool, what parameters, what it touches.
 
-### Audit: the hash chain
+The gates ask different questions. The plan gate asks whether this is reasonable at all. The side-effect gate asks whether this call, with these arguments, is acceptable now. A plan can be sound and one node in it still wrong.
 
-Every approval, execution and acceptance writes a receipt. Each record carries `prev_hash` and `hash`:
+Current state: the gates are CLI question and answer. The rules engine I want, where sandbox writes are auto-approved and anything outside asks a human, is next. Getting the gate in the right *place* mattered more than making it automatic.
+
+AI agent safety lives here: no policy document, just approvals.
+
+## Can the audit log be trusted?
+
+Every approval, execution and acceptance writes a receipt carrying `prev_hash` and `hash`:
 
 ```text
 hash = SHA256(prev_hash + canonical payload)        # no key
 hash = HMAC-SHA256(key, prev_hash + payload)         # with a key (root-only)
 ```
 
-`prev_hash` links back to the previous record, so **tampering with any single record makes every hash after it stop matching**. The log can be verified and replayed, and a finished run can be sealed. When someone later asks "what exactly did it do that day", what you produce is not a chat transcript but a chain that is mathematically non-repudiable.
+`prev_hash` points back at the previous record, so **if you change a single record, every hash after it stops matching**. The log can be verified, replayed, and sealed when a run ends.
 
-### Rerouting and suspension
+When somebody asks what the agent did that afternoon, the answer is not a chat transcript but a chain you can check. The SHA256 variant is tamper-evident; the HMAC variant needs a root of trust.
 
-A failed acceptance is not the end of the world. The rerouting engine picks an alternative executor by severity, and records which ones have been used and which are blacklisted; with no alternative left, or with too much residual risk, it **suspends** — sealing the scene into a task file, handing it to a human for a decision, and resuming from that file once the decision comes back. A single-point failure no longer stalls the whole chain.
+## Rerouting, suspension and what rollback really buys
 
-## How it relates to my previous article
+A failed acceptance is a normal state. The rerouting engine picks an alternative executor by severity and records which were used, which are blacklisted. When none is left, or the residual risk is too high, it **suspends**: the scene is sealed into a task file, a human decides, and the run resumes from it.
 
-The protagonist of my previous essay, "Distrust the Model, Encode the Guard", is PyPilot — and in this system it is **just a replaceable L2 executor**. The runtime does not care who is doing the work underneath: a local small model, a large cloud model, an MCP toolchain, they are all "something that can execute a node" as far as it is concerned. The guards police the discipline of a single step; the runtime polices the trustworthiness of the whole chain.
+I did not expect to need this part. Rollback buys less than I assumed. Reverting a file is easy; un-sending a request, undoing a database write, reversing a payment: no runtime does that alone. What rollback buys is the ability to **stop** at a known point and hand the decision to a person.
 
-## Honest limits
+That is a smaller promise than "failed steps roll back", and I prefer the smaller one.
 
-The first line of the repository README says it plainly: **prototype / research implementation, the public API will change.** What works today is the trunk line "intent → plan → approval → execution → acceptance → receipt"; the rules engine, multi-tenancy and concurrent scheduling are all still to come. I publish it because the answer to "where do the gates go" is worth discussing before the gates themselves are.
+## Where it breaks and what it costs
 
-## Closing
+The README says it outright: **prototype / research implementation, the public API will change.**
 
-Agent frameworks answer "how do we make the model smarter"; Intent OS answers "how do we make the model's actions verifiable". The first is a lever on model capability, the second is the foundation of engineering trust.
+What runs end to end today: intent → plan → approval → execution → acceptance → receipt. The rules engine, multi-tenancy and concurrent scheduling are not built yet.
+
+The costs I did not price in:
+
+- Every gate is latency: a human answering a question is not cheap in a pipeline.
+- The CLI approval UI is the product right now, not the layer.
+- The plan compiler has never seen a plan with real branching.
+
+## What I would do differently
+
+I would build the rules engine before the second executor. Auto-approving sandbox writes has to work first: a gate that always asks is a gate nobody keeps answering.
+
+I would keep the acceptance criteria at the centre of the plan. Every idea about a cleverer planner died when I had to write its acceptance predicate. The criteria are the contract; the rest is scheduling.
+
+Next: the rules engine, then a replay viewer that runs a sealed log back through the checker, because I still verify receipts by reading them.
 
 The repository is [LinuxLinking/Local_Agent_IntentOS](https://github.com/LinuxLinking/Local_Agent_IntentOS), MIT licensed.

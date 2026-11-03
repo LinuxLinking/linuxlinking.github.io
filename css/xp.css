@@ -44,6 +44,7 @@ body.xp {
   position: fixed;
   inset: 0;
   z-index: 0;
+  /* 底色是渐变，只在壁纸图没加载出来时露出来 */
   background:
     /* 云：宽而淡的一层一层，边要化开 */
     radial-gradient(ellipse 22% 3% at 30% 25%, rgba(255, 255, 255, 0.5) 0 26%, rgba(255, 255, 255, 0) 100%),
@@ -59,6 +60,14 @@ body.xp {
     radial-gradient(ellipse 70% 24% at 82% 118%, #56962c 0 62%, rgba(86, 150, 44, 0) 63%),
     /* 天空 */
     linear-gradient(180deg, #17418f 0%, #2f66b8 26%, #6aa5dd 48%, #a8cfee 63%, #dbeaf7 74%, #eaf4fb 80%);
+}
+
+/* Bliss 真图铺在上面；上面的渐变留着当兜底，图没加载出来时桌面还是 XP 的样子。 */
+.xp-wallpaper::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: url("../assets/wallpaper.jpg") center / cover no-repeat;
 }
 
 /* ---------------------------------------------------------------- 桌面 */
@@ -472,9 +481,180 @@ body.xp {
   font-size: 11.5px;
 }
 
-/* 只给直接子元素加内边距：菜单项里还套着中英两份，内层也加会把一项拆成两半。 */
-.xp-menubar > span { padding: 2px 6px; cursor: default; }
-.xp-menubar > span:hover { background: var(--xp-sel); color: #fff; }
+/* 菜单栏：点开就是能执行的下拉菜单。 */
+.xp-menu { position: relative; }
+
+.xp-menu-top {
+  padding: 2px 6px;
+  border: 0;
+  background: none;
+  font: inherit;
+  color: #000;
+  cursor: default;
+}
+
+.xp-menu-top:hover,
+.xp-menu.is-open > .xp-menu-top { background: var(--xp-sel); color: #fff; }
+
+.xp-drop {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  z-index: 30;
+  min-width: 172px;
+  padding: 2px;
+  background: #f7f5ec;
+  border: 1px solid #8b9b9c;
+  box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.28);
+}
+
+.xp-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+  padding: 4px 14px 4px 6px;
+  border: 0;
+  background: none;
+  font: inherit;
+  text-align: left;
+  white-space: nowrap;
+  color: #000;
+  cursor: default;
+}
+
+.xp-item:hover { background: var(--xp-sel); color: #fff; }
+.xp-item .ic { display: inline-flex; width: 16px; height: 16px; }
+.xp-item .ic svg { width: 16px; height: 16px; image-rendering: pixelated; }
+
+.xp-sep { height: 1px; margin: 3px 2px; background: #c6c2b0; border-bottom: 1px solid #fff; }
+
+/* ---------------------------------------------------------------- 对话框 */
+
+.xp-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  display: grid;
+  place-items: center;
+  background: rgba(0, 0, 0, 0.25);
+}
+
+/* [hidden] 是 UA 样式，作者样式里的 display 会盖掉它 —— 得自己再声明一次。 */
+.xp-modal[hidden],
+.xp-shutdown[hidden],
+.xp-logon[hidden] { display: none; }
+
+.xp-dialog {
+  width: min(430px, 90vw);
+  background: var(--xp-chrome);
+  border: 1px solid #003c74;
+  border-radius: 6px 6px 3px 3px;
+  box-shadow: 3px 3px 12px rgba(0, 0, 0, 0.45);
+  overflow: hidden;
+}
+
+.xp-dlg-title {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 4px 3px 6px;
+  font-weight: bold;
+  color: #fff;
+  background: linear-gradient(180deg, #4a94ff 0%, #1661e0 14%, #0a3fa0 86%, #0847a8 100%);
+  text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.45);
+}
+
+.xp-dlg-title .ic { display: inline-flex; }
+.xp-dlg-title .ic svg { width: 16px; height: 16px; image-rendering: pixelated; }
+.xp-dlg-title > span:not(.ic) { flex: 1; }
+
+.xp-dlg-body { padding: 12px 14px 4px; font-size: 12px; line-height: 1.65; }
+.xp-dlg-body p { margin: 0 0 8px; }
+.xp-dlg-body ul { margin: 0; padding-left: 20px; }
+.xp-dlg-body b { font-family: Tahoma, sans-serif; }
+
+.xp-dlg-foot {
+  display: flex;
+  justify-content: flex-end;
+  gap: 6px;
+  padding: 8px 12px 12px;
+}
+
+.xp-dlg-foot .btn {
+  min-width: 78px;
+  padding: 3px 12px;
+  font: 12px Tahoma, Verdana, sans-serif;
+  color: #000;
+  background: linear-gradient(180deg, #fff 0%, #e2ddc9 100%);
+  border: 1px solid #003c74;
+  border-radius: 2px;
+  cursor: pointer;
+}
+
+.xp-dlg-foot .btn:hover { box-shadow: inset 0 0 0 1px rgba(242, 96, 63, 0.55); }
+
+/* ---------------------------------------------------------------- 关机 / 注销 */
+
+.xp-shutdown {
+  position: fixed;
+  inset: 0;
+  z-index: 300;
+  display: grid;
+  place-content: center;
+  justify-items: center;
+  gap: 22px;
+  background: #000;
+  color: #f5a623;
+  font-size: 18px;
+  text-align: center;
+}
+
+.xp-shutdown .btn {
+  padding: 5px 18px;
+  font: 13px Tahoma, sans-serif;
+  color: #f5a623;
+  background: none;
+  border: 1px solid #f5a623;
+  cursor: pointer;
+}
+
+.xp-logon {
+  position: fixed;
+  inset: 0;
+  z-index: 300;
+  display: grid;
+  place-items: center;
+  background: rgba(0, 0, 0, 0.35);
+}
+
+.xp-logon-panel {
+  display: grid;
+  justify-items: center;
+  gap: 12px;
+  padding: 24px 40px;
+  color: #fff;
+  text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.7);
+}
+
+.xp-logon-panel h2 { margin: 0; font-size: 22px; font-weight: normal; }
+.xp-logon-panel p { margin: 0; font-size: 13px; }
+
+.xp-logon-user {
+  display: grid;
+  justify-items: center;
+  gap: 8px;
+  margin-top: 8px;
+  padding: 12px 20px;
+  border: 1px solid rgba(255, 255, 255, 0.55);
+  border-radius: 6px;
+  background: rgba(0, 0, 0, 0.25);
+  color: #fff;
+  font: inherit;
+  cursor: pointer;
+}
+
+.xp-logon-user:hover { background: rgba(0, 0, 0, 0.45); }
 
 .xp-toolbar {
   display: flex;

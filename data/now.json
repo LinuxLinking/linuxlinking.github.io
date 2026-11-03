@@ -4,8 +4,8 @@
       "items": [
         {
           "kind": "building",
-          "text": "这个站刚整完骨架：首页、博客、项目页全部预渲染",
-          "href": "projects/site/"
+          "text": "正在写 Intent OS 的规则引擎：沙箱内写入自动放行，越界的问人",
+          "href": "projects/intent-os/"
         }
       ]
     },
@@ -13,8 +13,8 @@
       "items": [
         {
           "kind": "building",
-          "text": "The site just finished its rebuild — home, blog and project pages are all pre-rendered",
-          "href": "projects/site/"
+          "text": "Building the rules engine in Intent OS: sandbox writes auto-approve, anything outside asks",
+          "href": "projects/intent-os/"
         }
       ]
     }

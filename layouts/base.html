@@ -5,7 +5,7 @@
   首页就是桌面本身：图标是快捷方式，点开在 IE 窗口里显示。
   内容页由 tools/build.py 套进同一个 IE 窗口，也落在这张桌面上。
 -->
-<html lang="{{lang}}" data-title-zh="{{titleZh}}" data-title-en="{{titleEn}}" data-desc-zh="{{descZh}}" data-desc-en="{{descEn}}">
+<html lang="{{lang}}" data-root="{{link}}" data-title-zh="{{titleZh}}" data-title-en="{{titleEn}}" data-desc-zh="{{descZh}}" data-desc-en="{{descEn}}">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
@@ -34,8 +34,9 @@
     <span>start</span>
   </button>
   <div class="xp-quick">
-    <button type="button" title="Internet Explorer" data-quick="ie">{{ieIcon}}</button>
-    <button type="button" title="站点图纸" data-quick="map">{{mapIcon}}</button>
+    <button type="button" data-quick="ie" data-i18n-title="quick.ie">{{ieIcon}}</button>
+    <button type="button" data-quick="map" data-i18n-title="quick.map">{{mapIcon}}</button>
+    <button type="button" data-quick="desktop" data-i18n-title="quick.desktop">{{desktopIcon}}</button>
   </div>
   <div class="xp-tasks" id="xpTasks"></div>
   <div class="xp-lang" role="group" aria-label="语言 / Language" data-i18n-aria="a11y.lang">
@@ -61,12 +62,48 @@
     <div class="xp-sm-col">{{smRight}}</div>
   </div>
   <div class="xp-sm-foot">
-    <button type="button" data-close-sm data-toast="已注销 —— 下次见 / Logged off. See you.">{{smLogout}}</button>
-    <button type="button" data-close-sm data-toast="关机前记得先把模型停掉 / Shut down: stop the model first.">{{smShutdown}}</button>
+    <button type="button" data-close-sm data-sm="logoff">{{smLogout}}</button>
+    <button type="button" data-close-sm data-sm="shutdown">{{smShutdown}}</button>
   </div>
 </div>
 
 <div class="xp-toast" id="xpToast" role="status" aria-live="polite"></div>
+
+<!-- 对话框图标：构建期放在这儿，js 取来用，不必在 js 里再画一遍。 -->
+<div id="xpIconStore" hidden aria-hidden="true">
+  <span data-icon="info">{{iconInfo}}</span>
+  <span data-icon="warn">{{iconWarn}}</span>
+  <span data-icon="error">{{iconError}}</span>
+</div>
+
+<!-- 对话框：关于、页面属性、找不到页面、关机确认都走这一个壳。 -->
+<div class="xp-modal" id="xpModal" hidden>
+  <div class="xp-dialog" role="dialog" aria-modal="true" aria-labelledby="xpDlgTitle">
+    <div class="xp-dlg-title">
+      <span class="ic" id="xpDlgIcon" aria-hidden="true"></span>
+      <span id="xpDlgTitle"></span>
+      <button class="xp-tbtn is-close" type="button" data-dlg-close data-i18n-title="win.close">✕</button>
+    </div>
+    <div class="xp-dlg-body" id="xpDlgBody"></div>
+    <div class="xp-dlg-foot" id="xpDlgFoot"></div>
+  </div>
+</div>
+
+<!-- 关机、注销之后的两块整屏。 -->
+<div class="xp-shutdown" id="xpShutdown" hidden>
+  <p id="xpShutdownText"></p>
+  <button class="btn" type="button" id="xpRestart"></button>
+</div>
+<div class="xp-logon" id="xpLogon" hidden>
+  <div class="xp-logon-panel">
+    <h2 id="xpLogonTitle"></h2>
+    <p id="xpLogonHint"></p>
+    <button class="xp-logon-user" type="button" id="xpLogonBack">
+      <span class="xp-avatar" aria-hidden="true">Z</span>
+      <span id="xpLogonName"></span>
+    </button>
+  </div>
+</div>
 
 {{windowTemplate}}
 {{scripts}}

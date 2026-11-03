@@ -6,29 +6,23 @@
       "order": 1,
       "size": 0.85,
       "monogram": "MD",
-      "accent": [
-        "#6f7bff",
-        "#b06bff"
-      ],
+      "accent": ["#6f7bff", "#b06bff"],
       "year": "2026",
-      "stack": [
-        "Flutter",
-        "Milkdown",
-        "WebView",
-        "Android SAF"
-      ],
-      "title": {
-        "zh": "Mdeditor",
-        "en": "Mdeditor"
-      },
-      "label": {
-        "zh": "Mdeditor",
-        "en": "Mdeditor"
-      },
+      "stack": ["Flutter", "Milkdown", "WebView", "Android SAF"],
+      "title": {"zh": "Mdeditor", "en": "Mdeditor"},
+      "label": {"zh": "Mdeditor", "en": "Mdeditor"},
       "tagline": {
-        "zh": "Flutter 壳、Milkdown 芯的 Android Markdown 编辑器",
-        "en": "A Flutter shell around a Milkdown core, on Android"
+        "zh": "Android 上的 Markdown 编辑器：Flutter 做壳，Milkdown 做内核",
+        "en": "A Markdown editor for Android: Flutter shell, Milkdown core"
+      },      "desc": {
+        "zh": "Android 上的 Markdown 编辑器：Flutter 做壳，Milkdown 在 WebView 里做编辑内核，文档走 SAF，支持导出 DOCX、HTML 和 PDF。",
+        "en": "Mdeditor is a Markdown editor for Android: a Flutter shell, a Milkdown core in a WebView, SAF documents, and DOCX, HTML and PDF export."
       },
+      "desc": {
+        "zh": "Android 上的 Markdown 编辑器：Flutter 做壳，Milkdown 在 WebView 里做编辑内核，文档走 SAF，支持导出 DOCX、HTML 和 PDF。",
+        "en": "Mdeditor is a Markdown editor for Android: a Flutter shell, a Milkdown core in a WebView, SAF documents, and DOCX, HTML and PDF export."
+      },
+
       "keywords": [
         "markdown editor",
         "Flutter markdown editor",
@@ -37,86 +31,78 @@
         "WYSIWYG editor",
         "DOCX export",
         "markdown editor WebView",
-        "ProseMirror"
+        "ProseMirror",
+        "Android SAF"
       ],
       "summary": {
-        "zh": "Milkdown 内核跑在 WebView 里，Flutter 只做壳，写起来是所见即所得；代码块自带高亮、行号、折叠与复制，文档能直接导出 DOCX、HTML 与 PDF。文件走 Android SAF，打开—编辑—保存始终是同一个文档 URI，每个版本由 GitHub Actions 自动打包发布。",
-        "en": "A Milkdown core inside a WebView, a Flutter shell around it — editing feels WYSIWYG. Code blocks ship with highlighting, line numbers, folding and copy, and documents export to DOCX, HTML and PDF. Files flow through Android SAF so open–edit–save keeps the same document URI, and every release is packaged automatically by GitHub Actions."
+        "zh": "在 Android 上做 Markdown 编辑器，纯 Flutter 路线意味着自己实现富文本的光标定位、选区和输入法合成，每件都是独立工程。我把编辑内核换成跑在 WebView 里的 Milkdown，Flutter 留下文件、设置、主题和导出。文档走 Android SAF，打开、编辑、保存始终指向同一个 URI。",
+        "en": "Building a Markdown editor on Android, the all-Flutter route means hand-writing caret positioning, selection and IME composition — three separate projects on their own. I moved the editing core into Milkdown inside a WebView and left Flutter with files, settings, theme and export. Documents go through Android SAF, so open, edit and save keep pointing at the same URI."
       },
       "highlights": {
         "zh": [
           {
-            "title": "所见即所得",
-            "body": "Milkdown（ProseMirror + remark）跑在 WebView 里，标题、列表、表格、代码块即时成形，而不是纯文本加一个预览窗。"
+            "title": "编辑内核不自己写",
+            "body": "Milkdown 基于 ProseMirror，解析层是 remark，标题、列表、表格、代码块在输入时就成形，不需要再开一个预览窗。"
           },
           {
-            "title": "代码块完整体验",
-            "body": "语法高亮随主题切换重建，行号、折叠与一键复制齐备，长代码也读得下去。"
+            "title": "代码块是一等公民",
+            "body": "语法高亮随主题切换重建，带行号、折叠和一键复制；导出 DOCX 时高亮按 token 保留。"
           },
           {
-            "title": "DOCX / HTML / PDF 三格式导出",
-            "body": "DOCX 保留代码分词高亮，HTML 带完整样式可直接分享，PDF 走 Android 系统打印。"
+            "title": "手写 OOXML 导出",
+            "body": "document.xml、样式、编号、页眉页脚、目录和媒体关系自己写，不用动辄几十兆的跨平台文档库。"
           },
           {
-            "title": "SAF 文档 URI 不丢位置",
-            "body": "打开—编辑—保存始终是同一个 Android 文档 URI，并持有持久化权限，重启应用接着写，不会另存出副本。"
+            "title": "SAF 让文件待在原地",
+            "body": "取到 URI 后调用 takePersistableUriPermission，重启应用接着写，不会多出一份拷贝。"
           },
           {
-            "title": "接进系统",
-            "body": "接收系统文件关联，从其他应用直接打开 .md；最近文件、明暗主题与字号设置一应俱全。"
+            "title": "一条桥，一个协议",
+            "body": "Flutter 和 WebView 只通过 MdBridge 说话，消息统一是 {type, ...} 的 JSON，目前只有 ready 和 changed 两种。"
           },
           {
-            "title": "开箱即用的开源包",
-            "body": "GitHub Actions 为每个版本自动构建 APK，Releases 里直接下载；GPL-3.0 开源。"
+            "title": "开源可下载",
+            "body": "GitHub Actions 为每个版本自动打包 APK，GPL-3.0，README 有中英日法四份。"
           }
         ],
         "en": [
           {
-            "title": "WYSIWYG editing",
-            "body": "Milkdown (ProseMirror + remark) runs inside a WebView — headings, lists, tables and code blocks take shape as you type, not in a side-by-side preview."
+            "title": "I did not write the editing core",
+            "body": "Milkdown sits on ProseMirror with remark underneath, so headings, lists, tables and code blocks take shape as you type instead of in a preview pane next to a text box."
           },
           {
-            "title": "Serious code blocks",
-            "body": "Highlighting rebuilds when the theme switches, with line numbers, folding and one-tap copy built in."
+            "title": "Code blocks are first-class",
+            "body": "Highlighting rebuilds when the theme switches, with line numbers, folding and one-tap copy; in the DOCX export the tokens survive."
           },
           {
-            "title": "Exports to DOCX, HTML and PDF",
-            "body": "DOCX keeps tokenized code highlighting, HTML ships styled and ready to share, and PDF goes through Android system printing."
+            "title": "Hand-rolled OOXML",
+            "body": "document.xml, styles, numbering, headers and footers, the table of contents and the media relationships are written by hand instead of pulling in a cross-platform document library that runs to tens of megabytes."
           },
           {
-            "title": "SAF document URIs persist",
-            "body": "Open–edit–save always targets the same Android document URI with persisted permissions — restart the app and keep writing, no stray copies."
+            "title": "SAF keeps the file where it is",
+            "body": "Once the URI is picked up, takePersistableUriPermission holds the grant, so the app reopens on the same document after a restart and no stray copy appears in storage."
           },
           {
-            "title": "Plugs into the system",
-            "body": "Handles system file associations so other apps can open .md straight into the editor; recents, light/dark themes and font size settings are all there."
+            "title": "One bridge, one protocol",
+            "body": "Flutter and the WebView only speak through MdBridge. Every message is JSON shaped {type, ...}, and there are exactly two kinds: ready and changed."
           },
           {
-            "title": "Open source, ready to install",
-            "body": "GitHub Actions builds the APK for every release, ready to grab from Releases; GPL-3.0 open source."
+            "title": "Open source and installable",
+            "body": "GitHub Actions packages the APK for every release, GPL-3.0, with a README in Chinese, English, Japanese and French."
           }
         ]
       },
       "download": {
         "href": "https://github.com/LinuxLinking/Mdeditor/releases/latest/download/app-release.apk",
-        "note": {
-          "zh": "GitHub Releases · 自动构建",
-          "en": "GitHub Releases · built by CI"
-        }
+        "note": {"zh": "GitHub Releases · 自动构建", "en": "GitHub Releases · built by CI"}
       },
       "links": [
         {
-          "label": {
-            "zh": "博文：把 Milkdown 塞进 WebView",
-            "en": "Post: Milkdown in a WebView"
-          },
+          "label": {"zh": "博文：把 Milkdown 塞进 WebView", "en": "Essay: Milkdown in a WebView"},
           "href": "blog/milkdown-in-webview/"
         },
         {
-          "label": {
-            "zh": "GPL-3.0 许可证",
-            "en": "GPL-3.0 license"
-          },
+          "label": {"zh": "GPL-3.0 许可证", "en": "GPL-3.0 license"},
           "href": "https://github.com/LinuxLinking/Mdeditor/blob/master/LICENSE"
         }
       ],
@@ -129,57 +115,95 @@
       "order": 2,
       "size": 1.0,
       "monogram": "IO",
-      "accent": [
-        "#7c5cff",
-        "#3ad0ff"
-      ],
+      "accent": ["#7c5cff", "#3ad0ff"],
       "year": "2026",
-      "stack": [
-        "Python",
-        "LangGraph",
-        "MCP",
-        "Ollama"
-      ],
-      "title": {
-        "zh": "Intent OS",
-        "en": "Intent OS"
-      },
-      "label": {
-        "zh": "Intent OS",
-        "en": "Intent OS"
-      },
+      "stack": ["Python", "LangGraph", "MCP", "Ollama"],
+      "title": {"zh": "Intent OS", "en": "Intent OS"},
+      "label": {"zh": "Intent OS", "en": "Intent OS"},
       "tagline": {
-        "zh": "把意图编译成可验证、可回滚的执行链",
-        "en": "Compiling intent into verifiable, rollback-safe chains"
+        "zh": "把意图编译成可验收、可追溯的执行链",
+        "en": "Compiling intent into chains you can accept and audit"
+      },      "desc": {
+        "zh": "LLM 之上的确定性运行时：意图编译成带验收标准的 Plan DAG，副作用过审批闸门，回执进哈希链审计日志。",
+        "en": "Intent OS is a deterministic runtime above the LLM: intent compiles into a Plan DAG, side effects pass an approval gate, receipts are hash-chained."
       },
+      "desc": {
+        "zh": "LLM 之上的确定性运行时：意图编译成带验收标准的 Plan DAG，副作用过审批闸门，回执进哈希链审计日志。",
+        "en": "Intent OS is a deterministic runtime above the LLM: intent compiles into a Plan DAG, side effects pass an approval gate, receipts are hash-chained."
+      },
+
       "keywords": [
         "AI agent runtime",
+        "agent runtime layer",
         "LangGraph",
         "MCP",
         "Plan DAG",
         "agent framework",
         "LLM orchestration",
         "rollback",
-        "AI agent safety"
+        "AI agent safety",
+        "hash chain audit log"
       ],
       "summary": {
-        "zh": "它不是一个 agent，也不是另一个 agent 框架。它是一层运行在 LLM 之上的 runtime：意图先被编译成带验收标准的 Plan DAG，副作用必须经过按风险分级的审批闸门，每一次回执都写进哈希链审计日志。换掉底下的 agent，这一层不变。",
-        "en": "Not an agent, and not another agent framework — a runtime layer above the LLM. Intent compiles into a Plan DAG with acceptance criteria, side effects pass a risk-tiered approval gate, and every receipt lands in a hash-chained audit log. Swap the agent underneath; this layer stays."
+        "zh": "它不是 agent，也不是又一个 agent 框架，而是跑在 LLM 之上的确定性一层。意图先编译成带验收标准的 Plan DAG，有副作用的节点要过审批闸门，每次执行写一条哈希链回执。底下换成哪个 agent，这一层不动。",
+        "en": "Not an agent, and not another agent framework — a deterministic layer above the LLM. Intent compiles into a Plan DAG whose nodes carry acceptance criteria, side effects pass an approval gate, and every run leaves a hash-chained receipt. Swap the agent underneath; this layer stays."
       },
       "highlights": {
         "zh": [
-          "意图 → 结构化 Plan DAG，每个节点自带验收标准",
-          "副作用按风险分级审批，失败可回滚",
-          "哈希链审计日志：可验证、可重放、可封存",
-          "弹性改道，单步失败不会拖死整条链"
+          {
+            "title": "计划节点自带验收标准",
+            "body": "exit_code、file_exists、file_contains 三种判据，判定的是事实而不是模型的自我感觉，失败时能打印它看到了什么。"
+          },
+          {
+            "title": "两道审批，不是一道",
+            "body": "计划级审批问的是这件事该不该做，副作用级审批问的是这次调用、这组参数此刻能不能做。"
+          },
+          {
+            "title": "回执进哈希链",
+            "body": "每条记录带 prev_hash 和 hash，改动任意一条，后续所有哈希就对不上；无密钥用 SHA256，有密钥用 HMAC-SHA256。"
+          },
+          {
+            "title": "失败可以改道，也可以挂起",
+            "body": "验收没过就换一条执行路径，都耗尽了就把现场封成任务文件，等人接手再恢复。"
+          },
+          {
+            "title": "LLM 在下面，人在上面",
+            "body": "规则引擎还没写：沙箱内写入自动放行、越界的问人，是下一步。当前审批还是命令行问答。"
+          }
         ],
         "en": [
-          "Intent compiles into a Plan DAG where every node carries acceptance criteria",
-          "Risk-tiered approval gate for side effects, with rollback on failure",
-          "Hash-chained audit log — verifiable, replayable, sealable",
-          "Elastic rerouting so one failed step doesn't stall the whole run"
+          {
+            "title": "Every node carries its own acceptance criteria",
+            "body": "exit_code, file_exists and file_contains decide on facts rather than the model's opinion of itself, and a failure can print what it actually saw."
+          },
+          {
+            "title": "Two gates, not one",
+            "body": "The plan gate asks whether this is a reasonable thing to do at all; the side-effect gate asks whether this call, with these arguments, is acceptable right now."
+          },
+          {
+            "title": "Receipts go into a hash chain",
+            "body": "Every record carries prev_hash and hash, so changing one of them leaves every later hash mismatched. SHA256 without a key, HMAC-SHA256 with one."
+          },
+          {
+            "title": "Failure reroutes, or suspends",
+            "body": "A failed acceptance picks another executor; when the alternatives run out, the scene is sealed into a task file and waits for a human to pick it up."
+          },
+          {
+            "title": "The LLM sits underneath, the human on top",
+            "body": "The rules engine is still to come: auto-approve sandbox writes, ask about anything outside. Today the approval is a question on the command line."
+          }
         ]
       },
+      "links": [
+        {
+          "label": {"zh": "博文：为什么我不做 Agent 框架", "en": "Essay: Why a Runtime, Not Another Agent Framework"},
+          "href": "blog/why-runtime-not-agent/"
+        },
+        {
+          "label": {"zh": "MIT 许可证", "en": "MIT license"},
+          "href": "https://github.com/LinuxLinking/Local_Agent_IntentOS/blob/main/LICENSE"
+        }
+      ],
       "repo": "https://github.com/LinuxLinking/Local_Agent_IntentOS",
       "path": null
     },
@@ -189,29 +213,23 @@
       "order": 3,
       "size": 0.85,
       "monogram": "OH",
-      "accent": [
-        "#3ddc97",
-        "#2f9bd6"
-      ],
+      "accent": ["#3ddc97", "#2f9bd6"],
       "year": "2026",
-      "stack": [
-        "Python",
-        "Ollama",
-        "uv",
-        "REPL"
-      ],
-      "title": {
-        "zh": "Local Ollama Harness",
-        "en": "Local Ollama Harness"
-      },
-      "label": {
-        "zh": "Harness",
-        "en": "Harness"
-      },
+      "stack": ["Python", "Ollama", "LangGraph", "REPL"],
+      "title": {"zh": "Local Ollama Harness", "en": "Local Ollama Harness"},
+      "label": {"zh": "Harness", "en": "Harness"},
       "tagline": {
-        "zh": "终端里的本地代码助手",
-        "en": "A local coding assistant in your terminal"
+        "zh": "终端里的本地代码助手，裁决权不在模型手上",
+        "en": "A local coding assistant in your terminal, with the verdict taken off the model"
+      },      "desc": {
+        "zh": "终端里的本地 Ollama 编程助手：3B 模型只提议，写完必验、重复强停、路径越界拒绝，全程离线。",
+        "en": "Local Ollama Harness is a terminal coding assistant: a 3B model proposes, the harness verifies, repeats are stopped and paths are sandboxed."
       },
+      "desc": {
+        "zh": "终端里的本地 Ollama 编程助手：3B 模型只提议，写完必验、重复强停、路径越界拒绝，全程离线。",
+        "en": "Local Ollama Harness is a terminal coding assistant: a 3B model proposes, the harness verifies, repeats are stopped and paths are sandboxed."
+      },
+
       "keywords": [
         "Ollama",
         "local LLM",
@@ -220,26 +238,69 @@
         "qwen coder",
         "offline coding assistant",
         "terminal AI",
-        "sandbox"
+        "sandbox",
+        "LangGraph agent"
       ],
       "summary": {
-        "zh": "用一句自然语言在终端里创建、查看、修改并运行 Python 文件，全程只连本机 Ollama，默认 qwen2.5-coder:3b。所有文件读写与执行都限制在 sandbox/ 目录内，越界路径直接拒绝。",
-        "en": "Create, read, edit and run Python files from a plain-language prompt. Everything talks to local Ollama only (qwen2.5-coder:3b by default), and file access is confined to sandbox/."
+        "zh": "用一句自然语言让它在 sandbox 里创建、修改并运行 Python 文件。模型只连本机 Ollama，默认 qwen2.5-coder:3b，全程离线。3B 模型靠不住，所以裁决权交给 harness：写完必验、验证后收尾、重复动作强停、路径越界直接拒绝。",
+        "en": "Create, edit and run Python files inside a sandbox from a plain-language prompt. It talks only to a local Ollama (qwen2.5-coder:3b by default), so it works offline. A 3B model is not dependable, so the harness keeps the verdict: verify after writing, finish after verifying, hard-stop on repeats, refuse any path outside the sandbox."
       },
       "highlights": {
         "zh": [
-          "自然语言任务 → 工具调用 → 最终答案",
-          "/reset /quiet /tools 等 REPL 命令",
-          "路径越界直接拒绝，只动 sandbox/",
-          "断网可用，不产生云端费用"
+          {
+            "title": "模型只提议，harness 裁决",
+            "body": "图里有三个节点：model、guard、act。每一步要做什么，guard 说了算，模型只是给出提议。"
+          },
+          {
+            "title": "每种失败模式都有对应规则",
+            "body": "写完不验、验完不收尾、重复同一个动作、整轮吐空字符串、格式写坏——五种毛病各有一条确定性规则兜着。"
+          },
+          {
+            "title": "四个工具共用一个出口",
+            "body": "read_file、write_file、list_dir、run_python 都走 safe_path，展开 ../ 和符号链接后判定包含关系，越界就拒绝。"
+          },
+          {
+            "title": "干预是一架梯子",
+            "body": "先提醒，再给一份能照抄的模板，还不行就替它跑一遍，最后才强停；每一级背后都有计数器，不会永远转下去。"
+          },
+          {
+            "title": "测试不下载模型",
+            "body": "FakeLLM 按剧本回放输出，六个用例覆盖全部失败模式，不用 GPU，跑完不到一秒。"
+          }
         ],
         "en": [
-          "Plain-language task, tool calls, then a final answer",
-          "REPL commands like /reset, /quiet and /tools",
-          "Out-of-scope paths are refused; only sandbox/ is touched",
-          "Works offline and costs nothing in the cloud"
+          {
+            "title": "The model proposes, the harness disposes",
+            "body": "The graph has three nodes: model, guard and act. What may happen this turn is the guard's call, not the model's."
+          },
+          {
+            "title": "Every failure mode has a rule",
+            "body": "Writing without verifying, verifying without finishing, repeating the same action, answering with an empty string, breaking the output format — five failure modes, five deterministic rules."
+          },
+          {
+            "title": "One exit for all four tools",
+            "body": "read_file, write_file, list_dir and run_python share a single safe_path that resolves ../ and symlinks before testing containment, and refuses anything outside."
+          },
+          {
+            "title": "Intervention is a ladder",
+            "body": "Remind first, then hand over something it can copy, then run the command on its behalf, and only then stop the turn. Every rung has a counter, so none of them can loop forever."
+          },
+          {
+            "title": "Tests without a model download",
+            "body": "A FakeLLM replays scripted output and six cases cover every failure mode. No GPU, and the whole suite finishes in under a second."
+          }
         ]
       },
+      "links": [
+        {
+          "label": {"zh": "博文：不信 3B 模型，把守卫写成代码", "en": "Essay: Distrust the 3B Model, Encode the Guard"},
+          "href": "blog/harness-guard-design/"
+        },
+        {
+          "label": {"zh": "MIT 许可证", "en": "MIT license"},
+          "href": "https://github.com/LinuxLinking/local_ollama_harness/blob/main/LICENSE"
+        }
+      ],
       "repo": "https://github.com/LinuxLinking/local_ollama_harness",
       "path": null
     },
@@ -249,55 +310,93 @@
       "order": 4,
       "size": 0.85,
       "monogram": "ML",
-      "accent": [
-        "#ff6b8b",
-        "#a855f7"
-      ],
+      "accent": ["#ff6b8b", "#a855f7"],
       "year": "2026",
-      "stack": [
-        "Python",
-        "Claude Code Hook",
-        "LLM Security"
-      ],
-      "title": {
-        "zh": "MiniMax Lockdown",
-        "en": "MiniMax Lockdown"
-      },
-      "label": {
-        "zh": "Lockdown",
-        "en": "Lockdown"
-      },
+      "stack": ["Python", "Claude Code Hook", "LLM Security"],
+      "title": {"zh": "MiniMax Lockdown", "en": "MiniMax Lockdown"},
+      "label": {"zh": "Lockdown", "en": "Lockdown"},
       "tagline": {
-        "zh": "只锁一个不太可信的模型",
-        "en": "A cage for one untrusted model"
+        "zh": "只给一个不太可信的模型造笼子",
+        "en": "A cage for one model I don't fully trust"
+      },      "desc": {
+        "zh": "只锁 MiniMax 一个模型的 Claude Code hook：项目外删改硬拒绝，不常见下载问人，灰区交给独立审计模型。",
+        "en": "MiniMax Lockdown is a Claude Code hook for one untrusted model: hard denies outside the project, prompts on uncommon downloads, audits the gray zone."
       },
+      "desc": {
+        "zh": "只锁 MiniMax 一个模型的 Claude Code hook：项目外删改硬拒绝，不常见下载问人，灰区交给独立审计模型。",
+        "en": "MiniMax Lockdown is a Claude Code hook for one untrusted model: hard denies outside the project, prompts on uncommon downloads, audits the gray zone."
+      },
+
       "keywords": [
         "Claude Code hook",
+        "PreToolUse hook",
         "AI safety",
         "LLM security",
         "code audit",
-        "PreToolUse hook",
         "agent guardrails",
-        "untrusted model"
+        "untrusted model",
+        "confidence routing"
       ],
       "summary": {
-        "zh": "一个 Claude Code 的 PreToolUse / PostToolUse hook：当前模型是 MiniMax 时启用硬拒绝、下载前询问、灰区 LLM 审计；换成别的模型直接 exit 0，零开销。",
-        "en": "A Claude Code PreToolUse / PostToolUse hook: hard-deny, ask before download, and an LLM auditor for the gray zone — but only when the active model is MiniMax. Any other model exits 0 at once."
+        "zh": "一组 Claude Code 的 PreToolUse / PostToolUse hook，只在当前模型是 MiniMax 时才启动：rm、mv、改注册表、碰 ~/.ssh 和 ~/.aws 一律硬拒绝；git clone、wget 这类不常见下载弹窗问人；剩下的灰区交给独立审计模型，它回 verdict、confidence 和 severity。别的模型一律 exit 0，零开销。",
+        "en": "A pair of Claude Code PreToolUse / PostToolUse hooks that only engage when the active model is MiniMax. rm, mv, registry edits and anything touching ~/.ssh or ~/.aws are hard-denied; uncommon downloads like git clone or wget raise a prompt; the gray zone goes to a separate auditor model that answers with a verdict, a confidence and a severity. Any other model exits 0 at once."
       },
       "highlights": {
         "zh": [
-          "机械硬拒绝：项目外删改、读 ~/.ssh ~/.aws、改注册表",
-          "不常见下载操作弹窗，交给人判断",
-          "独立审计模型给出 verdict + confidence + severity",
-          "置信度路由与会话记忆，减少弹窗疲劳"
+          {
+            "title": "机械层：命中就拒绝",
+            "body": "rm、rmdir、mv、带 ~ 的写命令、reg add / setx / regedit，以及 .ssh、.aws、.claude/projects 等敏感路径，直接 deny，不解释也不商量。"
+          },
+          {
+            "title": "问人层：只问不常见的",
+            "body": "git clone、wget、Invoke-WebRequest 这类操作弹窗给人看，机械层不替人猜这个下载该不该做。"
+          },
+          {
+            "title": "审计层：灰区交给模型",
+            "body": "curl、npm install、pip install 这些走独立审计模型，prompt 里带上合法的工具链目录和临时目录，让它有事实可判。"
+          },
+          {
+            "title": "置信度路由，少弹窗",
+            "body": "审计结果带 confidence，超过阈值直接放行或直接拒绝，只有拿不准的时候才打扰人。"
+          },
+          {
+            "title": "会话备忘，同一件事只问一次",
+            "body": "批过的操作按签名记进 approved，PostToolUse 那半边还能事后补记；机械层的硬拒绝永远不进备忘。"
+          }
         ],
         "en": [
-          "Mechanical hard deny: deletes outside the project, reads of ~/.ssh and ~/.aws, registry edits",
-          "Uncommon downloads raise a prompt instead of a guess",
-          "A separate auditor model returns verdict + confidence + severity",
-          "Confidence routing and session memo to fight popup fatigue"
+          {
+            "title": "Mechanical layer: deny on a match",
+            "body": "rm, rmdir, mv, write commands carrying a ~ path, reg add / setx / regedit, and sensitive paths like .ssh, .aws or .claude/projects are denied outright, with no explanation and nothing to negotiate."
+          },
+          {
+            "title": "Human layer: only the uncommon",
+            "body": "git clone, wget and Invoke-WebRequest raise a prompt. The mechanical layer refuses to guess whether a download should be allowed."
+          },
+          {
+            "title": "Auditor layer: the gray zone goes to a model",
+            "body": "curl, npm install and pip install reach a separate auditor model, and the prompt hands it the legitimate toolchain roots and the temp directories so it has facts to judge on."
+          },
+          {
+            "title": "Confidence routing, fewer popups",
+            "body": "The verdict carries a confidence value. Past the threshold the hook decides on its own; only the uncertain middle reaches you."
+          },
+          {
+            "title": "Session memo, one question per action",
+            "body": "Approved actions are remembered by signature, and the PostToolUse half can add them after the fact. A mechanical hard deny never enters the memo."
+          }
         ]
       },
+      "links": [
+        {
+          "label": {"zh": "博文：给不太可信的模型造笼子", "en": "Essay: A Cage for One Untrusted Model"},
+          "href": "blog/cage-for-a-model/"
+        },
+        {
+          "label": {"zh": "MIT 许可证", "en": "MIT license"},
+          "href": "https://github.com/LinuxLinking/claude-code-minimax-lockdown/blob/main/LICENSE"
+        }
+      ],
       "repo": "https://github.com/LinuxLinking/claude-code-minimax-lockdown",
       "path": null
     },
@@ -307,28 +406,23 @@
       "order": 5,
       "size": 0.85,
       "monogram": "OC",
-      "accent": [
-        "#38d3f5",
-        "#7c5cff"
-      ],
+      "accent": ["#38d3f5", "#7c5cff"],
       "year": "2026",
-      "stack": [
-        "Python",
-        "PaddleOCR",
-        "MCP"
-      ],
-      "title": {
-        "zh": "OCR MCP",
-        "en": "OCR MCP"
-      },
-      "label": {
-        "zh": "OCR MCP",
-        "en": "OCR MCP"
-      },
+      "stack": ["Python", "PaddleOCR", "MCP"],
+      "title": {"zh": "OCR MCP", "en": "OCR MCP"},
+      "label": {"zh": "OCR MCP", "en": "OCR MCP"},
       "tagline": {
         "zh": "给 agent 用的 OCR 工具服务",
         "en": "OCR as an MCP service for agents"
+      },      "desc": {
+        "zh": "基于 PaddleOCR 的 MCP 服务：文字、表格、手写、公式四种识别，公式输出 LaTeX，中英日韩多语言。",
+        "en": "OCR MCP is a PaddleOCR-backed MCP server: text, table, handwriting and formula recognition, with LaTeX output and Chinese, English, Japanese and Korean."
       },
+      "desc": {
+        "zh": "基于 PaddleOCR 的 MCP 服务：文字、表格、手写、公式四种识别，公式输出 LaTeX，中英日韩多语言。",
+        "en": "OCR MCP is a PaddleOCR-backed MCP server: text, table, handwriting and formula recognition, with LaTeX output and Chinese, English, Japanese and Korean."
+      },
+
       "keywords": [
         "OCR MCP server",
         "PaddleOCR",
@@ -336,26 +430,57 @@
         "OCR",
         "LaTeX formula recognition",
         "document parsing",
-        "handwriting recognition"
+        "handwriting recognition",
+        "MCP stdio"
       ],
       "summary": {
-        "zh": "基于 PaddleOCR 的 MCP stdio server：文字、表格、手写、公式都能认，公式直接输出 LaTeX；输入支持本地路径和 HTTP(S) URL，pip install 之后就能接进 Claude Desktop。",
-        "en": "A PaddleOCR-backed MCP stdio server: text, tables, handwriting and formulas — with LaTeX output. Inputs can be local paths or HTTP(S) URLs, and one pip install plugs it into Claude Desktop."
+        "zh": "基于 PaddleOCR 的 MCP stdio server，四件工具：文字、表格、手写、公式。公式直接输出 LaTeX，表格输出结构化文本，中英日韩都能认，默认中文。输入收本地路径和 HTTP(S) URL，pip install 之后就能挂进 Claude Desktop。",
+        "en": "A PaddleOCR-backed MCP server on stdio with four tools: text, tables, handwriting and formulas. Formulas come back as LaTeX, tables as structured text, and it reads Chinese, English, Japanese and Korean with Chinese as the default. Inputs are local paths or HTTP(S) URLs, and one pip install plugs it into Claude Desktop."
       },
       "highlights": {
         "zh": [
-          "四个工具：文字、表格、手写、公式识别",
-          "中英日韩多语言，默认中文",
-          "表格识别输出结构化文本",
-          "pip install ocr-mcp，stdio 直接跑"
+          {
+            "title": "四件工具",
+            "body": "文字识别、表格识别、手写识别、公式识别，各走各的接口，不做一锅端的万能 OCR。"
+          },
+          {
+            "title": "公式直接给 LaTeX",
+            "body": "识别出来的是能贴进 Markdown 的源码，不是图片，也不只是一串读不出来的字符。"
+          },
+          {
+            "title": "表格是结构化文本",
+            "body": "行列关系被保留下来，下游可以直接解析，不需要再做一次视觉还原。"
+          },
+          {
+            "title": "本地路径或 URL 都收",
+            "body": "输入既可以是磁盘上的文件，也可以是 HTTP(S) 地址，远程截图不用先落盘。"
+          }
         ],
         "en": [
-          "Four tools: text, table, handwriting and formula recognition",
-          "Chinese, English, Japanese and Korean, Chinese by default",
-          "Table recognition returns structured text",
-          "pip install ocr-mcp, then run over stdio"
+          {
+            "title": "Four tools",
+            "body": "Text, table, handwriting and formula recognition, each behind its own tool, instead of one do-everything OCR endpoint."
+          },
+          {
+            "title": "Formulas come out as LaTeX",
+            "body": "You get source you can paste into Markdown, not an image and not a string of unreadable characters."
+          },
+          {
+            "title": "Tables come out structured",
+            "body": "Rows and columns survive the recognition, so downstream code can parse the result instead of rebuilding the layout by eye."
+          },
+          {
+            "title": "Local paths and URLs both work",
+            "body": "The input can be a file on disk or an HTTP(S) address, so a remote screenshot does not have to be downloaded first."
+          }
         ]
       },
+      "links": [
+        {
+          "label": {"zh": "MIT 许可证", "en": "MIT license"},
+          "href": "https://github.com/LinuxLinking/ocr-mcp/blob/main/LICENSE"
+        }
+      ],
       "repo": "https://github.com/LinuxLinking/ocr-mcp",
       "path": null
     },
@@ -365,29 +490,19 @@
       "order": 6,
       "size": 0.85,
       "monogram": "JV",
-      "accent": [
-        "#ffb35c",
-        "#ff6b4a"
-      ],
+      "accent": ["#ffb35c", "#ff6b4a"],
       "year": "2026",
-      "stack": [
-        "Batch",
-        "Windows",
-        "Java",
-        "MCP"
-      ],
-      "title": {
-        "zh": "JEnv for Windows",
-        "en": "JEnv for Windows"
-      },
-      "label": {
-        "zh": "JEnv",
-        "en": "JEnv"
-      },
+      "stack": ["Batch", "Windows", "Java", "MCP"],
+      "title": {"zh": "JEnv for Windows", "en": "JEnv for Windows"},
+      "label": {"zh": "JEnv", "en": "JEnv"},
       "tagline": {
-        "zh": "用纯批处理按名字切换 JDK",
-        "en": "Switching JDKs by name, in pure batch"
+        "zh": "纯批处理实现的 JDK 切换器",
+        "en": "A JDK switcher written in pure batch"
+      },      "desc": {
+        "zh": "Windows 上的纯批处理 JDK 切换器：java.bat 垫片转发到选中的 JDK，JAVA_HOME 不写死，附只读 MCP server。",
+        "en": "JEnv for Windows is a pure-batch JDK switcher: a java.bat shim forwards to the JDK you pick, and JAVA_HOME never points at a hard-coded path."
       },
+
       "keywords": [
         "JEnv Windows",
         "JDK switcher",
@@ -398,23 +513,53 @@
         "Java toolchain"
       ],
       "summary": {
-        "zh": "一个 java.bat 垫片拦截 PATH 上的 java，把它转发到你选中的 JDK。同一个终端里，两个项目可以跑在两套 JDK 上；JAVA_HOME 永远指向 JEnv 目录，jenv use / jenv local 立刻对读环境变量的工具生效。",
-        "en": "A java.bat shim intercepts java on PATH and forwards it to the JDK you picked — two projects, two JDKs, one terminal. JAVA_HOME always points at the JEnv directory, so jenv use / jenv local take effect immediately for tools that read it."
+        "zh": "一个 java.bat 垫片挡在 PATH 前面，把它转发到你选中的 JDK。同一终端里两个项目可以跑在两套 JDK 上。JAVA_HOME 永远指向 JEnv 目录，jenv use 和 jenv local 立刻对读环境变量的工具生效。附带一个只读 MCP server，让 agent 也能查当前 JDK。",
+        "en": "A java.bat shim sits in front of java on PATH and forwards it to the JDK you picked, so two projects in one terminal can run on two JDKs. JAVA_HOME always points at the JEnv directory, which means jenv use and jenv local take effect immediately for tools that read the environment. A read-only MCP server lets an agent ask which JDK is active."
       },
       "highlights": {
         "zh": [
-          "纯 cmd/batch 实现，不依赖 PowerShell",
-          "JAVA_HOME 恒指向 JEnv 目录，不再写死真实 JDK 路径",
-          "三份纯文本注册表文件，取代 JSON 配置",
-          "附带只读 MCP server，让 agent 查询当前 JDK"
+          {
+            "title": "不依赖 PowerShell",
+            "body": "纯 cmd 和 batch 实现，拷进任何一台 Windows 机器就能用，不挑 shell。"
+          },
+          {
+            "title": "JAVA_HOME 不再写死",
+            "body": "它恒指向 JEnv 目录本身，真实 JDK 路径从注册表文件里读，改版本不用动环境变量。"
+          },
+          {
+            "title": "配置是三份纯文本",
+            "body": "三个注册表文件替掉一份 JSON，diff 得出来，也手改得动。"
+          },
+          {
+            "title": "agent 也能查",
+            "body": "附带只读 MCP server，暴露当前 JDK 和已注册版本，只读，不给它改的机会。"
+          }
         ],
         "en": [
-          "Pure cmd/batch implementation with no PowerShell dependency",
-          "JAVA_HOME always points at JEnv, never a hard-coded JDK path",
-          "Three plain-text registry files instead of JSON",
-          "A read-only MCP server so agents can query the active JDK"
+          {
+            "title": "No PowerShell dependency",
+            "body": "Pure cmd and batch. Copy the folder onto any Windows machine and it works, without caring which shell you have."
+          },
+          {
+            "title": "JAVA_HOME stops being hard-coded",
+            "body": "It always points at the JEnv directory itself while the real JDK paths come from registry files, so switching versions never means editing environment variables."
+          },
+          {
+            "title": "Configuration is three plain files",
+            "body": "Three registry files replace one JSON config: it diffs cleanly and you can still edit it by hand."
+          },
+          {
+            "title": "An agent can ask too",
+            "body": "A read-only MCP server exposes the active JDK and the registered versions. Read-only, by design."
+          }
         ]
       },
+      "links": [
+        {
+          "label": {"zh": "Apache-2.0 许可证", "en": "Apache-2.0 license"},
+          "href": "https://github.com/LinuxLinking/windows-jenv-mcp/blob/main/LICENSE"
+        }
+      ],
       "repo": "https://github.com/LinuxLinking/windows-jenv-mcp",
       "path": null
     },
@@ -424,53 +569,76 @@
       "order": 7,
       "size": 0.85,
       "monogram": "LL",
-      "accent": [
-        "#5aa8ff",
-        "#8ee6ff"
-      ],
+      "accent": ["#5aa8ff", "#8ee6ff"],
       "year": "2026",
-      "stack": [
-        "HTML",
-        "CSS",
-        "ES Modules",
-        "Python"
-      ],
-      "title": {
-        "zh": "linuxlinking.github.io",
-        "en": "linuxlinking.github.io"
-      },
-      "label": {
-        "zh": "This Site",
-        "en": "This Site"
-      },
+      "stack": ["HTML", "CSS", "ES Modules", "Python"],
+      "title": {"zh": "linuxlinking.github.io", "en": "linuxlinking.github.io"},
+      "label": {"zh": "This Site", "en": "This Site"},
       "tagline": {
-        "zh": "你正在看的这个站",
+        "zh": "你现在看到的这个站",
         "en": "The site you are looking at"
+      },      "desc": {
+        "zh": "零依赖的手写静态站：原生 HTML、CSS 与 ES module，Python 脚本构建，Windows XP 桌面，关掉 JS 也能读。",
+        "en": "This site is a hand-written static site: native HTML, CSS and ES modules, built by a dependency-free Python script, with a Windows XP desktop."
       },
+
       "keywords": [
         "static site",
         "vanilla JavaScript",
         "GitHub Pages",
         "Python static site generator",
         "no framework web design",
-        "bilingual website"
+        "bilingual website",
+        "Windows XP desktop"
       ],
       "summary": {
-        "zh": "零依赖的手写静态站：暗底海报的首页、图纸式第二视图、中英切换，全部由原生 HTML/CSS/ES module 完成，没有一个外部库。源码由一个零依赖的 Python 脚本组装，产物仍是可直接发布的静态文件。",
-        "en": "A hand-written static site with no dependencies: an ink-poster home page, a schematic second view and zh/en switching, all in native HTML, CSS and ES modules. The sources are assembled by a dependency-free Python script; the output is still plain static files you can publish as-is."
+        "zh": "手写的静态站：原生 HTML、CSS 和 ES module，一个零依赖的 Python 脚本组装，没有框架、没有 CDN、没有网络字体。桌面是 Windows XP，每个窗口是一个 IE6，但页面在构建期就渲染好了，关掉 JavaScript 也能读完。",
+        "en": "A hand-written static site: native HTML, CSS and ES modules, assembled by a dependency-free Python script. No framework, no CDN, no web fonts. The desktop is Windows XP and every window is an IE6 shell, but the pages are rendered at build time, so the whole thing still reads with JavaScript switched off."
       },
       "highlights": {
         "zh": [
-          "无框架、无 CDN、无网络字体",
-          "首页海报式索引 + 图纸双视图，视图选择会记住",
-          "prefers-reduced-motion 下静态降级",
-          "Soul for U 原样保留在 /soul-for-u/"
+          {
+            "title": "零依赖，零构建",
+            "body": "没有 npm，没有打包器。tools/build.py 只用 Python 标准库，把 pages 和 data 里的内容组装成静态文件。"
+          },
+          {
+            "title": "图标是手绘像素画",
+            "body": "每个图标都是 16×16 的像素图，写死在 tools/xp_icons.py 里，不用图标字体也不用 CDN。"
+          },
+          {
+            "title": "窗口里是真的浏览器外壳",
+            "body": "地址栏能输入、前进后退会置灰、菜单能下拉、对话框能弹，Windows XP 的部分是真做了的。"
+          },
+          {
+            "title": "中英并存于一份 HTML",
+            "body": "两套语言写进同一份产物，靠 html[lang] 切换，不做两份页面，也不用路由。"
+          },
+          {
+            "title": "Soul for U 原地未动",
+            "body": "那个写给一个人的小房间原样留在 /soul-for-u/，只是搬到了隔壁。"
+          }
         ],
         "en": [
-          "No framework, no CDN, no web fonts",
-          "A poster index and a schematic, and the choice is remembered",
-          "Static fallback under prefers-reduced-motion",
-          "Soul for U preserved untouched at /soul-for-u/"
+          {
+            "title": "Zero dependencies, zero build",
+            "body": "No npm, no bundler. tools/build.py uses nothing but the Python standard library to assemble pages and data into static files."
+          },
+          {
+            "title": "The icons are hand-drawn pixels",
+            "body": "Every icon is a 16×16 pixel drawing defined in tools/xp_icons.py. No icon font, no CDN."
+          },
+          {
+            "title": "The windows are real browser chrome",
+            "body": "The address bar takes input, Back and Forward grey out when there is no history, the menus drop down and the dialogs behave. Parts of Windows XP are actually implemented."
+          },
+          {
+            "title": "Two languages in one HTML file",
+            "body": "Both languages ship in the same output and switch on html[lang]. No second page, no router."
+          },
+          {
+            "title": "Soul for U left alone",
+            "body": "That small room written for one person stays exactly where it was at /soul-for-u/ — it only moved next door."
+          }
         ]
       },
       "repo": "https://github.com/LinuxLinking/linuxlinking.github.io",
@@ -482,33 +650,21 @@
       "order": 8,
       "size": 0.85,
       "monogram": "W",
-      "accent": [
-        "#c8a2ff",
-        "#6f7bff"
-      ],
+      "accent": ["#c8a2ff", "#6f7bff"],
       "year": "",
       "stack": [],
-      "title": {
-        "zh": "文字",
-        "en": "Writing"
-      },
-      "label": {
-        "zh": "Writing",
-        "en": "Writing"
-      },
+      "title": {"zh": "文字", "en": "Writing"},
+      "label": {"zh": "Writing", "en": "Writing"},
       "tagline": {
-        "zh": "开始写了",
-        "en": "Now writing"
+        "zh": "四篇关于代理、运行时和守卫的笔记",
+        "en": "Four notes on agents, runtimes and guards"
       },
       "keywords": [],
       "summary": {
-        "zh": "代码之外的记录：守卫、runtime、混血架构、一只笼子。半夜想通的事，先写下来再说。",
-        "en": "Notes beyond code: a guard, a runtime, a hybrid editor, a cage. The things that clicked at 3 a.m., written down."
+        "zh": "代码之外的记录：一个 3B 模型为什么靠不住、一层 runtime 能做什么、一个混血编辑器的代价，以及怎么给不太可信的模型造个笼子。半夜想通的事，先写下来。",
+        "en": "Notes that sit next to the code: why a 3B model cannot be trusted, what a runtime layer actually buys, what a hybrid editor costs, and how to put a cage around a model you do not fully trust. The things that clicked at 3 a.m., written down."
       },
-      "highlights": {
-        "zh": [],
-        "en": []
-      },
+      "highlights": {"zh": [], "en": []},
       "repo": null,
       "path": "blog/"
     },
@@ -518,20 +674,11 @@
       "order": 9,
       "size": 0.85,
       "monogram": "☾",
-      "accent": [
-        "#ffe6a3",
-        "#ffb86b"
-      ],
+      "accent": ["#ffe6a3", "#ffb86b"],
       "year": "2026",
       "stack": [],
-      "title": {
-        "zh": "Soul for U",
-        "en": "Soul for U"
-      },
-      "label": {
-        "zh": "Soul for U",
-        "en": "Soul for U"
-      },
+      "title": {"zh": "Soul for U", "en": "Soul for U"},
+      "label": {"zh": "Soul for U", "en": "Soul for U"},
       "tagline": {
         "zh": "写给一个人的页面",
         "en": "A page written for one person"
@@ -541,10 +688,7 @@
         "zh": "一个只为某个人存在的小房间：星光、一段信、几句悄悄话，配着能循环很久的音乐。它没有被改版，只是搬到了隔壁。",
         "en": "A small room that exists for exactly one person: starlight, a letter, a few whispers, and music that loops for a long time. It wasn't redesigned — it just moved next door."
       },
-      "highlights": {
-        "zh": [],
-        "en": []
-      },
+      "highlights": {"zh": [], "en": []},
       "repo": null,
       "path": "soul-for-u/"
     }

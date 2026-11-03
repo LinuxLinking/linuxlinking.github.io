@@ -1,29 +1,33 @@
 ---
-title: A Cage for One Untrusted Model
+title: A Cage for One Untrusted Model: A Claude Code Hook for LLM Security
 date: 2026-10-31
 tag: MINIMAX LOCKDOWN
-lede: Code handles the certain, humans handle the exceptions, a model handles the gray zone — three layers lock down one untrusted model in Claude Code, and only that one: any other model runs at zero cost.
+lede: MiniMax Lockdown is a Claude Code PreToolUse and PostToolUse hook pair that only engages when the active model is MiniMax: hard denies outside the project, prompts for uncommon downloads, an LLM auditor for the gray zone, and exit 0 for any other model.
 ---
 
-## The problem: why the cage locks exactly one model
+The delete came up again, aimed outside the project directory, because the model had decided a folder was temporary. I could approve it, deny it, or read the path carefully and hope I was reading the right one. All three put the decision in my attention, not in code.
 
-I mix model providers inside Claude Code. Most of the time nothing happens, but one model (let it be MiniMax for now) keeps taking dangerous actions at high frequency: deleting things outside the project, trying to read `~/.ssh`, touching the registry, downloading files from unknown sources.
+I run several providers inside Claude Code, and MiniMax does this often enough that I stopped approving by eye: deleting outside the project, reaching for `~/.ssh`, touching the registry, pulling files from non-package-manager sources. So I built a cage around that model alone: hooks that recognise the active model in the transcript before they touch the tool call.
 
-Other models don't need locking. So the project limits its scope from the name onward: **MiniMax Lockdown, a set of Claude Code hooks that only take effect while the current model is MiniMax.** Every time a hook fires, it first recognises the current model from the transcript; if it isn't MiniMax, it exits immediately with `exit 0` — zero cost, zero popups, and other models never know it happened.
+## Why a Claude Code hook instead of a wrapper?
 
-The cage is custom-made for a repeat offender, not installed on behalf of the whole society.
+A wrapper sits on the wrong side of the call: tool calls happen inside the session, not inside my wrapper.
 
-## Three lines of defence
+Claude Code already gives me the right seat: PreToolUse fires before a tool runs, PostToolUse after it ran. Register there and the guard sees every call with its arguments, in order, for every model in the session. Wrap the model instead and you get a process and a config file per model.
+
+## How do the three layers divide the work?
+
+Each layer answers a different question, and the question decides the layer: mechanical, human, or judgment call.
 
 ```mermaid
 flowchart TD
-    H([PreToolUse triggers]) --> M{Is the current model MiniMax?}
+    H([PreToolUse fires]) --> M{Is the active model MiniMax?}
     M -- No --> Z([exit 0 · zero cost])
-    M -- Yes --> MEM{Approved/denied this session?}
+    M -- Yes --> MEM{Approved or denied this session?}
     MEM -- Approved --> A([Allow])
     MEM -- Denied --> D2([Deny])
     MEM -- Neither --> L1{Mechanical rule}
-    L1 -- Hard deny hit --> D([deny])
+    L1 -- Hard deny hits --> D([deny])
     L1 -- Uncommon action --> ASK([Ask the human])
     L1 -- No match --> L3[Gray zone goes to the audit model]
     L3 --> V{verdict + confidence}
@@ -31,47 +35,53 @@ flowchart TD
     V -- Low-confidence allow --> ASK
     V -- High-confidence deny --> D
     V -- Low-confidence deny --> ASK
-    V -- Audit failed/timed out --> ASK
+    V -- Audit failed or timed out --> ASK
 ```
 
-### Layer one: mechanical rules, for the inevitable
+### Layer one: mechanical rules for the inevitable
 
-Some things need no judgement, only a checklist: deleting or modifying anything outside the project directory, reading `~/.ssh` and `~/.aws`, writing to the registry — **a hard deny, no explanation, no negotiation, never waived.** Paths are normalised first, then checked for containment; the pattern list is resident.
+Some actions need no judgment, only a checklist: deleting or modifying anything outside the project directory, reading `~/.ssh` or `~/.aws`, writing to the registry. Those get a hard deny. No explanation, no negotiation, never waived, and intent never softens it. Paths are normalised first, then checked for containment; the pattern list is resident.
 
-Other actions land in "uncommon but not necessarily bad": downloading a file that did not come from a package manager, for instance. The mechanical layer makes no judgement about those; it uniformly **escalates them to a human popup**. The principle of this layer is: decide outright what you can decide, and never pretend to be sure about what you cannot.
+### Layer two: the human for the uncommon
 
-### Layer two: session memory, for popup fatigue
+Downloads are the interesting case. A file that didn't come from a package manager isn't automatically malicious, but it isn't something I want a model fetching on its own. The mechanical layer refuses to judge it and escalates it to a prompt: the user sees what was about to be downloaded and answers. The human stays in the loop only where the mechanical answer would be a guess.
 
-Every popup spends the user's patience, and patience is the real budget of any safety mechanism. So the same action should not be asked twice in one session: `(tool, arguments, directory)` is normalised into a single signature, approved actions go into `approved`, denied actions into `denied`.
+### Layer three: the audit model for the gray zone
 
-The cleverer half is the PostToolUse side: any action that was previously popped up about and then **actually ran** proves the user approved it — the hook observes that fact after the fact and records the signature in `approved` on its own. The next identical action passes straight through, no question asked. The safety budget is spent on the first time, not on every time.
-
-There is one deliberate exception: **a hard deny from the mechanical layer never enters the memory.** There is no "I approved it once, so go ahead next time" when it comes to reading `~/.ssh`.
-
-### Layer three: the audit model, for the gray zone
-
-Where mechanical rules cannot help — "write a config file into an unfamiliar path", say — the decision goes to a separate audit model. The prompt supplies the environment facts (the legal toolchain root, the temp directory) and demands structured JSON:
+Some actions are neither forbidden nor rule-covered. "Write a config file into an unfamiliar path" is the classic one. Those go to a separate audit model, and the prompt hands over the environment facts: the legal toolchain root, the temp directory. The auditor answers with structured JSON:
 
 ```json
 {"verdict": "deny", "confidence": 0.92, "severity": "high"}
 ```
 
-The real trick is the **confidence routing** that happens after the verdict arrives:
+### When the hook itself throws
 
-- High-confidence allow → let it through silently (don't bother the user)
-- Low-confidence allow → popup (inclined to allow, but let a human check)
-- High-confidence deny → refuse outright, with the reason and the confidence attached
-- Low-confidence deny → popup
-- **The audit model times out or returns unparseable output → popup, always**
+It asks the human too. The most dangerous death for a safety mechanism is failing open, silently allowing a call it never saw. Every catch in the hook ends the same way: failed, ask a human.
 
-That last line is the floor of the whole system: the fallback is always "hand it to a human", never "treat it as if nothing happened".
+## How do confidence routing and the session memo fight popup fatigue?
 
-## A philosophy of failure
+A popup isn't free: each spends the user's patience, the real budget of any safety mechanism. Ask twice about the same action and the second goes unread.
 
-What if the hook itself throws? Popup, and ask the human. The most dangerous way for a safety mechanism to die is not refusing too much — it is **silently allowing things when it is broken**. Lockdown writes "failed → ask a human" into every single catch.
+The first is confidence routing: the verdict carries a confidence value, and the routing table stays conservative.
 
-## Closing
+- High-confidence allow → let it through
+- Low-confidence allow → prompt the user
+- High-confidence deny → refuse, with reason and confidence attached
+- Low-confidence deny → prompt the user
+- Audit timed out or unparseable → prompt the user
 
-The three layers each cover one stretch: **code handles the certain, humans handle the exceptions, a model handles the gray zone**; the session memory and the confidence routing are what keep the mechanism from driving the user insane. It is not elegant, but every layer maps to a real failure mode, and the whole thing can be uninstalled at any time — swap back a model you trust and the cage disappears on its own.
+That last line is the floor: the fallback is always a human, never treat it as if nothing happened.
 
-The repository is [LinuxLinking/claude-code-minimax-lockdown](https://github.com/LinuxLinking/claude-code-minimax-lockdown), MIT licensed, with a test case suite attached.
+The second is the session memo. The same action shouldn't be asked twice, so `(tool, arguments, directory)` is normalised into one signature: approved ones go into `approved`, denied ones into `denied`, and the next identical call is answered from that list.
+
+The PostToolUse half lets the memo learn on its own: if an action was prompted and then actually ran, the user approved it, and the hook records that signature into `approved` without asking again. One deliberate exception: a hard deny from the mechanical layer never enters the memo. There is no "I approved it once, so go ahead next time" when the path is `~/.ssh`.
+
+## Why does the cage only lock MiniMax, and what does that cost?
+
+Scope is the feature. Every hook checks the model first; if it isn't MiniMax it exits with `exit 0`: zero cost, zero popups. I use several models in one session, and a guard that fired on all of them would only train me to click through popups from the ones I trust.
+
+The cost is honest: the guard is only as good as its idea of the model name in the transcript. Rename the model on the provider side and my check changes too. I'd rather have that failure than a guard I learn to ignore.
+
+The auditor is still a model: a confident wrong deny wastes my time as badly as a confident wrong allow, so my thresholds stay conservative. The mechanical layer only knows paths, so a tool writing dangerous content inside the project slips past.
+
+The repository is [LinuxLinking/claude-code-minimax-lockdown](https://github.com/LinuxLinking/claude-code-minimax-lockdown), MIT licensed, with a test case suite attached. What I haven't solved is how often that auditor is confidently wrong; I can't measure the rate.
