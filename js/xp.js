@@ -47,6 +47,19 @@ const siteRoot = () => document.documentElement.dataset.root || "./";
 const siteUrl = (href) => siteRoot() + String(href).replace(/^\/+/, "");
 const siteHome = () => new URL(siteRoot(), location.href).href;
 
+/* 站点首页就是桌面本身。窗口里再显示一次桌面只会套出一层子桌面，
+   所以窗口里任何指向首页的跳转都改成「回到桌面」：关掉这个窗口。 */
+function isHomeUrl(url, base) {
+  try {
+    const target = new URL(url, base || location.href);
+    const home = new URL(siteHome());
+    if (target.origin !== home.origin) return false;
+    return target.pathname === home.pathname || target.pathname === home.pathname + "index.html";
+  } catch (err) {
+    return false;
+  }
+}
+
 /* 窗口里的页面是另一个文档，它读 localStorage 才知道现在是什么语言。
    干脆把语言写在地址上：桌面切了语言，重开的窗口一定跟着走。 */
 function withLang(url) {
@@ -293,10 +306,32 @@ function openWindow({ url, title, titleEn, iconSvg }) {
   windows.set(key, entry);
 
   frame.addEventListener("load", () => {
+    // 窗口里加载了桌面 = 套出一层子桌面。回到桌面 = 关掉这个窗口。
+    try {
+      if (isHomeUrl(frame.contentWindow.location.href)) {
+        closeWindow(key);
+        return;
+      }
+    } catch (err) {
+      /* 跨域 */
+    }
     fitFrame(frame);
     syncHistory(entry);
     try {
       const doc = frame.contentDocument;
+      // 窗口里的「回到首页」链接直接关窗，别让桌面在窗口里闪一下
+      if (doc && !doc.documentElement.dataset.xpHome) {
+        doc.documentElement.dataset.xpHome = "1";
+        doc.addEventListener("click", (ev) => {
+          const el = ev.target;
+          const link = el && el.closest ? el.closest("a[href]") : null;
+          if (!link) return;
+          if (isHomeUrl(link.getAttribute("href"), doc.baseURI)) {
+            ev.preventDefault();
+            closeWindow(key);
+          }
+        });
+      }
       // mermaid 图是异步画上去的，画完高度变了要再量一次
       if (doc && doc.body && !frame.dataset.xpWatch) {
         frame.dataset.xpWatch = "1";
@@ -459,8 +494,13 @@ function wireToolbar(win, frame, key) {
   const go = () => {
     const target = resolveUrl(address?.value || "");
     if (!target) return;
-    if (frame) frame.src = target;
-    else location.href = target;
+    if (frame) {
+      if (isHomeUrl(target)) {
+        closeWindow(key);
+        return;
+      }
+      frame.src = target;
+    } else location.href = target;
   };
   win.querySelector(".xp-go")?.addEventListener("click", go);
   address?.addEventListener("keydown", (event) => {

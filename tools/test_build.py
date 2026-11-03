@@ -342,6 +342,11 @@ class IeChromeTests(unittest.TestCase):
     def test_home_button_never_loads_the_desktop_inside_the_window(self):
         source = (ROOT / "js" / "xp.js").read_text(encoding="utf-8")
         self.assertNotIn("frame.src = home", source)
+        # 站点首页就是桌面：窗口里加载首页会套出一层子桌面。
+        # 三条路都得拦住 —— 地址栏 goto、窗口里的「回到首页」链接、iframe 直接 load 到首页。
+        self.assertIn("if (isHomeUrl(target))", source)
+        self.assertIn("isHomeUrl(link.getAttribute(\"href\"), doc.baseURI)", source)
+        self.assertIn("isHomeUrl(frame.contentWindow.location.href)", source)
 
     def test_a_page_that_scrolls_itself_keeps_the_single_scrollbar(self):
         # soul-for-u 用 100vh，窗口再撑高就会多出一条滚动条
